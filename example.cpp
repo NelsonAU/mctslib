@@ -8,6 +8,7 @@
 namespace py = pybind11;
 
 
+
 class PyMCTS {
 private:
 	double exploration_weight;
@@ -29,8 +30,10 @@ public:
 		py::object node = initial_node;
 
 		for (int turn_no = 0; turn_no < max_turns; turn_no++) {
-			if (node.attr("is_terminal")().cast<bool>())
+			if (node.attr("is_terminal")().cast<bool>()) {
+				py::print(node, "we are done!");
 				return;
+			}
 			std::cout << turn_no << std::endl;
 			clock_t start = std::clock();
 			clock_t end;
@@ -40,12 +43,12 @@ public:
 				rollout(node);
 				end = std::clock();
 				elapsed_seconds = ((float)end - start)/CLOCKS_PER_SEC;
-				std::cout << elapsed_seconds << std::endl;
 				if (elapsed_seconds > cpu_time) break;
 			}
 
 
 			auto new_node = choose(node);
+			py::print(new_node);
 			node = new_node;
 
 		}
