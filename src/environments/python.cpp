@@ -1,41 +1,16 @@
 #include <iostream>
 #include <limits>
-#include <pybind11/stl.h> //allows automatic conversion of stl containers
+#include <pybind11/stl.h>
+#include "util/nodeclass.cpp"
 
-
-/* 
-class BaseNode {
-	
-	double evaluation; 
-	virtual bool is_terminal(); 
-	virtual BaseNode random_child(); 
-	virtual std::vector<BaseNode> find_children(); 
-}; */
 
 namespace py = pybind11;
-
-class NodeStats {
-public:
-	double evaluation;
-	double backprop_value;
-	int visits;
-
-	NodeStats(double _evaluation) {
-		visits = 1;
-		evaluation = _evaluation;
-		backprop_value = evaluation;
-	}
-
-	const double avg_reward () {
-		if (!visits) return -std::numeric_limits<double>::max();
-		return backprop_value/visits;
-	}
-};
 
 class PyNode {
 public:
 	py::object object;
 	NodeStats* stats;
+
 	PyNode(py::object _object) {
 		object = _object;
 		stats = new NodeStats(object.attr("evaluation").cast<double>());

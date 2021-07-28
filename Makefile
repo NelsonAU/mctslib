@@ -1,9 +1,11 @@
 
 PYBIND_INCLUDES := $(shell python3 -m pybind11 --includes)
 PYBIND_SUFFIX := $(shell python3-config --extension-suffix)
+OPTIONS = -Wall -shared -std=c++11 -fPIC -fvisibility=hidden
+INCLUDES = -I./src
 
 build:
-	c++ -Wall -shared -std=c++11 -fPIC -fvisibility=hidden $(PYBIND_INCLUDES) module.cpp -o mctslib$(PYBIND_SUFFIX)
+	c++ $(OPTIONS) $(INCLUDES) $(PYBIND_INCLUDES) src/module.cpp -o mctslib$(PYBIND_SUFFIX)
 
 tests: build
 	python3 tests.py

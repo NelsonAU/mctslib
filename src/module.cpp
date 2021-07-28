@@ -1,6 +1,6 @@
 #include <pybind11/pybind11.h>
-#include "py.cpp"
-#include "mcts.cpp"
+#include "environments/python.cpp"
+#include "algorithm/mcts.cpp"
 
 namespace py = pybind11;
 
