@@ -30,7 +30,7 @@ if __name__ == "__main__":
 	turn_limit = 100
 	mcts = MCTS()
 	node = Node(0, 0)
-	for i in range(100):
+	for i in range(turn_limit):
 		node = mcts.move(node, exploration_weight=math.sqrt(2), rollout_depth=3,
-				iters=5, cpu_time=0, invert_reward=False)
+				iters=5, invert_reward=False)
 	print(node)

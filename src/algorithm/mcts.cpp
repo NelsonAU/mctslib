@@ -4,7 +4,6 @@
 #include <iostream>
 #include <limits>
 #include <ctime>
-#include <cmath>
 
 #pragma once
 

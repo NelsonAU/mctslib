@@ -1,3 +1,4 @@
+#include <cmath>
 #include <pybind11/pybind11.h>
 #include "environments/python.cpp"
 #include "algorithm/mcts.cpp"
@@ -11,6 +12,6 @@ PYBIND11_MODULE(mctslib, m) {
 		.def(py::init<>())
 		.def("move", &PyMCTS::pyMove, "Uses the given arguments to find the best move",
 			py::arg("node"), py::kw_only(), 
-			py::arg("exploration_weight"), py::arg("rollout_depth"), py::arg("iters"), 
-			py::arg("cpu_time"), py::arg("invert_reward"));
+			py::arg("exploration_weight") = sqrt(2), py::arg("rollout_depth"), 
+			py::arg("iters") = 0, py::arg("cpu_time") = 0, py::arg("invert_reward") = false);
 }
