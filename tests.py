@@ -1,5 +1,5 @@
+import random, math
 from mctslib import MCTS
-import random
 
 class Node:
 	__slots__ = ("x", "y", "evaluation")
@@ -27,5 +27,10 @@ class Node:
 
 
 if __name__ == "__main__":
-	resultant_node = MCTS(1, .1, 10, 100).play(Node(0, 0))
-	print(resultant_node)
+	turn_limit = 100
+	mcts = MCTS()
+	node = Node(0, 0)
+	for i in range(100):
+		node = mcts.move(node, exploration_weight=math.sqrt(2), rollout_depth=3,
+				iters=5, cpu_time=0, invert_reward=False)
+	print(node)

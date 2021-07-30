@@ -4,57 +4,55 @@
 #include <iostream>
 #include <limits>
 #include <ctime>
+#include <cmath>
 
+#pragma once
+
+struct MCTSSettings {
+	double exploration_weight;
+	int rollout_depth;
+	int iters;
+	double cpu_time;
+	bool invert_reward;
+};
 
 template<typename NodeClass>
 class MCTS {
 public:
-	double exploration_weight;
-	double cpu_time;
-	int rollout_depth;
-	int max_turns;
-
 	std::map<NodeClass, std::vector<NodeClass>> children_map;
+	MCTSSettings settings;
 
-	MCTS(double _exploration_weight, double _cpu_time, int _rollout_depth, int _max_turns) {
-		exploration_weight = _exploration_weight;
-		cpu_time = _cpu_time;
-		rollout_depth = _rollout_depth;
-		max_turns = _max_turns;
+	MCTS() {
+		//empty constructor til we have alternative selection functions etc
+		//parameters previously supplied to the constructor will be given to play instead
+		//this makes it easier to have rollout depth scheduling, things like saving PNG of each 
+		//gamestate in the ALE case, etc
 	}
 
-	NodeClass play(NodeClass& initial_node) {
-		NodeClass node = initial_node;
-
-		for (int turn_no = 0; turn_no < max_turns; turn_no++) {
-			if (node.is_terminal()) {
-				return node;
-			}
+	NodeClass move(NodeClass node, const MCTSSettings& _settings) {
+		settings = _settings;
+		if (node.is_terminal()) {
+			return node;
+		}
+		
+		if (settings.cpu_time) {
 			clock_t start = std::clock();
-			clock_t end;
-			double elapsed_seconds;
-			int i = 0;
 			while (true) {
 				rollout(node);
-				end = std::clock();
-				elapsed_seconds = ((float)end - start)/CLOCKS_PER_SEC;
-				if (elapsed_seconds > cpu_time) break;
+				clock_t end = std::clock();
+				double elapsed_seconds = ((float)end - start)/CLOCKS_PER_SEC;
+				if (elapsed_seconds > settings.cpu_time) break;
 			}
-
-
-			auto new_node = choose(node);
-			py::print(node.object, new_node.object, "new node chosen");
-			node = new_node;
-
+		} else {
+			for (int i = 0; i < settings.iters; i++) {
+				rollout(node);
+			}
 		}
-
-		return node;
+		return choose(node);
 	}
 
 	NodeClass choose(NodeClass node)  {
-		py::print("Enter choose");
 		if (!children_map.count(node)) {
-			std::cout << "node not in map" << std::endl;
 			return node.random_child();
 		}
 
@@ -65,7 +63,8 @@ public:
 		int max_idx = 0;
 
 		for (auto node : nodes) {
-			double node_score = node.stats->avg_reward();
+			double avg_reward = node.stats->avg_reward();
+			double node_score = settings.invert_reward ? -avg_reward : avg_reward;
 			if (node_score > max) {
 				max = node_score;
 				max_idx = idx;
@@ -124,7 +123,7 @@ public:
 	double uct(NodeStats& stats) {
 		double avg_reward = stats.avg_reward();
 
-		return avg_reward + exploration_weight * sqrt(std::log(stats.visits)/stats.visits);
+		return avg_reward + settings.exploration_weight * sqrt(std::log(stats.visits)/stats.visits);
 	}
 
 	void expand(NodeClass node) {
@@ -136,7 +135,7 @@ public:
 
 	int simulate(NodeClass start) {
 		NodeClass node = start;
-		for (int i = 0; i < rollout_depth; i++) {
+		for (int i = 0; i < settings.rollout_depth; i++) {
 			if (node.is_terminal()) 
 				return node.stats->evaluation;
 
@@ -154,11 +153,3 @@ public:
 
 };
 
-class PyMCTS : MCTS<PyNode> {
-public:
-	using MCTS<PyNode>::MCTS;
-	py::object pyPlay(py::object object) {
-		auto node = PyNode(object);
-		return play(node).object;
-	}
-};

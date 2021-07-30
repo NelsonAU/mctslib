@@ -1,7 +1,9 @@
 #include <iostream>
 #include <limits>
+#include <stdexcept>
 #include <pybind11/stl.h>
 #include "util/nodeclass.cpp"
+#include "algorithm/mcts.cpp"
 
 
 namespace py = pybind11;
@@ -10,6 +12,8 @@ class PyNode {
 public:
 	py::object object;
 	NodeStats* stats;
+
+	PyNode() {}
 
 	PyNode(py::object _object) {
 		object = _object;
@@ -40,5 +44,27 @@ public:
 
 	friend bool operator< (const PyNode lhs, const PyNode rhs) {
 		return lhs.object < rhs.object;
+	}
+};
+
+
+
+class PyMCTS : MCTS<PyNode> {
+public:
+	using MCTS<PyNode>::MCTS;
+	PyNode cached_node;
+
+	py::object pyMove(py::object object, double exploration_weight, int rollout_depth, int iters, 
+			double cpu_time, bool invert_reward) {
+
+		if (!cpu_time && !iters) {
+			throw std::invalid_argument("Must supply either cpu_time or iters");
+		}
+
+		MCTSSettings settings {exploration_weight, rollout_depth, iters, cpu_time, invert_reward};
+		PyNode node = object.is(cached_node.object) ? cached_node : PyNode(object);
+		
+		cached_node = move(node, settings);
+		return cached_node.object;
 	}
 };
