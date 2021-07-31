@@ -22,8 +22,7 @@ public:
 	MCTSSettings settings;
 	NodeClass current_node;
 
-	MCTS(NodeClass root) {
-		current_node = root;
+	MCTS(NodeClass root) : current_node(root) {
 		//small constructor til we have alternative selection functions etc
 		//parameters previously supplied to the constructor will be given to play instead
 		//this makes it easier to have rollout depth scheduling, things like saving PNG of each 

@@ -13,8 +13,6 @@ public:
 	py::object object;
 	NodeStats* stats;
 
-	PyNode() {}
-
 	PyNode(py::object _object) {
 		object = _object;
 		stats = new NodeStats(object.attr("evaluation").cast<double>());
@@ -53,8 +51,7 @@ class PyMCTS {
 public:
 	MCTS<PyNode> mcts;
 
-	PyMCTS (py::object root) : mcts(root) {
-	}
+	PyMCTS (py::object root) : mcts(root) {}
 
 	py::object pyMove(double exploration_weight, int rollout_depth, int iters, 
 			double cpu_time, bool invert_reward) {
