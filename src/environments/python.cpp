@@ -13,10 +13,8 @@ public:
 	py::object object;
 	NodeStats* stats;
 
-	PyNode(py::object _object) {
-		object = _object;
-		stats = new NodeStats(object.attr("evaluation").cast<double>());
-	}
+	PyNode(py::object _object) : object(_object), 
+		stats(new NodeStats(object.attr("evaluation").cast<double>())) {}
 
 	bool is_terminal() {
 		return object.attr("is_terminal")().cast<bool>();
