@@ -28,9 +28,8 @@ class Node:
 
 if __name__ == "__main__":
 	turn_limit = 100
-	mcts = MCTS()
+	mcts = MCTS(Node(0, 0))
 	node = Node(0, 0)
 	for i in range(turn_limit):
-		node = mcts.move(node, exploration_weight=math.sqrt(2), rollout_depth=3,
-				iters=5, invert_reward=False)
+		node = mcts.move(rollout_depth=3, iters=5)
 	print(node)

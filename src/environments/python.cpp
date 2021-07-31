@@ -49,12 +49,14 @@ public:
 
 
 
-class PyMCTS : MCTS<PyNode> {
+class PyMCTS {
 public:
-	using MCTS<PyNode>::MCTS;
-	PyNode cached_node;
+	MCTS<PyNode> mcts;
 
-	py::object pyMove(py::object object, double exploration_weight, int rollout_depth, int iters, 
+	PyMCTS (py::object root) : mcts(root) {
+	}
+
+	py::object pyMove(double exploration_weight, int rollout_depth, int iters, 
 			double cpu_time, bool invert_reward) {
 
 		if (!cpu_time && !iters) {
@@ -62,9 +64,8 @@ public:
 		}
 
 		MCTSSettings settings {exploration_weight, rollout_depth, iters, cpu_time, invert_reward};
-		PyNode node = object.is(cached_node.object) ? cached_node : PyNode(object);
 		
-		cached_node = move(node, settings);
-		return cached_node.object;
+		return mcts.move(settings).object;
 	}
 };
+

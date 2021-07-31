@@ -20,34 +20,37 @@ class MCTS {
 public:
 	std::map<NodeClass, std::vector<NodeClass>> children_map;
 	MCTSSettings settings;
+	NodeClass current_node;
 
-	MCTS() {
-		//empty constructor til we have alternative selection functions etc
+	MCTS(NodeClass root) {
+		current_node = root;
+		//small constructor til we have alternative selection functions etc
 		//parameters previously supplied to the constructor will be given to play instead
 		//this makes it easier to have rollout depth scheduling, things like saving PNG of each 
 		//gamestate in the ALE case, etc
 	}
 
-	NodeClass move(NodeClass node, const MCTSSettings& _settings) {
+	NodeClass move(const MCTSSettings& _settings) {
 		settings = _settings;
-		if (node.is_terminal()) {
-			return node;
+		if (current_node.is_terminal()) {
+			return current_node;
 		}
 		
 		if (settings.cpu_time) {
 			clock_t start = std::clock();
 			while (true) {
-				rollout(node);
+				rollout(current_node);
 				clock_t end = std::clock();
 				double elapsed_seconds = ((float)end - start)/CLOCKS_PER_SEC;
 				if (elapsed_seconds > settings.cpu_time) break;
 			}
 		} else {
 			for (int i = 0; i < settings.iters; i++) {
-				rollout(node);
+				rollout(current_node);
 			}
 		}
-		return choose(node);
+		current_node = choose(current_node);
+		return current_node;
 	}
 
 	NodeClass choose(NodeClass node)  {

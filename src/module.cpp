@@ -9,9 +9,8 @@ PYBIND11_MODULE(mctslib, m) {
 	m.doc() = "pybind11 example plugin";
 	
 	py::class_<PyMCTS>(m, "MCTS")
-		.def(py::init<>())
+		.def(py::init<py::object>())
 		.def("move", &PyMCTS::pyMove, "Uses the given arguments to find the best move",
-			py::arg("node"), py::kw_only(), 
 			py::arg("exploration_weight") = sqrt(2), py::arg("rollout_depth"), 
 			py::arg("iters") = 0, py::arg("cpu_time") = 0, py::arg("invert_reward") = false);
 }
