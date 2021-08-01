@@ -1,30 +1,30 @@
 #include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <memory>
 #include <pybind11/stl.h>
-#include "util/nodeclass.cpp"
+#include "util/nodestats.cpp"
 #include "algorithm/mcts.cpp"
-
 
 namespace py = pybind11;
 
 class PyNode {
 public:
 	py::object object;
-	NodeStats* stats;
+	std::shared_ptr<NodeStats> stats;
 
 	PyNode(py::object _object) : object(_object), 
-		stats(new NodeStats(object.attr("evaluation").cast<double>())) {}
+		stats(std::make_shared<NodeStats>(object.attr("evaluation").cast<double>())) {}
 
-	bool is_terminal() {
+	bool is_terminal() const {
 		return object.attr("is_terminal")().cast<bool>();
 	}
 
-	PyNode random_child() {
+	PyNode random_child() const {
 		return PyNode(object.attr("random_child")());
 	}
 
-	std::vector<PyNode> find_children() {
+	std::vector<PyNode> find_children() const {
 		//possible to make automatic conversion from py::list to std::vector<py::object> but
 		//this still copies, and we have to convert to Node Class in either case
 		py::list list = object.attr("find_children")();

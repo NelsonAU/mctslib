@@ -15,21 +15,21 @@ struct MCTSSettings {
 	bool invert_reward;
 };
 
-template<typename NodeClass>
+template<typename Node>
 class MCTS {
 public:
-	std::map<NodeClass, std::vector<NodeClass>> children_map;
+	std::map<Node, std::vector<Node>> children_map;
 	MCTSSettings settings;
-	NodeClass current_node;
+	Node current_node;
 
-	MCTS(NodeClass root) : current_node(root) {
+	MCTS(const Node root) : current_node(root) {
 		//small constructor til we have alternative selection functions etc
 		//parameters previously supplied to the constructor will be given to play instead
 		//this makes it easier to have rollout depth scheduling, things like saving PNG of each 
 		//gamestate in the ALE case, etc
 	}
 
-	NodeClass move(const MCTSSettings& _settings) {
+	const Node move(const MCTSSettings& _settings) {
 		settings = _settings;
 		if (current_node.is_terminal()) {
 			return current_node;
@@ -52,7 +52,7 @@ public:
 		return current_node;
 	}
 
-	NodeClass choose(NodeClass node)  {
+	const Node choose(const Node& node)  {
 		if (!children_map.count(node)) {
 			return node.random_child();
 		}
@@ -75,7 +75,7 @@ public:
 		return nodes[max_idx];
 	}
 
-	void rollout(const NodeClass node) {
+	const void rollout(const Node& node) {
 		auto path = select(node);
 		auto leaf = path.back();
 		expand(leaf);
@@ -83,9 +83,9 @@ public:
 		backpropagate(path, reward);
 	}
 
-	std::vector<NodeClass> select(NodeClass node) {
-		std::vector<NodeClass> path;
-		NodeClass local_node = node;
+	const std::vector<Node> select(const Node& node) {
+		std::vector<Node> path;
+		Node local_node = node;
 		while (true) {
 			path.push_back(local_node);
 			if (!children_map.count(local_node) || local_node.is_terminal())
@@ -102,7 +102,7 @@ public:
 		}
 	}
 
-	NodeClass uct_select(const NodeClass& node) {
+	Node uct_select(const Node& node) {
 		std::vector<double> ucts;
 
 		auto children = children_map[node];
@@ -121,21 +121,21 @@ public:
 		return children[max_idx];
 	}
 
-	double uct(NodeStats& stats) {
+	double uct(const NodeStats& stats) {
 		double avg_reward = stats.avg_reward();
 
 		return avg_reward + settings.exploration_weight * sqrt(std::log(stats.visits)/stats.visits);
 	}
 
-	void expand(NodeClass node) {
+	void expand(const Node& node) {
 		if (children_map.count(node)) return;
 
 		children_map[node] = node.find_children();
 	}
 
 
-	int simulate(NodeClass start) {
-		NodeClass node = start;
+	int simulate(const Node& start) {
+		Node node = start;
 		for (int i = 0; i < settings.rollout_depth; i++) {
 			if (node.is_terminal()) 
 				return node.stats->evaluation;
@@ -145,8 +145,8 @@ public:
 		return node.stats->evaluation;
 	}
 
-	void backpropagate(const std::vector<NodeClass>& path, const double value) {
-		for (NodeClass node : path) {
+	void backpropagate(const std::vector<Node>& path, const double value) {
+		for (Node node : path) {
 			node.stats->visits++; //TODO: this is probably not the most efficient way to write this
 			node.stats->backprop_value += value;
 		}

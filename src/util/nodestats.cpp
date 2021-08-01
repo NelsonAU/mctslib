@@ -11,7 +11,7 @@ public:
 		backprop_value = evaluation;
 	}
 
-	const double avg_reward () {
+	double avg_reward () const {
 		if (!visits) return -std::numeric_limits<double>::max();
 		return backprop_value/visits;
 	}
