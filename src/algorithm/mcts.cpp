@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <functional>
 #include <limits>
 #include <ctime>
 
@@ -15,56 +16,62 @@ struct MCTSSettings {
 	bool invert_reward;
 };
 
+namespace py = pybind11;
 template<typename Node>
 class MCTS {
 public:
-	std::map<Node, std::vector<Node>> children_map;
+	std::map<Node, Node*> node_ptr_map;
 	MCTSSettings settings;
-	Node current_node;
+	Node* current_node;
 
-	MCTS(const Node root) : current_node(root) {
+	MCTS(Node* root) : current_node(root) {
 		//small constructor til we have alternative selection functions etc
 		//parameters previously supplied to the constructor will be given to play instead
 		//this makes it easier to have rollout depth scheduling, things like saving PNG of each 
 		//gamestate in the ALE case, etc
 	}
 
-	const Node move(const MCTSSettings& _settings) {
+	~MCTS() {
+		for (auto [_, node_ptr] : node_ptr_map) {
+			delete node_ptr;
+		}
+	}
+
+	Node move(const MCTSSettings& _settings) {
 		settings = _settings;
-		if (current_node.is_terminal()) {
-			return current_node;
+		if (current_node->been_expanded && !current_node->children.size()) {
+			return *current_node;
 		}
 		
 		if (settings.cpu_time) {
 			clock_t start = std::clock();
 			while (true) {
-				rollout(current_node);
+				rollout(*current_node);
 				clock_t end = std::clock();
 				double elapsed_seconds = ((float)end - start)/CLOCKS_PER_SEC;
 				if (elapsed_seconds > settings.cpu_time) break;
 			}
 		} else {
 			for (int i = 0; i < settings.iters; i++) {
-				rollout(current_node);
+				rollout(*current_node);
 			}
 		}
-		current_node = choose(current_node);
-		return current_node;
+		current_node = choose(*current_node);
+		return *current_node;
 	}
 
-	const Node choose(const Node& node)  {
-		if (!children_map.count(node)) {
-			return node.random_child();
+	Node* choose(const Node& node) {
+		if (!node.been_expanded) {
+			throw std::invalid_argument("Node must be expanded before choose is called");
 		}
 
-		auto nodes = children_map[node];
 
 		double max = -std::numeric_limits<double>::max();
 		int idx = 0;
 		int max_idx = 0;
 
-		for (auto node : nodes) {
-			double avg_reward = node.stats->avg_reward();
+		for (Node* child : node.children) {
+			double avg_reward = child->stats.avg_reward();
 			double node_score = settings.invert_reward ? -avg_reward : avg_reward;
 			if (node_score > max) {
 				max = node_score;
@@ -72,85 +79,100 @@ public:
 			}
 			idx++;
 		}
-		return nodes[max_idx];
+		return node.children[max_idx];
 	}
 
-	const void rollout(const Node& node) {
+	void rollout(Node& node) {
 		auto path = select(node);
 		auto leaf = path.back();
 		expand(leaf);
-		int reward = simulate(leaf);
+		double reward = simulate(leaf);
 		backpropagate(path, reward);
 	}
 
-	const std::vector<Node> select(const Node& node) {
-		std::vector<Node> path;
-		Node local_node = node;
+	const std::vector<std::reference_wrapper<Node>> select(Node& initial_node) {
+		std::vector<std::reference_wrapper<Node>> path {std::ref(initial_node)};
+		Node node = initial_node;
 		while (true) {
-			path.push_back(local_node);
-			if (!children_map.count(local_node) || local_node.is_terminal())
+			if (!node.been_expanded || !node.children.size())
 				return path;
 
-			for (auto child : children_map[local_node]) {
-				if (!children_map.count(child)) {
-					path.push_back(child);
+			for (Node* child : node.children) {
+				if (!child->been_expanded) {
+					path.push_back(std::ref(*child));
 					return path;
 				}
 			}
-
-			local_node = uct_select(local_node);
+			//confused about how to get this to not happen...
+			Node& temp = uct_select(node);
+			path.push_back(std::ref(temp));
+			node = temp;
 		}
 	}
 
-	Node uct_select(const Node& node) {
+	Node& uct_select(const Node& node) {
 		std::vector<double> ucts;
+		ucts.reserve(node.children.size());
 
-		auto children = children_map[node];
 		int max_idx = 0;
 		double top_score = -std::numeric_limits<double>::max();
 		double score;
 
-		for (int i = 0; i < children.size(); i++) {
-			score = uct(*children[i].stats);
+		for (int i = 0; i < node.children.size(); i++) {
+			score = uct(node.children[i]->stats);
 			if (score > top_score) {
 				top_score = score;
 				max_idx = i;
 			}
 		}
 
-		return children[max_idx];
+		return *node.children[max_idx];
 	}
 
 	double uct(const NodeStats& stats) {
 		double avg_reward = stats.avg_reward();
-
 		return avg_reward + settings.exploration_weight * sqrt(std::log(stats.visits)/stats.visits);
 	}
 
-	void expand(const Node& node) {
-		if (children_map.count(node)) return;
+	void expand(Node& node) {
+		if (node.been_expanded) return;
 
-		children_map[node] = node.find_children();
+		node.create_children();
+		node.been_expanded = true;
+		for (size_t i = 0; i < node.children.size(); i++) {
+			if (node_ptr_map.count(*node.children[i])) {
+				//if we've seen this node before we should get the canonical version
+				//and free the newly created one
+
+				Node* duplicate_node_ptr = node.children[i];
+				node.children[i] = node_ptr_map[*node.children[i]];
+				delete duplicate_node_ptr;
+			} else {
+				//otherwise, we should insert it into the map
+				node_ptr_map[*node.children[i]] = node.children[i];
+			}
+		}
 	}
 
 
-	int simulate(const Node& start) {
+	double simulate(const Node& start) {
 		Node node = start;
 		for (int i = 0; i < settings.rollout_depth; i++) {
-			if (node.is_terminal()) 
-				return node.stats->evaluation;
+			if (!node.children.size()) 
+				return node.stats.evaluation;
 
 			node = node.random_child();
 		}
-		return node.stats->evaluation;
+		return node.stats.evaluation;
 	}
 
-	void backpropagate(const std::vector<Node>& path, const double value) {
-		for (Node node : path) {
-			node.stats->visits++; //TODO: this is probably not the most efficient way to write this
-			node.stats->backprop_value += value;
+	void backpropagate(const std::vector<std::reference_wrapper<Node>> path, const double value) {
+		for (Node& node : path) {
+			node.stats.visits++;
+			node.stats.backprop_value += value;
 		}
 	}
+
 
 };
 
