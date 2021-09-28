@@ -6,29 +6,40 @@
 #include <limits>
 #include <ctime>
 
+#include "util/nodestats.cpp"
+
 #pragma once
+
 
 struct MCTSSettings {
 	double exploration_weight;
 	int rollout_depth;
-	int iters;
+	uint iters;
 	double cpu_time;
 	bool invert_reward;
 };
 
-namespace py = pybind11;
-template<typename Node>
+
+template<
+	template<class> class NodeTemplate, 
+	template<class> class NodeStatsTemplate, 
+	typename Action,
+	template <class, class> typename MapTemplate = std::map
+>
 class MCTS {
 public:
-	std::map<Node, Node*> node_ptr_map;
+	using NodeStats = NodeStatsTemplate<Action>;
+	using Node = NodeTemplate<NodeStats>;
+
+	MapTemplate<Node, Node*> node_ptr_map; //TODO make this unordered_map?
 	MCTSSettings settings;
 	Node* current_node;
 
 	MCTS(Node* root) : current_node(root) {
-		//small constructor til we have alternative selection functions etc
-		//parameters previously supplied to the constructor will be given to play instead
-		//this makes it easier to have rollout depth scheduling, things like saving PNG of each 
-		//gamestate in the ALE case, etc
+		/* small constructor til we have alternative selection functions etc */
+		/* parameters previously supplied to the constructor will be given to play instead */
+		/* this makes it easier to have rollout depth scheduling, things like saving PNG of each */ 
+		/* gamestate in the ALE case, etc */
 	}
 
 	~MCTS() {
@@ -52,7 +63,7 @@ public:
 				if (elapsed_seconds > settings.cpu_time) break;
 			}
 		} else {
-			for (int i = 0; i < settings.iters; i++) {
+			for (uint i = 0; i < settings.iters; i++) {
 				rollout(*current_node);
 			}
 		}
@@ -71,8 +82,8 @@ public:
 		int max_idx = 0;
 
 		for (Node* child : node.children) {
-			double avg_reward = child->stats.avg_reward();
-			double node_score = settings.invert_reward ? -avg_reward : avg_reward;
+			double avg_value = child->stats.avg_value();
+			double node_score = settings.invert_reward ? -avg_value : avg_value;
 			if (node_score > max) {
 				max = node_score;
 				max_idx = idx;
@@ -114,11 +125,11 @@ public:
 		std::vector<double> ucts;
 		ucts.reserve(node.children.size());
 
-		int max_idx = 0;
+		uint max_idx = 0;
 		double top_score = -std::numeric_limits<double>::max();
 		double score;
 
-		for (int i = 0; i < node.children.size(); i++) {
+		for (uint i = 0; i < node.children.size(); i++) {
 			score = uct(node.children[i]->stats);
 			if (score > top_score) {
 				top_score = score;
@@ -129,9 +140,10 @@ public:
 		return *node.children[max_idx];
 	}
 
-	double uct(const NodeStats& stats) {
-		double avg_reward = stats.avg_reward();
-		return avg_reward + settings.exploration_weight * sqrt(std::log(stats.visits)/stats.visits);
+	double uct(const NodeStats& stats) const {
+		double avg_value = stats.avg_value();
+		double log_N = std::log(current_node->stats.visits);
+		return avg_value + settings.exploration_weight * sqrt(log_N/stats.visits);
 	}
 
 	void expand(Node& node) {
@@ -141,6 +153,9 @@ public:
 		node.been_expanded = true;
 		for (size_t i = 0; i < node.children.size(); i++) {
 			if (node_ptr_map.count(*node.children[i])) {
+				/* TODO: tried to make this work with smart pointers to avoid explicit delete, */
+				/* 		 that version seeemd more complicated though. Something to revisit */
+
 				//if we've seen this node before we should get the canonical version
 				//and free the newly created one
 
@@ -155,7 +170,7 @@ public:
 	}
 
 
-	double simulate(const Node& start) {
+	double simulate(const Node& start) const {
 		Node node = start;
 		for (int i = 0; i < settings.rollout_depth; i++) {
 			if (!node.children.size()) 
