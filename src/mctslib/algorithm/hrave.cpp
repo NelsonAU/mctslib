@@ -21,6 +21,7 @@ class HRAVE : public MCTS<NodeTemplate, NodeStatsTemplate, Action, MapTemplate> 
 public:
 	using NodeStats = NodeStatsTemplate<Action>;
 	using Node = NodeTemplate<NodeStats>;
+	using AMAFStats = MCTSStats<NoAction>;
 
 	uint equiv_param; //referred to as k in the literature
 
@@ -30,12 +31,12 @@ public:
 	/* the AMAF values are not nodes, but something else. Possibly there should be */
 	/* another template paramater for the AMAF stats, but that seems overkill */
 	/* for now. */
-	std::vector<MCTSStats<>> global_amafs; //TODO: implement for sparse action spaces
+	std::vector<AMAFStats> global_amafs; //TODO: implement for sparse action spaces
 
 	HRAVE(Node* root, int k, size_t action_space_size) 
 		: MCTS<NodeTemplate, NodeStatsTemplate, Action, MapTemplate>(root), equiv_param(k) {
 		global_amafs.reserve(action_space_size);
-		for (uint i = 0; i < action_space_size; i++) global_amafs[i] = MCTSStats();
+		for (uint i = 0; i < action_space_size; i++) global_amafs[i] = AMAFStats();
 	}
 
 	double uct(const NodeStats& stats) const {

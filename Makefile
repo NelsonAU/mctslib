@@ -8,5 +8,5 @@ build:
 	c++ $(OPTIONS) $(INCLUDES) $(PYBIND_INCLUDES) src/module.cpp -o mctslib$(PYBIND_SUFFIX)
 
 tests: build
-	python3 tests.py
+	python3 -m pytest
 

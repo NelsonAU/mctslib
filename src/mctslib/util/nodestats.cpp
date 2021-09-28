@@ -3,7 +3,7 @@
 
 class NoAction {};
 
-template<typename Action = uint>
+template<typename Action>
 struct MCTSStats {
 	int visits;
 	double evaluation; //TODO: make names more clear
