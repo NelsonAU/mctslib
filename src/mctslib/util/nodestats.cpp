@@ -1,7 +1,13 @@
 
 #pragma once
 
-class NoAction {};
+struct NoAction {
+	/* this is very hacky. Not sure what else to do as the compiler seems to give me no choice about */
+	/* including an action type for MCTS. This at least makes it so the user can not specify an */
+	/* action and get no errors when the algorithm doesn't need the action */
+	NoAction() {}
+	NoAction(pybind11::object obj) {}
+};
 
 template<typename Action>
 struct MCTSStats {

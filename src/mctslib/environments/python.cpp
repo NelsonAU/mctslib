@@ -59,9 +59,10 @@ public:
 class PyMCTS {
 public:
 
-	MCTS<PyNode, MCTSStats, NoAction> mcts;
+	MCTS<PyNode, MCTSStats, uint> mcts;
+	using PyNodeCls = PyNode<MCTSStats<uint>>;
 	
-	PyMCTS (py::object root) : mcts(new PyNode<MCTSStats<NoAction>>(root)) {}
+	PyMCTS (py::object root) : mcts(new PyNodeCls(root)) {}
 
 	py::object pyMove(double exploration_weight, int rollout_depth, uint iters, 
 			double cpu_time, bool invert_reward) {

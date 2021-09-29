@@ -1,5 +1,5 @@
 import random, math
-from envs.up_or_right import Node
+from .envs.up_or_right import Node
 from mctslib import MCTS
 
 
