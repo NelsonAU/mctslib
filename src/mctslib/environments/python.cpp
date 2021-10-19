@@ -59,7 +59,7 @@ public:
 class PyMCTS {
 public:
 
-	MCTS<PyNode, MCTSStats, uint> mcts;
+	MCTS<PyNode, MCTSStats, uint, std::map> mcts;
 	using PyNodeCls = PyNode<MCTSStats<uint>>;
 	
 	PyMCTS (py::object root) : mcts(new PyNodeCls(root)) {}
@@ -80,7 +80,7 @@ public:
 
 class PyHRAVE {
 	public:
-	HRAVE<PyNode, MCTSStats, uint> hrave;
+	HRAVE<PyNode, MCTSStats, uint, std::map> hrave;
 
 	PyHRAVE (py::object root, int k, size_t action_space_size) 
 		: hrave(new PyNode<MCTSStats<uint>>(root), k, action_space_size) {}
