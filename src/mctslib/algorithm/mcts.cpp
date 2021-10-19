@@ -24,7 +24,7 @@ template<
 	template<class> class NodeTemplate, 
 	template<class> class NodeStatsTemplate, 
 	typename Action,
-	template <class, class> typename MapTemplate = std::map
+	template<class K, class V, typename...>  class MapTemplate
 >
 class MCTS {
 public:
