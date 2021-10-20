@@ -10,19 +10,19 @@
 #pragma once
 
 
-
 template<
 	template<class> class NodeTemplate,
 	template<class> class NodeStatsTemplate,
 	typename Action,
-	template<class K, class V, typename...>  class MapTemplate
+	template<class K, class V, typename...>  class MapTemplate,
+	template<class T, typename...>  class AMAFContainerTemplate
 >
 class HRAVE : public MCTS<NodeTemplate, NodeStatsTemplate, Action, MapTemplate> {
 public:
 	using NodeStats = NodeStatsTemplate<Action>;
 	using Node = NodeTemplate<NodeStats>;
 	using AMAFStats = MCTSStats<NoAction>;
-
+	using AMAFContainer = AMAFContainerTemplate<Action, AMAFStats>;
 	uint equiv_param; //referred to as k in the literature
 
 	/* This contains MCTSStats rather than the template type paramater because */
@@ -31,12 +31,25 @@ public:
 	/* the AMAF values are not nodes, but something else. Possibly there should be */
 	/* another template paramater for the AMAF stats, but that seems overkill */
 	/* for now. */
-	std::vector<AMAFStats> global_amafs; //TODO: implement for sparse action spaces
+	 AMAFContainer global_amafs; //TODO: implement for sparse action spaces
 
-	HRAVE(Node* root, int k, size_t action_space_size) 
+	HRAVE(Node* root, int k, size_t action_space_size = 0) 
 		: MCTS<NodeTemplate, NodeStatsTemplate, Action, MapTemplate>(root), equiv_param(k) {
-		global_amafs.reserve(action_space_size);
-		for (uint i = 0; i < action_space_size; i++) global_amafs[i] = AMAFStats();
+		if constexpr(std::is_same_v<AMAFContainer, std::vector<AMAFStats>>) {
+
+			//check if we are using a vector to store AMAF values,
+			//if so initialize the entire action space
+
+			global_amafs.reserve(action_space_size);
+			for (uint i = 0; i < action_space_size; i++) {
+				global_amafs[i] = AMAFStats();
+			}
+
+		} else {
+			if (action_space_size) {
+				std::cout << "Do not specify action_space_size for sparse action spaces!!" << std::endl;
+			}
+		}
 	}
 
 	double uct(const NodeStats& stats) const {

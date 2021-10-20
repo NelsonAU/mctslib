@@ -78,9 +78,13 @@ public:
 };
 
 
+template< 
+	template<class K, class V, typename...> class MapTemplate,
+	template<typename...> class AMAFContainerTemplate
+>
 class PyHRAVE {
 	public:
-	HRAVE<PyNode, MCTSStats, uint, std::map> hrave;
+	HRAVE<PyNode, MCTSStats, uint, MapTemplate, AMAFContainerTemplate> hrave;
 
 	PyHRAVE (py::object root, int k, size_t action_space_size) 
 		: hrave(new PyNode<MCTSStats<uint>>(root), k, action_space_size) {}

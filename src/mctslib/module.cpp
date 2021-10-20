@@ -5,6 +5,9 @@
 
 namespace py = pybind11;
 
+template<typename A, typename T, typename... Types>
+using VecWrapper = std::vector<T>;
+
 PYBIND11_MODULE(mctslib, m) {
 	m.doc() = "pybind11 example plugin";
 	
@@ -14,9 +17,10 @@ PYBIND11_MODULE(mctslib, m) {
 			py::arg("exploration_weight") = sqrt(2), py::arg("rollout_depth"), 
 			py::arg("iters") = 0, py::arg("cpu_time") = 0, py::arg("invert_reward") = false);
 
-	py::class_<PyHRAVE>(m, "HRAVE")
+	using DensePyHRAVE = PyHRAVE<std::map, VecWrapper>;
+	py::class_<DensePyHRAVE>(m, "HRAVE")
 		.def(py::init<py::object, int, size_t>())
-		.def("move", &PyHRAVE::pyMove, "Uses the given arguments to find the best move",
+		.def("move", &DensePyHRAVE::pyMove, "Uses the given arguments to find the best move",
 			py::arg("exploration_weight") = sqrt(2), py::arg("rollout_depth"), 
 			py::arg("iters") = 0, py::arg("cpu_time") = 0, py::arg("invert_reward") = false);
 
