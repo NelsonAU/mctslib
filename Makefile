@@ -7,7 +7,7 @@ INCLUDES = -I./src/mctslib
 build:
 	echo PYBIND_INCLUDES: $(PYBIND_INCLUDES)
 	echo PYBIND_SUFFIX: $(PYBIND_SUFFIX)
-	c++ $(OPTIONS) $(INCLUDES) $(PYBIND_INCLUDES) src/mctslib/module.cpp -o src/mctslib$(PYBIND_SUFFIX)
+	c++ $(OPTIONS) $(INCLUDES) $(PYBIND_INCLUDES) src/mctslib/module.cpp -o src/mctslib/mctslib$(PYBIND_SUFFIX)
 
 tests: build
 	python3 -m pytest

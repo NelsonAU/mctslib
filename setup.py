@@ -11,7 +11,7 @@ setup(
 	packages=find_packages('src'),
 	# tell setuptools that all packages will be under the 'src' directory
 	# and nowhere else
-	package_dir={'':'src'},
+	package_dir={'' : 'src'},
 	# add an extension module named 'python_cpp_example' to the package 
 	# 'python_cpp_example'
 	# ext_modules=[CMakeExtension('python_cpp_example/python_cpp_example')],

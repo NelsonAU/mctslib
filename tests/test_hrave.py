@@ -5,7 +5,7 @@ from mctslib import HRAVE
 
 def test_hrave():
 	turn_limit = 100
-	hrave = HRAVE(Node(0, 0), 50, 2)
+	hrave = HRAVE(Node(0, 0), 50, 2, action_space="sparse")
 	for i in range(turn_limit):
 		node = hrave.move(rollout_depth=3, iters=5)
 		if i == turn_limit - 1:
