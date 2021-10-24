@@ -80,7 +80,7 @@ public:
 
 template< 
 	template<class K, class V, typename...> class MapTemplate,
-	template<typename...> class AMAFContainerTemplate
+	template<class T, typename...> class AMAFContainerTemplate
 >
 class PyHRAVE {
 	public:
