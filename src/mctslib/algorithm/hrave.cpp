@@ -9,6 +9,7 @@
 
 #pragma once
 
+namespace mctslib {
 
 template<
 	template<class> class NodeTemplate,
@@ -73,3 +74,5 @@ public:
 		}
 	}
 };
+
+}

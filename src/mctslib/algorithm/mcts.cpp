@@ -11,6 +11,8 @@
 #pragma once
 
 
+namespace mctslib {
+
 struct MCTSSettings {
 	double exploration_weight;
 	int rollout_depth;
@@ -190,4 +192,4 @@ public:
 
 
 };
-
+}

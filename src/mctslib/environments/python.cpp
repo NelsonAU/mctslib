@@ -10,6 +10,7 @@
 #include "algorithm/mcts.cpp"
 #include "algorithm/hrave.cpp"
 
+namespace mctslib {
 
 namespace py = pybind11;
 
@@ -26,7 +27,8 @@ public:
 
 
 	PyNode(py::object object) : object(object), 
-		stats(object.attr("evaluation").cast<double>(), object.attr("action").cast<decltype (stats.action)>()) {}
+		stats(object.attr("evaluation").cast<double>(), 
+				object.attr("action").cast<decltype (stats.action)>()) {}
 
 	PyNode random_child() const {
 		return PyNode(object.attr("random_child")());
@@ -101,4 +103,4 @@ class PyHRAVE {
 		return hrave.move(settings).object;
 	}
 };
-
+}
