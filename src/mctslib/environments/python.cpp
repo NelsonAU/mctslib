@@ -62,7 +62,7 @@ public:
 	
 	PyMCTS (py::object root) : mcts(new PyNodeCls(root)) {}
 
-	py::object pyMove(double exploration_weight, int rollout_depth, uint iters, 
+	py::object pyMove(int rollout_depth, double exploration_weight, uint iters, 
 			double cpu_time, bool invert_reward) {
 
 		if (!cpu_time && !iters) {
@@ -87,7 +87,7 @@ class PyHRAVE {
 	PyHRAVE (py::object root, int k, size_t action_space_size) 
 		: hrave(new PyNode<MCTSStats<uint>>(root), k, action_space_size) {}
 
-	py::object pyMove(double exploration_weight, int rollout_depth, uint iters, 
+	py::object pyMove(int rollout_depth, double exploration_weight, uint iters, 
 			double cpu_time, bool invert_reward) {
 
 		if (!cpu_time && !iters) {

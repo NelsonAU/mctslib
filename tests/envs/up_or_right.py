@@ -27,8 +27,12 @@ class Node:
 		return (self.x, self.y) == (other.x, other.y)
 
 	def __hash__(self):
-		return hash(self.x, self.y)
+		return hash((self.x, self.y))
 
 	def __repr__(self):
 		return f"Node<{self.x=}, {self.y=}>"
+	
+	@staticmethod
+	def get_action_space_size():
+		return 2
 

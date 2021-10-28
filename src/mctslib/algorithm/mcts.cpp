@@ -33,16 +33,11 @@ public:
 	using NodeStats = NodeStatsTemplate<Action>;
 	using Node = NodeTemplate<NodeStats>;
 
-	MapTemplate<Node, Node*> node_ptr_map; //TODO make this unordered_map?
+	MapTemplate<Node, Node*> node_ptr_map;
 	MCTSSettings settings;
 	Node* current_node;
 
-	MCTS(Node* root) : current_node(root) {
-		/* small constructor til we have alternative selection functions etc */
-		/* parameters previously supplied to the constructor will be given to play instead */
-		/* this makes it easier to have rollout depth scheduling, things like saving PNG of each */ 
-		/* gamestate in the ALE case, etc */
-	}
+	MCTS(Node* root) : current_node(root) {}
 
 	~MCTS() {
 		for (auto [_, node_ptr] : node_ptr_map) {
@@ -52,11 +47,14 @@ public:
 
 	Node move(const MCTSSettings& _settings) {
 		settings = _settings;
+		if (settings.cpu_time <= 0 && !settings.iters) {
+			throw std::invalid_argument("Must supply positive cpu_time or non-zero iters to move");
+		}
 		if (current_node->been_expanded && !current_node->children.size()) {
 			return *current_node;
 		}
 		
-		if (settings.cpu_time) {
+		if (settings.cpu_time > 0) {
 			clock_t start = std::clock();
 			while (true) {
 				rollout(*current_node);

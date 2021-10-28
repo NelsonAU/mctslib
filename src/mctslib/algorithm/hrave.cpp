@@ -24,7 +24,7 @@ public:
 	using Node = NodeTemplate<NodeStats>;
 	using AMAFStats = MCTSStats<NoAction>;
 	using AMAFContainer = AMAFContainerTemplate<Action, AMAFStats>;
-	uint equiv_param; //referred to as k in the literature
+	uint equiv_param; //also known as k
 
 	/* This contains MCTSStats rather than the template type paramater because */
 	/* we only need the things that MCTS stores, because the action is the key */
@@ -34,7 +34,7 @@ public:
 	/* for now. */
 	 AMAFContainer global_amafs; //TODO: implement for sparse action spaces
 
-	HRAVE(Node* root, int k, size_t action_space_size = 0) 
+	HRAVE(Node* root, int k, ssize_t action_space_size = -1) 
 		: MCTS<NodeTemplate, NodeStatsTemplate, Action, MapTemplate>(root), equiv_param(k) {
 		if constexpr(std::is_same_v<AMAFContainer, std::vector<AMAFStats>>) {
 
@@ -47,8 +47,8 @@ public:
 			}
 
 		} else {
-			if (action_space_size) {
-				std::cout << "Do not specify action_space_size for sparse action spaces!!" << std::endl;
+			if (action_space_size != -1) {
+				throw std::invalid_argument("Do not specify action_space_size for sparse action spaces!");
 			}
 		}
 	}
