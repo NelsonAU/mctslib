@@ -1,14 +1,15 @@
-from .mctslib import *
+from . import mctslib
+from .mctslib import MCTS
 
 
-def HRAVE(root, *args, action_space=None, **kwargs):
-	if action_space == "sparse":
-		return SparseHRAVE(root, *args, **kwargs)
 
-	if action_space == "dense":
-		return DenseHRAVE(root, *args, **kwargs)
+def HRAVE(root, *args, action_space=None, hashable=False, **kwargs):
+    if action_space not in ("dense", "sparse"):
+        raise ValueError("Must provide action_space argument to HRAVE")
 
-	raise ValueError()
+    hashable_str = "Hashable" if hashable else ""
+    cls = getattr(mctslib, f"{hashable_str}{action_space.capitalize()}HRAVE")
+    return cls(root, *args, **kwargs)
 
 
 __all__ = [HRAVE, MCTS]

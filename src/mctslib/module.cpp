@@ -2,11 +2,10 @@
 #include <pybind11/pybind11.h>
 #include "environments/python.cpp"
 #include "algorithm/mcts.cpp"
+#include "util/vecwrapper.hpp"
 
 namespace py = pybind11;
 
-template<typename A, typename T, typename... Types>
-using VecWrapper = std::vector<T>;
 
 PYBIND11_MODULE(mctslib, m) {
 	m.doc() = "pybind11 example plugin";
@@ -31,5 +30,18 @@ PYBIND11_MODULE(mctslib, m) {
 			py::arg("exploration_weight") = sqrt(2), py::arg("rollout_depth"), 
 			py::arg("iters") = 0, py::arg("cpu_time") = 0, py::arg("invert_reward") = false);
 
+	using HashableDensePyHRAVE = mctslib::PyHRAVE<std::unordered_map, VecWrapper>;
+	py::class_<HashableDensePyHRAVE>(m, "HashableDenseHRAVE")
+		.def(py::init<py::object, int, size_t>())
+		.def("move", &HashableDensePyHRAVE::pyMove, "Uses the given arguments to find the best move",
+			py::arg("exploration_weight") = sqrt(2), py::arg("rollout_depth"), 
+			py::arg("iters") = 0, py::arg("cpu_time") = 0, py::arg("invert_reward") = false);
+
+	using HashableSparsePyHRAVE = mctslib::PyHRAVE<std::unordered_map, std::map>;
+	py::class_<HashableSparsePyHRAVE>(m, "HashableSparseHRAVE")
+		.def(py::init<py::object, int, size_t>())
+		.def("move", &HashableSparsePyHRAVE::pyMove, "Uses the given arguments to find the best move",
+			py::arg("exploration_weight") = sqrt(2), py::arg("rollout_depth"), 
+			py::arg("iters") = 0, py::arg("cpu_time") = 0, py::arg("invert_reward") = false);
 
 }

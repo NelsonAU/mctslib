@@ -14,9 +14,6 @@ namespace mctslib {
 
 namespace py = pybind11;
 
-/* TODO: probably would like to find some way to generate these classes automatically. */
-/* Not sure how. */
-
 template<class NodeStats>
 class PyNode {
 public:
@@ -51,11 +48,10 @@ public:
 	}
 
 	friend bool operator== (const PyNode lhs, const PyNode rhs) {
-		return lhs.object == rhs.object;
+		return lhs.object.equal(rhs.object);
 	}
 
 };
-
 
 
 class PyMCTS {
@@ -104,3 +100,13 @@ class PyHRAVE {
 	}
 };
 }
+
+namespace std {
+	template<typename NodeStats> 
+	struct hash<mctslib::PyNode<NodeStats>> {
+		std::size_t operator()(mctslib::PyNode<NodeStats> const& node) const {
+			return (std::size_t) pybind11::hash(node.object);
+		}
+	};
+}
+
