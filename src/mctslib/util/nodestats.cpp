@@ -1,6 +1,7 @@
+#include <pybind11/pybind11.h>
 
 #pragma once
-
+namespace mctslib {
 struct NoAction {
 	/* this is very hacky. Not sure what else to do as the compiler seems to give me no choice about */
 	/* including an action type for MCTS. This at least makes it so the user can not specify an */
@@ -39,3 +40,5 @@ struct RAVEStats {
 struct GRAVEStats {
 //TODO
 };
+
+}
