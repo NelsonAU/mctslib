@@ -7,7 +7,7 @@
 namespace py = pybind11;
 
 
-PYBIND11_MODULE(mctslib, m) {
+PYBIND11_MODULE(mctslibcpp, m) {
 	m.doc() = "pybind11 example plugin";
 	
     using PyMCTS = mctslib::PyMCTS<std::map>;
