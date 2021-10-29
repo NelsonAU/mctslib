@@ -19,6 +19,11 @@ tests: build
 
 clean:
 	rm src/mctslib/mctslib$(PYBIND_SUFFIX)
-	rm -rf src/mctslib.egg-info 
+	rm -rf src/mctslib.egg-info
+
+compile_commands:
+	bear -- c++ $(OPTIONS) $(INCLUDES) $(PYBIND_INCLUDES) src/mctslib/module.cpp -o src/mctslib/mctslib$(PYBIND_SUFFIX)
+	
+
 
 

@@ -10,12 +10,15 @@ from mctslib import HRAVE
 def test_hrave_iters(*, k, turn_limit, action_space, hashable, rollout_depth):
 
 	action_space_size = Node.get_action_space_size() if action_space == "dense" else -1
-	hrave = HRAVE(Node(0, 0), k, action_space_size, 
-				action_space=action_space, hashable=hashable)
+	hrave = HRAVE(Node(0, 0), k, action_space_size, action_space=action_space, hashable=hashable)
 
 	for i in range(turn_limit):
 		node = hrave.move(rollout_depth=rollout_depth, iters=5)
 		if i == turn_limit - 1:
-			print(node)
+			return node
+
+import numpy as np
+
+
 
 
