@@ -53,11 +53,12 @@ public:
 
 };
 
-
+template<template<class K, class V, typename...> class MapTemplate>
 class PyMCTS {
 public:
 
-	MCTS<PyNode, MCTSStats, uint, std::map> mcts;
+	MCTS<PyNode, MCTSStats, uint, MapTemplate> mcts;
+
 	using PyNodeCls = PyNode<MCTSStats<uint>>;
 	
 	PyMCTS (py::object root) : mcts(new PyNodeCls(root)) {}

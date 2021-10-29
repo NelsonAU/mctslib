@@ -10,9 +10,17 @@ namespace py = pybind11;
 PYBIND11_MODULE(mctslib, m) {
 	m.doc() = "pybind11 example plugin";
 	
-	py::class_<mctslib::PyMCTS>(m, "MCTS")
+    using PyMCTS = mctslib::PyMCTS<std::map>;
+	py::class_<PyMCTS>(m, "MCTS")
 		.def(py::init<py::object>())
-		.def("move", &mctslib::PyMCTS::pyMove, "Uses the given arguments to find the best move",
+		.def("move", &PyMCTS::pyMove, "Uses the given arguments to find the best move",
+			py::arg("rollout_depth"), py::arg("exploration_weight") = sqrt(2),
+			py::arg("iters") = 0, py::arg("cpu_time") = 0, py::arg("invert_reward") = false);
+    
+    using HashablePyMCTS = mctslib::PyMCTS<std::unordered_map>;
+	py::class_<HashablePyMCTS>(m, "HashableMCTS")
+		.def(py::init<py::object>())
+		.def("move", &HashablePyMCTS::pyMove, "Uses the given arguments to find the best move",
 			py::arg("rollout_depth"), py::arg("exploration_weight") = sqrt(2),
 			py::arg("iters") = 0, py::arg("cpu_time") = 0, py::arg("invert_reward") = false);
 

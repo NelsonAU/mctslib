@@ -1,16 +1,19 @@
-import random, math
+import pytest
 from .envs.up_or_right import Node
 from mctslib import MCTS
 
+@pytest.mark.parametrize("turn_limit", [50, 100])
+@pytest.mark.parametrize("hashable", [True, False])
+@pytest.mark.parametrize("rollout_depth", [10, 50])
+def test_mcts_iters(*, turn_limit, hashable, rollout_depth):
 
-def test_mcts():
-	turn_limit = 100
-	mcts = MCTS(Node(0, 0))
+	mcts = MCTS(Node(0, 0), hashable=hashable)
+
 	for i in range(turn_limit):
-		node = mcts.move(rollout_depth=3, iters=5)
+		node = mcts.move(rollout_depth=rollout_depth, iters=5)
 		if i == turn_limit - 1:
-			print(node)
+			return node
 
 
-if __name__ == "__main__":
-	test_mcts()
+
+
