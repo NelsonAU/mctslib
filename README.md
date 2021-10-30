@@ -5,7 +5,7 @@ To do development on this project install a recent version of CMake and do
 ```
 $ pip install -r requirements.txt
 $ git submodule init && git submodule update
-$ python3 setup.py develep
+$ python3 setup.py develop
 ```
 
 To run tests do
