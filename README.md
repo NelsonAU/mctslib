@@ -1,14 +1,12 @@
 # mctslib
 
 ## Development setup
-To do development on this project install a recent version of CMake and do
+To do development on this project, do
 ```sh
-$ pip install -r requirements.txt
-$ git submodule init && git submodule update
 $ python3 setup.py develop # setup.py will build and install development version
 ```
 
-To run tests do
+To run tests and flake8 do
 ```sh
 $ tox
 ```
