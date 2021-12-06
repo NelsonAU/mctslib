@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <memory>
 #include <set>
+#include <random>
 
 #include <pybind11/stl.h>
 
@@ -17,6 +18,7 @@ namespace py = pybind11;
 template<class NodeStats>
 class PyNode {
 public:
+    static inline std::mt19937 rng;
 	py::object object;
 	NodeStats stats;
 	std::vector<PyNode*> children;
@@ -28,6 +30,11 @@ public:
 				object.attr("action").cast<decltype (stats.action)>()) {}
 
 	PyNode random_child() const {
+        if (been_expanded) {
+            std::uniform_int_distribution<size_t> dist {0, children.size() - 1};
+            size_t idx = dist(rng);
+            return *children[idx];
+        }
 		return PyNode(object.attr("random_child")());
 	}
 
@@ -42,6 +49,10 @@ public:
 
 		return;
 	}
+
+    bool is_terminal() const {
+        return object.attr("is_terminal")().cast<bool>();
+    }
 
 	friend bool operator< (const PyNode lhs, const PyNode rhs) {
 		return lhs.object < rhs.object;

@@ -173,7 +173,7 @@ public:
 	double simulate(const Node& start) const {
 		Node node = start;
 		for (int i = 0; i < settings.rollout_depth; i++) {
-			if (!node.children.size()) 
+			if (node.is_terminal()) 
 				return node.stats.evaluation;
 
 			node = node.random_child();
