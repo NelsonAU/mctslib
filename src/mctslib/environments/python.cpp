@@ -26,7 +26,7 @@ public:
 
 
 	PyNode(py::object object) : object(object), 
-		stats(object.attr("evaluation").cast<double>(), 
+		stats(object.attr("evaluation")().cast<double>(), 
 				object.attr("action").cast<decltype (stats.action)>()) {}
 
 	PyNode random_child() const {
