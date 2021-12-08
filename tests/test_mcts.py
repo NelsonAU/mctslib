@@ -1,5 +1,5 @@
 import pytest
-from .envs.up_or_right import Node
+from mctslib.envs.up_or_right import Node
 from mctslib import MCTS
 
 

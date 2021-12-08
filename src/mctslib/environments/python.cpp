@@ -51,7 +51,7 @@ public:
     }
 
     bool is_terminal() const {
-        return object.attr("is_terminal")().cast<bool>();
+        return object.attr("is_terminal")().template cast<bool>();
     }
 
     friend bool operator< (const PyNode lhs, const PyNode rhs) {
