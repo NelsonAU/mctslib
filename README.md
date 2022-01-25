@@ -1,17 +1,14 @@
-# mctslib
+# pybind11-tox-template
 
-## Development setup
-To do development on this project, do
-```sh
-$ python3 setup.py develop # setup.py will build and install development version
+This repository is an example of how to package a [pybind11](https://github.com/pybind/pybind11) 
+C++ extension that uses [tox](https://github.com/tox-dev/tox) and [pytest](https://docs.pytest.org) for testing.
+
+## Testing
+To run the tests, install tox by running
+```bash
+$ pip install -r dev_requirements.txt
 ```
-
-To run tests and flake8 do
-```sh
+Then run the tests with
+```bash
 $ tox
-```
-
-Or to run tests quickly without bothering with venv etc. do
-```sh
-$ pytest tests
 ```
