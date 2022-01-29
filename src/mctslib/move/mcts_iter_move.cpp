@@ -1,6 +1,8 @@
 #include <algorithm>
 
-auto mcts_iter_move = [] (auto& alg, auto settings) -> auto {
+#pragma once
+
+const auto mcts_iter_move = [] (auto& alg, auto settings) -> auto {
     alg.body.settings = settings;
     
     for (uint i = 0; i < settings.iters; i++) {

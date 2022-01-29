@@ -5,7 +5,7 @@ from pybind11.setup_helpers import Pybind11Extension
 
 ext_modules = [
     Pybind11Extension(
-        'pybind11_tox_example.cpplib',
+        'mctslib.mctslibcpp',
         sorted(glob("src/**/*.cpp")),
         include_dirs=['src/'],
         extra_compile_args=['-std=c++20']

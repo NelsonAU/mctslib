@@ -1,10 +1,13 @@
-#include "util/no_action.h"
+#include "mctslib/util/no_action.h"
 
+namespace mctslib {
+
+template<class Action = NoAction>
 struct MCTSStats {
     uint visits;
     double evaluation;
     double backprop_value;
-    NoAction action;
+    Action action;
 
     MCTSStats(double eval) : visits(1), evaluation(eval), backprop_value(eval) {}
 
@@ -12,3 +15,5 @@ struct MCTSStats {
         return backprop_value/visits;
     }
 };
+
+}

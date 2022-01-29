@@ -2,17 +2,28 @@
 #include "mctslib/backpropagate/backpropagate.h"
 #include "mctslib/body/body.h"
 #include "mctslib/expand/expand.h"
-#include "mctslib/move/move.h"
 #include "mctslib/rollout/rollout.h"
+#include "mctslib/move/move.h"
+#include "mctslib/node/python_node.h"
 #include "mctslib/select/select.h"
+#include "mctslib/settings/mcts_settings.h"
 #include "mctslib/simulate/simulate.h"
 #include "mctslib/stats/stats.h"
 #include "mctslib/uct/uct.h"
+#include "mctslib/util/no_action.h"
 
-
-template<template<template<class> class, class, class> class BodyTemplate, class Move>
+namespace mctslib {
+template<
+    template<template<class> class, template<class> class, class, class> class BodyTemplate,
+    template<class> class NodeTemplate,
+    class Move
+>
 using MCTS = Algorithm<
-    BodyTemplate<MCTS
+    BodyTemplate,
+    NodeTemplate,
+    MCTSStats,
+    MCTSSettings,
+    NoAction,
     Move,
     decltype(mcts_rollout),
     decltype(mcts_select),
@@ -21,3 +32,4 @@ using MCTS = Algorithm<
     decltype(mcts_simulate),
     decltype(mcts_backpropagate)
 >;
+}

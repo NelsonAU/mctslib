@@ -1,8 +1,11 @@
 #include <pybind11/pybind11.h>
+#include "mctslib/algorithm/algorithm.h"
 
 namespace mctslib {
 
-template<class Alg>
+template<
+    class Alg
+>
 class PyAlg {
 private:
     Alg alg;

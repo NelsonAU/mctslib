@@ -1,3 +1,3 @@
-
-#include "mcts_settings.h"
+#pragma once
+#include "mctslib/settings/mcts_settings.h"
 

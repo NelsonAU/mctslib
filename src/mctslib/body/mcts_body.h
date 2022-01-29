@@ -1,14 +1,16 @@
 
 
+
 template<
     template<class> class NodeTemplate,
-    class _NodeStats,
-    class Settings
+    template<class> class NodeStatsTemplate,
+    typename Action,
+    class Settings_
 >
-class TreeMCTSBody { //TODO: implement DAGMCTSBody
-public:
-    using NodeStats = _NodeStats;
+struct MCTSBody { //TODO: implement DAGMCTSBody
+    using NodeStats = NodeStatsTemplate<Action>;
     using Node = NodeTemplate<NodeStats>;
+    using Settings = Settings_;
     Settings settings;
     Node* current_node;
 };
