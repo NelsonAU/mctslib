@@ -14,7 +14,7 @@ ext_modules = [
 
 
 setup(
-    name='pybind11_tox_example',
+    name='mctslib',
     version='0.1',
     author='David Dunleavy',
     author_email='dunleavyd14@gmail.com',

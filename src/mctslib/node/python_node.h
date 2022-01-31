@@ -2,7 +2,7 @@
 
 #include <pybind11/pybind11.h>
 
-#include "mctslib/util/no_action.h"
+#include "mctslib/util/empty.h"
 
 #pragma once
 
@@ -18,8 +18,8 @@ public:
    
     PythonNode(pybind11::object obj) : object(obj) {
         using Action = decltype(stats.action);
-        if constexpr (std::is_same_v<Action, NoAction>) {
-            stats = NodeStats{object.attr("evaluation")().cast<double>(), NoAction()};
+        if constexpr (std::is_same_v<Action, Empty>) {
+            stats = NodeStats{object.attr("evaluation")().cast<double>()};
         } else {
             stats = NodeStats{object.attr("evaluation")().cast<double>(), object.attr("action").cast<Action>()};
         }
@@ -31,8 +31,22 @@ public:
 
         children.reserve(length);
 
-        for (pybind11::handle child : list)
-            children.push_back(new PythonNode(pybind11::reinterpret_borrow<pybind11::object>(child)));
+        for (pybind11::handle child : list) {
+            children.push_back(
+                new PythonNode(pybind11::reinterpret_borrow<pybind11::object>(child))
+            );
+        }
+        been_expanded = true;
+    }
+
+    PythonNode random_child() const {
+        if (been_expanded) {
+            std::uniform_int_distribution<size_t> dist {0, children.size() - 1};
+            size_t idx = dist(rng);
+            return *children[idx];
+        }
+
+        return PythonNode(object.attr("random_child")());
     }
 
     bool is_terminal() const {

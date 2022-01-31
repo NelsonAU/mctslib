@@ -13,6 +13,8 @@ struct MCTSBody { //TODO: implement DAGMCTSBody
     using Settings = Settings_;
     Settings settings;
     Node* current_node;
+
+    MCTSBody (Node* cur) : current_node(cur) {};
 };
 
 

@@ -1,4 +1,7 @@
 
+#pragma once
+
+namespace mctslib {
 template<
     template<template<class> class, template<class> class, class, class> class BodyTemplate,
     template<class> class NodeTemplate,
@@ -14,6 +17,7 @@ template<
     class Backpropagate
 >
 class Algorithm {
+public:
     using Body = BodyTemplate<NodeTemplate, NodeStatsTemplate, Action, Settings_>;
     using Node = typename Body::Node;
     using NodeStats = typename Body::NodeStats;
@@ -27,4 +31,8 @@ class Algorithm {
     Expand expand;
     Simulate simulate;
     Backpropagate backpropagate;
+
+    template<typename... Args>
+    Algorithm (Node* root, Args... args) : body(root, args...) {}
 };
+}

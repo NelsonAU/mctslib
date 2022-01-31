@@ -1,6 +1,6 @@
 #include <pybind11/pybind11.h>
 #include "mctslib/algorithm/algorithm.h"
-
+#include <iostream>
 namespace mctslib {
 
 template<
@@ -11,14 +11,16 @@ private:
     Alg alg;
 
 public:
-    PyAlg (pybind11::object root) : alg(root) {}
+    template<class... Args>
+    PyAlg (pybind11::object root, Args... args) : alg(new typename Alg::Node(root), args...) {}
 
     template<class... Args>
-    pybind11::object pyMove(Args... args) {
+    pybind11::object move(Args... args) {
+        static_assert(sizeof...(args) > 0, "Settings should not be default constructed in move!");
         using Settings = typename Alg::Settings;
-
+        std::cout << __LINE__ << std::endl;
         Settings settings {args...};
-        return alg.move(settings).object;
+        return alg.move(alg, settings).object;
     }
 };
 

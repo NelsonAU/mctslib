@@ -10,7 +10,7 @@
 #include "mctslib/simulate/simulate.h"
 #include "mctslib/stats/stats.h"
 #include "mctslib/uct/uct.h"
-#include "mctslib/util/no_action.h"
+#include "mctslib/util/empty.h"
 
 namespace mctslib {
 template<
@@ -23,7 +23,7 @@ using MCTS = Algorithm<
     NodeTemplate,
     MCTSStats,
     MCTSSettings,
-    NoAction,
+    Empty,
     Move,
     decltype(mcts_rollout),
     decltype(mcts_select),

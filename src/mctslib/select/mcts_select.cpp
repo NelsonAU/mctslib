@@ -2,29 +2,32 @@
 #include <functional>
 #include <vector>
 
-auto mcts_select = [](auto alg, auto& initial_node) -> auto& {
+namespace mctslib {
+auto mcts_select = [](auto alg, auto& initial_node) -> auto {
     // assumptions: graph of states is a tree
-    using Node = typename decltype(alg)::Node;
-    std::vector<std::reference_wrapper<Node>> path {std::ref(initial_node)};
-    Node node = initial_node;
+    using Node = typename std::remove_reference<decltype(alg)>::type::Node;
+    std::reference_wrapper<Node> ref = initial_node;
+    std::vector<std::reference_wrapper<Node>> path {ref};
 
     for (;;) {
-       if (!node.been_expanded || !node.children.size()) return path;
+        if (!ref.get().been_expanded || !ref.get().children.size()) return path;
 
-       for (Node* child : node.children) {
-           if (!child->been_expanded) {
+        for (Node* child : ref.get().children) {
+            if (!child->been_expanded) {
                path.push_back(std::ref(*child));
                return path;
-           }
-       }
-    }
-    
-    return std::max_element( //replacing uct_select
-        node.children.begin(), 
-        node.children.end(), 
-        [&](const auto& left, const auto& right) {
-            return alg.uct(alg, left.stats) < alg.uct(alg, right.stats);
+            }
         }
-    );
-    
+
+        ref = **std::max_element( //replacing uct_select
+            ref.get().children.begin(), 
+            ref.get().children.end(), 
+            [&](const auto& left, const auto& right) {
+                return alg.uct(alg, left->stats) < alg.uct(alg, right->stats);
+            }
+        );
+
+        path.push_back(ref);
+    }
 };
+}
