@@ -8,7 +8,6 @@ auto mcts_iter_move = []<class Alg>(Alg& alg, typename Alg::Settings settings) -
         alg.rollout(alg, *alg.body.current_node);
     }
 
-        std::cout << "NODE VALUE" << __FILE__ << __LINE__ << std::endl; alg.body.current_node->print();
     alg.body.current_node = *std::max_element(
         alg.body.current_node->children.begin(),
         alg.body.current_node->children.end(),
@@ -17,7 +16,6 @@ auto mcts_iter_move = []<class Alg>(Alg& alg, typename Alg::Settings settings) -
         }
     );
 
-        std::cout << "NODE VALUE" << __FILE__ << __LINE__ << std::endl; alg.body.current_node->print();
     auto out = *alg.body.current_node;
     return out;
 };
