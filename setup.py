@@ -1,14 +1,14 @@
 from glob import glob
+import os.path
 from setuptools import setup, find_packages
 from pybind11.setup_helpers import Pybind11Extension
-
 
 ext_modules = [
     Pybind11Extension(
         'mctslib.mctslibcpp',
         sorted(glob("src/**/*.cpp")),
+        cxx_std=20,
         include_dirs=['src/'],
-        extra_compile_args=['-std=c++20']
     ),
 ]
 
