@@ -1,6 +1,8 @@
+#include <functional>
 
-auto mcts_simulate = [](auto& alg, auto& start) -> double {
-    auto& node = start;
+namespace mctslib {
+auto mcts_simulate = []<class Alg>(Alg& alg, typename Alg::Node& start) -> double {
+    typename Alg::Node node = start;
     for (uint i = 0; i < alg.body.settings.rollout_depth; i++) {
         if (node.is_terminal()) break;
 
@@ -9,3 +11,4 @@ auto mcts_simulate = [](auto& alg, auto& start) -> double {
 
     return node.stats.evaluation;
 };
+}

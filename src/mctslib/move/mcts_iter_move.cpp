@@ -1,16 +1,14 @@
 #include <algorithm>
 #include <iostream>
-
-auto mcts_iter_move = [] (auto& alg, auto settings) -> auto {
+namespace mctslib {
+auto mcts_iter_move = []<class Alg>(Alg& alg, typename Alg::Settings settings) -> auto {
     alg.body.settings = settings;
     
-        std::cout << __LINE__ << std::endl;
     for (uint i = 0; i < settings.iters; i++) {
         alg.rollout(alg, *alg.body.current_node);
-        std::cout << __LINE__ << std::endl;
     }
 
-        std::cout << __LINE__ << alg.body.current_node->children.size() << std::endl;
+        std::cout << "NODE VALUE" << __FILE__ << __LINE__ << std::endl; alg.body.current_node->print();
     alg.body.current_node = *std::max_element(
         alg.body.current_node->children.begin(),
         alg.body.current_node->children.end(),
@@ -19,8 +17,8 @@ auto mcts_iter_move = [] (auto& alg, auto settings) -> auto {
         }
     );
 
-        std::cout << __LINE__ << std::endl;
+        std::cout << "NODE VALUE" << __FILE__ << __LINE__ << std::endl; alg.body.current_node->print();
     auto out = *alg.body.current_node;
-        std::cout << __LINE__ << std::endl;
     return out;
 };
+}

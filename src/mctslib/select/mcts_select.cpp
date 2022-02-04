@@ -3,16 +3,15 @@
 #include <vector>
 
 namespace mctslib {
-auto mcts_select = [](auto alg, auto& initial_node) -> auto {
+auto mcts_select = []<class Alg>(Alg& alg, typename Alg::Node& initial_node) -> auto {
     // assumptions: graph of states is a tree
-    using Node = typename std::remove_reference<decltype(alg)>::type::Node;
-    std::reference_wrapper<Node> ref = initial_node;
-    std::vector<std::reference_wrapper<Node>> path {ref};
+    std::reference_wrapper<typename Alg::Node> ref = initial_node;
+    std::vector<std::reference_wrapper<typename Alg::Node>> path {ref};
 
     for (;;) {
         if (!ref.get().been_expanded || !ref.get().children.size()) return path;
 
-        for (Node* child : ref.get().children) {
+        for (typename Alg::Node* child : ref.get().children) {
             if (!child->been_expanded) {
                path.push_back(std::ref(*child));
                return path;

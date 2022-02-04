@@ -1,3 +1,4 @@
+#include <iostream>
 #include <random>
 
 #include <pybind11/pybind11.h>
@@ -53,6 +54,10 @@ public:
         return object.attr("is_terminal")().template cast<bool>();
     }
 
+    void print() const {
+        pybind11::print(object);
+    }
+
     friend bool operator< (const PythonNode& lhs, const PythonNode& rhs) {
         return lhs.object < rhs.object;
     }
@@ -60,6 +65,7 @@ public:
     friend bool operator== (const PythonNode& lhs, const PythonNode& rhs) {
         return lhs.object.equal(rhs.object);
     }
+
 
 };
 }

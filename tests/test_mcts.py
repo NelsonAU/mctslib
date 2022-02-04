@@ -13,7 +13,6 @@ class Node:
         self.action = action
 
     def find_children(self):
-        print("hello", self)
         return [
                 Node(self.x + 1, self.y, action=0),
                 Node(self.x, self.y + 1, action=1),
@@ -49,6 +48,7 @@ class Node:
 
 def test_mcts():
     alg = MCTS(Node(0, 0))
+    alg.move(2, 10, 5, 0)
     alg.move(2, 10, 5, 0)
 
 
