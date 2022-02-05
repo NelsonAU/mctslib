@@ -7,6 +7,9 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    compiler: ${{ matrix.compiler }}
+    gcc: 11
+    clang: 13
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
