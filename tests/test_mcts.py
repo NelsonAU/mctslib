@@ -1,5 +1,4 @@
 from mctslib import MCTS
-
 import random
 
 
@@ -42,8 +41,6 @@ class Node:
     @staticmethod
     def get_action_space_size():
         return 2
-
-
 
 
 def test_mcts():
