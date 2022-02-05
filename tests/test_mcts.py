@@ -36,7 +36,7 @@ class Node:
         return hash((self.x, self.y))
 
     def __repr__(self):
-        return f"Node<{self.x=}, {self.y=}>"
+        return f"Node<self.x={self.x}, self.y={self.y}>"
 
     @staticmethod
     def get_action_space_size():
