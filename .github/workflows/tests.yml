@@ -7,14 +7,13 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    compiler: ${{ matrix.compiler }}
-    gcc: 11
-    clang: 13
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        compiler: [clang++, gcc-10]
+        os: [ubuntu-latest]
         python-version: ['3.6', '3.7', '3.8', '3.9']
-
+    env:
+      CXX: ${{ matrix.compiler }}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
