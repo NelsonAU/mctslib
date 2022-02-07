@@ -1,6 +1,6 @@
-from . import mctslibcpp
+from . import _mctslib
 
-MCTS = mctslibcpp.MCTS
+MCTS = _mctslib.MCTS
 
 
 __all__ = ("MCTS")

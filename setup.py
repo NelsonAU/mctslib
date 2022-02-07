@@ -4,7 +4,7 @@ from pybind11.setup_helpers import Pybind11Extension
 
 ext_modules = [
     Pybind11Extension(
-        'mctslib.mctslibcpp',
+        'mctslib._mctslib',
         sorted(glob("src/**/*.cpp")),
         cxx_std=20,
         include_dirs=['src/'],

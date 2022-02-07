@@ -9,7 +9,7 @@
 using namespace mctslib;
 namespace py = pybind11;
 
-PYBIND11_MODULE(mctslibcpp, m) {
+PYBIND11_MODULE(_mctslib, m) {
     m.doc() = "pybind11 example plugin"; // optional module docstring
 
     using IterMCTS = MCTS<MCTSBody, PythonNode, decltype(mcts_iter_move)>;
