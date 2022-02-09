@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iostream>
 namespace mctslib {
-auto mcts_iter_move = []<class Alg>(Alg& alg, typename Alg::Settings settings) -> auto {
+inline auto mcts_iter_move = []<class Alg>(Alg& alg, typename Alg::Settings settings) -> auto {
     alg.body.settings = settings;
     
     for (uint i = 0; i < settings.iters; i++) {
@@ -16,7 +16,6 @@ auto mcts_iter_move = []<class Alg>(Alg& alg, typename Alg::Settings settings) -
         }
     );
 
-    auto out = *alg.body.current_node;
-    return out;
+    return *alg.body.current_node;
 };
 }

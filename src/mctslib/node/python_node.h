@@ -1,6 +1,6 @@
 #include <iostream>
 #include <random>
-
+#include <type_traits>
 #include <pybind11/pybind11.h>
 
 #include "mctslib/util/empty.h"

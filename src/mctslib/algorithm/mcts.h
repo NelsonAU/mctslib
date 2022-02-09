@@ -4,9 +4,8 @@
 #include "mctslib/expand/expand.h"
 #include "mctslib/rollout/rollout.h"
 #include "mctslib/move/move.h"
-#include "mctslib/node/python_node.h"
 #include "mctslib/select/select.h"
-#include "mctslib/settings/mcts_settings.h"
+#include "mctslib/settings/settings.h"
 #include "mctslib/simulate/simulate.h"
 #include "mctslib/stats/stats.h"
 #include "mctslib/uct/uct.h"
@@ -14,16 +13,11 @@
 
 namespace mctslib {
 template<
-    template<template<class> class, template<class> class, class, class> class BodyTemplate,
-    template<class> class NodeTemplate,
+    template<class Stats> class NodeTemplate,
     class Move
 >
-using MCTS = Algorithm<
-    BodyTemplate,
-    NodeTemplate,
-    MCTSStats,
-    MCTSSettings,
-    Empty,
+using TreeMCTS = Algorithm<
+    MCTSBody<NodeTemplate, MCTSStats, MCTSSettings>,
     Move,
     decltype(mcts_rollout),
     decltype(mcts_select),

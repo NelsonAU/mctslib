@@ -43,11 +43,7 @@ class Node:
         return 2
 
 
-def test_mcts():
-    alg = MCTS(Node(0, 0))
+def test_tree_iter_mcts():
+    alg = MCTS(Node(0, 0), structure="tree", iter_stop="iters")
     alg.move(2, 10, 5, 0)
     alg.move(2, 10, 5, 0)
-
-
-if __name__ == "__main__":
-    test_mcts()
