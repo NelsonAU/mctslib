@@ -1,11 +1,11 @@
 #include <pybind11/pybind11.h>
 
-#include "mctslib/algorithm/mcts.h"
-#include "mctslib/algorithm/pyalg.h"
-#include "mctslib/body/body.h"
-#include "mctslib/move/move.h"
-#include "mctslib/node/python_node.h"
-#include "mctslib/stats/stats.h"
+#include "algorithm/mcts.h"
+#include "algorithm/pyalg.h"
+#include "body/body.h"
+#include "move/move.h"
+#include "node/python_node.h"
+#include "stats/stats.h"
 
 using namespace mctslib;
 namespace py = pybind11;
@@ -25,10 +25,10 @@ PYBIND11_MODULE(_mctslib, m) {
 
     py::class_<PyTreeIterMCTS>(m, "tree_iters_MCTS")
         .def(py::init<py::object>())
-        .def("move", &TreePyIterMCTS::move<uint, uint, double, double>);
+        .def("move", &PyTreeIterMCTS::move<uint, uint, double, double>);
 
     py::class_<PyTreeCPUMCTS>(m, "tree_cpu_time_MCTS")
         .def(py::init<py::object>())
-        .def("move", &TreePyCPUMCTS::move<uint, uint, double, double>);
+        .def("move", &PyTreeCPUMCTS::move<uint, uint, double, double>);
 
 }

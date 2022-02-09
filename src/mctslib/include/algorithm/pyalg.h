@@ -1,5 +1,5 @@
 #include <pybind11/pybind11.h>
-#include "mctslib/algorithm/algorithm.h"
+#include "algorithm/algorithm.h"
 #include <iostream>
 namespace mctslib {
 

@@ -1,5 +1,5 @@
 #include <type_traits>
-#include "mctslib/util/empty.h"
+#include "util/empty.h"
 
 namespace mctslib {
 
