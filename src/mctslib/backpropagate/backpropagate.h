@@ -1,2 +1,2 @@
-
-#include "mcts_backpropagate.cpp"
+#pragma once
+#include "mctslib/backpropagate/mcts_backpropagate.h"

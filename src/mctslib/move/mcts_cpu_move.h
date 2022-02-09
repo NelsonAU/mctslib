@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <chrono>
 
-const auto mcts_cpu_move = [] (auto& alg, auto settings) -> auto {
+inline auto mcts_cpu_move = [] (auto& alg, auto settings) -> auto {
     alg.body.settings = settings;
     
     auto start = std::chrono::high_resolution_clock::now();

@@ -3,7 +3,7 @@
 #include <vector>
 
 namespace mctslib {
-auto mcts_select = []<class Alg>(Alg& alg, typename Alg::Node& initial_node) -> auto {
+inline auto mcts_select = []<class Alg>(Alg& alg, typename Alg::Node& initial_node) -> auto {
     // assumptions: graph of states is a tree
     std::reference_wrapper<typename Alg::Node> ref = initial_node;
     std::vector<std::reference_wrapper<typename Alg::Node>> path {ref};

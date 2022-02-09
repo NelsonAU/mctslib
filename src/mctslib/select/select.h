@@ -1,3 +1,3 @@
 #pragma once
-#include "mcts_select.cpp"
+#include "mctslib/select/mcts_select.h"
 
