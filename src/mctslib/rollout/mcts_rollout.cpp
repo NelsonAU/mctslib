@@ -3,7 +3,7 @@
 #include <vector>
 
 namespace mctslib {
-auto mcts_rollout = []<class Alg>(Alg& alg, typename Alg::Node& node) -> void {
+inline auto mcts_rollout = []<class Alg>(Alg& alg, typename Alg::Node& node) -> void {
     std::vector<std::reference_wrapper<typename Alg::Node>> path = alg.select(alg, node);
     typename Alg::Node& leaf = path.back();
     alg.expand(alg, leaf);
