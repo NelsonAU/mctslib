@@ -16,18 +16,18 @@ PYBIND11_MODULE(_mctslib, m) {
     using TreeIterMCTS = TreeMCTS<PythonNode, decltype(mcts_iter_move)>;
     using TreeCPUMCTS = TreeMCTS<PythonNode, decltype(mcts_cpu_move)>;
     
-    using TreePyIterMCTS = PyAlg<TreeIterMCTS>;
-    using TreePyCPUMCTS = PyAlg<TreeCPUMCTS>;
+    using PyTreeIterMCTS = PyAlg<TreeIterMCTS>;
+    using PyTreeCPUMCTS = PyAlg<TreeCPUMCTS>;
     //@NOTE:    Must specify template args to move that correspond to the settings of the algorithm.
     //          No way to infer this because the Settings default constructor cannot be deleted,
     //          and because of this the compiler will always choose to decide that the parameter
     //          pack is empty.
 
-    py::class_<TreePyIterMCTS>(m, "tree_iters_MCTS")
+    py::class_<PyTreeIterMCTS>(m, "tree_iters_MCTS")
         .def(py::init<py::object>())
         .def("move", &TreePyIterMCTS::move<uint, uint, double, double>);
 
-    py::class_<TreePyCPUMCTS>(m, "tree_cpu_time_MCTS")
+    py::class_<PyTreeCPUMCTS>(m, "tree_cpu_time_MCTS")
         .def(py::init<py::object>())
         .def("move", &TreePyCPUMCTS::move<uint, uint, double, double>);
 
