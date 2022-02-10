@@ -14,10 +14,11 @@
 namespace mctslib {
 template<
     template<class Stats> class NodeTemplate,
-    class Move
+    class Move,
+    class Settings
 >
 using TreeMCTS = Algorithm<
-    MCTSBody<NodeTemplate, MCTSStats, MCTSSettings>,
+    MCTSBody<NodeTemplate, MCTSStats, Settings>,
     Move,
     decltype(mcts_rollout),
     decltype(mcts_select),

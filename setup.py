@@ -7,7 +7,7 @@ ext_modules = [
         'mctslib._mctslib',
         sorted(glob("src/**/*.cpp")),
         cxx_std=20,
-        include_dirs=['src/mctslib/include'],
+        include_dirs=['src/mctslib/cpp'],
     ),
 ]
 
