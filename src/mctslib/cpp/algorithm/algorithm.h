@@ -2,7 +2,7 @@
 #pragma once
 
 namespace mctslib {
-template<
+template <
     class _Body,
     class Move,
     class Rollout,
@@ -10,8 +10,7 @@ template<
     class UCT,
     class Expand,
     class Simulate,
-    class Backpropagate
->
+    class Backpropagate>
 class Algorithm {
 public:
     using Body = _Body;
@@ -28,7 +27,10 @@ public:
     Simulate simulate;
     Backpropagate backpropagate;
 
-    template<typename... Args>
-    Algorithm (Node* root, Args... args) : body(root, args...) {}
+    template <typename... Args>
+    Algorithm(Node* root, Args... args)
+        : body(root, args...)
+    {
+    }
 };
 }

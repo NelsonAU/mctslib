@@ -2,8 +2,8 @@
 #include "backpropagate/backpropagate.h"
 #include "body/body.h"
 #include "expand/expand.h"
-#include "rollout/rollout.h"
 #include "move/move.h"
+#include "rollout/rollout.h"
 #include "select/select.h"
 #include "settings/settings.h"
 #include "simulate/simulate.h"
@@ -12,11 +12,10 @@
 #include "util/empty.h"
 
 namespace mctslib {
-template<
-    template<class Stats> class NodeTemplate,
+template <
+    template <class Stats> class NodeTemplate,
     class Move,
-    class Settings
->
+    class Settings>
 using TreeMCTS = Algorithm<
     MCTSBody<NodeTemplate, MCTSStats, Settings>,
     Move,
@@ -25,6 +24,5 @@ using TreeMCTS = Algorithm<
     decltype(mcts_uct),
     decltype(mcts_expand),
     decltype(mcts_simulate),
-    decltype(mcts_backpropagate)
->;
+    decltype(mcts_backpropagate)>;
 }
