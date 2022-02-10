@@ -1,1 +1,1 @@
-recursive-include src *.cpp *.hpp *.py
+recursive-include src *.cpp *.h *.hpp *.py

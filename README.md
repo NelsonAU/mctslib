@@ -8,10 +8,7 @@ $ python3 setup.py develop # setup.py will build and install development version
 
 To run tests and flake8 do
 ```sh
-$ tox
+$ tox -e py39,flake8 # substitute 39 for desired python version
 ```
 
-Or to run tests quickly without bothering with venv etc. do
-```sh
-$ pytest tests
-```
+

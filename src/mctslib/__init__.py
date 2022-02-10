@@ -1,19 +1,16 @@
-from . import mctslibcpp
+from . import _mctslib
 
 
-def MCTS(root, *args, hashable=False, **kwargs):
-    hashable_str = "Hashable" if hashable else ""
-    cls = getattr(mctslibcpp, f"{hashable_str}MCTS")
+def MCTS(root, *args, iter_stop=None, structure="tree", **kwargs):
+    if iter_stop not in ("iters", "cpu_time"):
+        raise ValueError(f"Argument iter_stop must be 'iters' or 'cpu_time', not {iter_stop}")
+
+    if structure not in ("tree", "dag"):
+        raise ValueError(f"Argument structure must be 'tree' or 'dag', not {structure}")
+
+    cls = getattr(_mctslib, f"{structure}_{iter_stop}_MCTS")
+
     return cls(root, *args, **kwargs)
 
 
-def HRAVE(root, *args, action_space=None, hashable=False, **kwargs):
-    if action_space not in ("dense", "sparse"):
-        raise ValueError("Must provide action_space argument to HRAVE")
-
-    hashable_str = "Hashable" if hashable else ""
-    cls = getattr(mctslibcpp, f"{hashable_str}{action_space.capitalize()}HRAVE")
-    return cls(root, *args, **kwargs)
-
-
-__all__ = ["MCTS", "HRAVE"]
+__all__ = ("MCTS")

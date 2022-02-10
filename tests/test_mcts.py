@@ -1,16 +1,12 @@
-import pytest
-from mctslib.envs.up_or_right import Node
 from mctslib import MCTS
+from mctslib.envs.up_or_right import Node
 
 
-@pytest.mark.parametrize("turn_limit", [50, 100])
-@pytest.mark.parametrize("hashable", [True, False])
-@pytest.mark.parametrize("rollout_depth", [10, 50])
-def test_mcts_iters(*, turn_limit, hashable, rollout_depth):
+def test_tree_iter_mcts():
+    alg = MCTS(Node(0, 0), structure="tree", iter_stop="iters")
+    alg.move(rollout_depth=10, iters=10, exploration_weight=2)
 
-    mcts = MCTS(Node(0, 0), hashable=hashable)
 
-    for i in range(turn_limit):
-        node = mcts.move(rollout_depth=rollout_depth, iters=5)
-        if i == turn_limit - 1:
-            return node
+def test_tree_cpu_time_mcts():
+    alg = MCTS(Node(0, 0), structure="tree", iter_stop="cpu_time")
+    alg.move(rollout_depth=10, cpu_time=.2, exploration_weight=2)
