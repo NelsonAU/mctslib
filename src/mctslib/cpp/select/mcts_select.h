@@ -13,7 +13,7 @@ inline auto mcts_select = []<class Alg>(Alg & alg, typename Alg::Node& initial_n
     std::vector<std::reference_wrapper<typename Alg::Node>> path { ref };
 
     for (;;) {
-        if (!ref.get().been_expanded() || !ref.get().children.size())
+        if (!ref.get().been_expanded() || !ref.get().children.size()) // TODO: make this more clear
             return path;
 
         for (std::shared_ptr<typename Alg::Node> child : ref.get().children) {

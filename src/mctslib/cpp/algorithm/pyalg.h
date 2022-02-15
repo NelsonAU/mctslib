@@ -21,7 +21,6 @@ public:
     {
         static_assert(sizeof...(args) > 0, "Settings should not be default constructed in move!");
         using Settings = typename Alg::Settings;
-        std::cout << __LINE__ << std::endl;
         Settings settings { args... };
         return alg.move(alg, settings).object;
     }
