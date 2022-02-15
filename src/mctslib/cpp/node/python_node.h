@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <pybind11/pybind11.h>
 #include <random>
 #include <type_traits>
@@ -11,12 +12,12 @@ namespace mctslib {
 template <class NodeStats>
 class PythonNode {
     static inline std::mt19937 rng;
+    bool _been_expanded = false;
 
 public:
     pybind11::object object;
     NodeStats stats;
-    std::vector<PythonNode*> children;
-    bool been_expanded = false;
+    std::vector<std::shared_ptr<PythonNode>> children;
 
     PythonNode(pybind11::object obj)
         : object(obj)
@@ -38,14 +39,14 @@ public:
 
         for (pybind11::handle child : list) {
             children.push_back(
-                new PythonNode(pybind11::reinterpret_borrow<pybind11::object>(child)));
+                std::make_shared<PythonNode>(pybind11::reinterpret_borrow<pybind11::object>(child)));
         }
-        been_expanded = true;
+        _been_expanded = true;
     }
 
     PythonNode random_child() const
     {
-        if (been_expanded) {
+        if (been_expanded()) {
             std::uniform_int_distribution<size_t> dist { 0, children.size() - 1 };
             size_t idx = dist(rng);
             return *children[idx];
@@ -57,6 +58,11 @@ public:
     bool is_terminal() const
     {
         return object.attr("is_terminal")().template cast<bool>();
+    }
+
+    bool been_expanded() const
+    {
+        return _been_expanded;
     }
 
     void print() const

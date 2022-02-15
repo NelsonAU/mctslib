@@ -1,4 +1,5 @@
 #include "util/empty.h"
+#include <memory>
 
 template <
     template <class> class NodeTemplate,
@@ -11,7 +12,7 @@ struct MCTSBody { // TODO: implement DAGMCTSBody
     using Action = Empty;
 
     Settings settings;
-    Node* current_node;
+    std::shared_ptr<Node> current_node;
 
     MCTSBody(Node* cur)
         : current_node(cur) {};
