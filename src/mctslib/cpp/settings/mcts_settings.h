@@ -7,7 +7,6 @@ struct CPUMCTSSettings {
 
 struct IterMCTSSettings {
     uint rollout_depth;
-    uint iters; 
+    uint iters;
     double exploration_weight;
 };
-
