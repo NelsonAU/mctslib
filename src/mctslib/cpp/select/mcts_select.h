@@ -16,7 +16,7 @@ inline auto mcts_select = []<class Alg>(Alg & alg, typename Alg::Node& initial_n
         if (!ref.get().been_expanded() || !ref.get().children.size()) // TODO: make this more clear
             return path;
 
-        for (std::shared_ptr<typename Alg::Node> child : ref.get().children) {
+        for (std::shared_ptr<typename Alg::Node> child : ref.get().children) { //find unexpanded node
             if (!child->been_expanded()) {
                 path.push_back(std::ref(*child));
                 return path;

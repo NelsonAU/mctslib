@@ -1,4 +1,5 @@
 #include "util/empty.h"
+#include <limits>
 #include <type_traits>
 
 namespace mctslib {
@@ -13,15 +14,16 @@ struct MCTSStats {
 
     MCTSStats() = default;
     MCTSStats(double eval)
-        : visits(1)
+        : visits(0)
         , evaluation(eval)
-        , backprop_value(eval)
+        , backprop_value(0)
     {
     }
 
     double avg_value() const
     {
-        return backprop_value / visits;
+        
+        return visits ? backprop_value / visits : std::numeric_limits<double>::min();
     }
 };
 
