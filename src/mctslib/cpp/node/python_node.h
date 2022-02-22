@@ -11,10 +11,10 @@
 namespace mctslib {
 template <class NodeStats>
 class PythonNode {
-    static inline std::mt19937 rng;
     bool _been_expanded = false;
 
 public:
+    static inline std::mt19937 rng;
     pybind11::object object;
     NodeStats stats;
     std::vector<std::shared_ptr<PythonNode>> children;
