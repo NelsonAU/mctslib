@@ -22,7 +22,7 @@ struct MCTSStats {
 
     double avg_value() const
     {
-        
+
         return visits ? backprop_value / visits : std::numeric_limits<double>::min();
     }
 };

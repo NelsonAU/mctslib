@@ -3,13 +3,9 @@
 #include <memory>
 #include <vector>
 
-
-
-
 namespace mctslib {
-inline auto mcts_select = []<class Alg>(Alg & alg, std::shared_ptr<typename Alg::Node> initial_node)
-    -> std::vector<std::shared_ptr<typename Alg::Node>>
-{
+inline auto mcts_select = []<class Alg>(Alg& alg, std::shared_ptr<typename Alg::Node> initial_node)
+    -> std::vector<std::shared_ptr<typename Alg::Node>> {
     // assumptions: graph of states is a tree
     std::vector<std::shared_ptr<typename Alg::Node>> path { initial_node };
     std::shared_ptr<typename Alg::Node> node = initial_node;
@@ -18,7 +14,7 @@ inline auto mcts_select = []<class Alg>(Alg & alg, std::shared_ptr<typename Alg:
         if (!node->been_expanded() || !node->children.size()) // TODO: make this more clear
             return path;
 
-        for (std::shared_ptr<typename Alg::Node> child : node->children) { //find unexpanded node
+        for (std::shared_ptr<typename Alg::Node> child : node->children) { // find unexpanded node
             if (!child->been_expanded()) {
                 path.push_back(child);
                 return path;

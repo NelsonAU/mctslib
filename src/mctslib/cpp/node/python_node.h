@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <pybind11/pybind11.h>
 #include <random>
 #include <type_traits>
@@ -12,6 +13,7 @@ namespace mctslib {
 template <class NodeStats>
 class PythonNode {
     bool _been_expanded = false;
+    std::optional<bool> _is_terminal;
 
 public:
     static inline std::mt19937 rng;
@@ -57,6 +59,9 @@ public:
 
     bool is_terminal() const
     {
+        if (_is_terminal)
+            return _is_terminal.value();
+
         return object.attr("is_terminal")().template cast<bool>();
     }
 

@@ -46,7 +46,6 @@ inline auto mcts_iter_move_rng = []<class Alg>(Alg & alg, typename Alg::Settings
     size_t idx = dist(Alg::Node::rng);
 
     alg.body.current_node = ties[idx];
-    
 
     return *alg.body.current_node;
 };

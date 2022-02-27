@@ -34,7 +34,6 @@ PYBIND11_MODULE(_mctslib, m)
         .def("move", &PyTreeCPUMCTS::move<uint, double, double>, "", py::kw_only(),
             py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight") = sqrt(2));
 
-
     using PyTreeIterRNGMCTS = PyAlg<TreeMCTS<PythonNode, decltype(mcts_iter_move_rng), IterMCTSSettings>>;
     py::class_<PyTreeIterRNGMCTS>(m, "tree_iters_randomized_ties_MCTS")
         .def(py::init<py::object>())

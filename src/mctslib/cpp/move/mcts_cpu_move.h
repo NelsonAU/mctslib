@@ -31,7 +31,6 @@ inline auto mcts_cpu_move_no_rng = []<class Alg>(Alg & alg, typename Alg::Settin
     return *alg.body.current_node;
 };
 
-
 inline auto mcts_cpu_move_rng = []<class Alg>(Alg & alg, typename Alg::Settings settings) -> auto
 {
     alg.body.settings = settings;
@@ -64,7 +63,6 @@ inline auto mcts_cpu_move_rng = []<class Alg>(Alg & alg, typename Alg::Settings 
     size_t idx = dist(Alg::Node::rng);
 
     alg.body.current_node = ties[idx];
-    
 
     return *alg.body.current_node;
 };
