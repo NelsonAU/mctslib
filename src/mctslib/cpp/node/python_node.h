@@ -1,10 +1,9 @@
 #include <iostream>
 #include <memory>
-#include <optional>
 #include <pybind11/pybind11.h>
 #include <random>
 #include <type_traits>
-
+#include <vector>
 #include "util/empty.h"
 
 #pragma once
