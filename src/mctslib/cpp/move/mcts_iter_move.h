@@ -9,7 +9,7 @@ inline auto mcts_iter_move_no_rng = []<class Alg>(Alg & alg, typename Alg::Setti
     alg.body.settings = settings;
 
     for (uint i = 0; i < settings.iters; i++) {
-        alg.rollout(alg, *alg.body.current_node);
+        alg.rollout(alg, alg.body.current_node);
     }
 
     alg.body.current_node = *std::max_element(
@@ -27,7 +27,7 @@ inline auto mcts_iter_move_rng = []<class Alg>(Alg & alg, typename Alg::Settings
     alg.body.settings = settings;
 
     for (uint i = 0; i < settings.iters; i++) {
-        alg.rollout(alg, *alg.body.current_node);
+        alg.rollout(alg, alg.body.current_node);
     }
 
     std::vector<std::shared_ptr<typename Alg::Node>> ties {};

@@ -12,7 +12,7 @@ inline auto mcts_cpu_move_no_rng = []<class Alg>(Alg & alg, typename Alg::Settin
     auto start = std::chrono::high_resolution_clock::now();
 
     for (;;) {
-        alg.rollout(alg, *alg.body.current_node);
+        alg.rollout(alg, alg.body.current_node);
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> diff = end - start;
@@ -39,7 +39,7 @@ inline auto mcts_cpu_move_rng = []<class Alg>(Alg & alg, typename Alg::Settings 
     auto start = std::chrono::high_resolution_clock::now();
 
     for (;;) {
-        alg.rollout(alg, *alg.body.current_node);
+        alg.rollout(alg, alg.body.current_node);
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> diff = end - start;
