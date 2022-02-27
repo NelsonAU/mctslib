@@ -91,11 +91,11 @@ public:
 ```
 
 There are a few things that mctslib will assume about the class that may not be obvious from
-the above snippet.
+the above snippet:
 
 - The constructor of NodeStats expects a value of type double that will be used as the evaluation of the node.
 - children must be public, this is necessary for algorithms which leverage environments being DAGs rather than trees.
-- children does not necessarily need to be a vector, but must be iterable, and must use std::shared\_ptr
+- children does not necessarily need to be a vector, but must be iterable, and must use std::shared\_ptr.
 
 
 
