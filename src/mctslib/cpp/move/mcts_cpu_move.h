@@ -60,7 +60,7 @@ inline auto mcts_cpu_move_rng = []<class Alg>(Alg & alg, typename Alg::Settings 
     }
 
     std::uniform_int_distribution<size_t> dist { 0, ties.size() - 1 };
-    size_t idx = dist(Alg::Node::rng);
+    size_t idx = dist(Alg::rng);
 
     alg.body.current_node = ties[idx];
 

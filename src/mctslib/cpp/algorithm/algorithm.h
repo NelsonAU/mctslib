@@ -1,3 +1,5 @@
+#include <memory>
+#include <random>
 
 #pragma once
 
@@ -26,6 +28,8 @@ public:
     Expand expand;
     Simulate simulate;
     Backpropagate backpropagate;
+
+    static inline std::mt19937 rng;
 
     template <typename... Args>
     Algorithm(Node* root, Args... args)

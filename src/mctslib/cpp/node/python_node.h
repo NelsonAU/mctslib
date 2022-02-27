@@ -1,10 +1,10 @@
+#include "util/empty.h"
 #include <iostream>
 #include <memory>
 #include <pybind11/pybind11.h>
 #include <random>
 #include <type_traits>
 #include <vector>
-#include "util/empty.h"
 
 #pragma once
 
@@ -12,9 +12,9 @@ namespace mctslib {
 template <class NodeStats>
 class PythonNode {
     bool _been_expanded = false;
+    static inline std::mt19937 rng;
 
 public:
-    static inline std::mt19937 rng;
     pybind11::object object;
     NodeStats stats;
     std::vector<std::shared_ptr<PythonNode>> children;
