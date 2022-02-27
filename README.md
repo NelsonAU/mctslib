@@ -74,6 +74,7 @@ public:
     void create_children() {
         children.push_back(std::make_shared<Node>(x + 1, y));
         children.push_back(std::make_shared<Node>(x, y + 1));
+        _been_expanded = true;
     }
 
     Node random_child() const {
