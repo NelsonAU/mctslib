@@ -17,12 +17,27 @@ template <
     class Move,
     class Settings>
 using TreeMCTS = Algorithm<
-    MCTSBody<NodeTemplate, MCTSStats, Settings>,
+    TreeMCTSBody<NodeTemplate, MCTSStats, Settings>,
     Move,
     decltype(mcts_rollout),
     decltype(mcts_select),
     decltype(mcts_uct),
-    decltype(mcts_expand),
+    decltype(tree_mcts_expand),
+    decltype(mcts_simulate),
+    decltype(mcts_backpropagate)>;
+
+
+template <
+    template <class Stats> class NodeTemplate,
+    class Move,
+    class Settings>
+using DAGMCTS = Algorithm<
+    DAGMCTSBody<NodeTemplate, MCTSStats, Settings>,
+    Move,
+    decltype(mcts_rollout),
+    decltype(mcts_select),
+    decltype(mcts_uct),
+    decltype(dag_mcts_expand),
     decltype(mcts_simulate),
     decltype(mcts_backpropagate)>;
 }

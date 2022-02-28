@@ -45,4 +45,28 @@ PYBIND11_MODULE(_mctslib, m)
         .def(py::init<py::object>())
         .def("move", &PyTreeCPURNGMCTS::move<uint, double, double>, "", py::kw_only(),
             py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight") = sqrt(2));
+
+    using PyDAGIterMCTS = PyAlg<DAGMCTS<PythonNode, decltype(mcts_iter_move_no_rng), IterMCTSSettings>>;
+    py::class_<PyDAGIterMCTS>(m, "dag_iters_MCTS")
+        .def(py::init<py::object>())
+        .def("move", &PyDAGIterMCTS::move<uint, uint, double>, "", py::kw_only(),
+            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight") = sqrt(2));
+
+    using PyDAGCPUMCTS = PyAlg<DAGMCTS<PythonNode, decltype(mcts_cpu_move_no_rng), CPUMCTSSettings>>;
+    py::class_<PyDAGCPUMCTS>(m, "dag_cpu_time_MCTS")
+        .def(py::init<py::object>())
+        .def("move", &PyDAGCPUMCTS::move<uint, double, double>, "", py::kw_only(),
+            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight") = sqrt(2));
+
+    using PyDAGIterRNGMCTS = PyAlg<DAGMCTS<PythonNode, decltype(mcts_iter_move_rng), IterMCTSSettings>>;
+    py::class_<PyDAGIterRNGMCTS>(m, "dag_iters_randomized_ties_MCTS")
+        .def(py::init<py::object>())
+        .def("move", &PyDAGIterRNGMCTS::move<uint, uint, double>, "", py::kw_only(),
+            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight") = sqrt(2));
+
+    using PyDAGCPURNGMCTS = PyAlg<DAGMCTS<PythonNode, decltype(mcts_cpu_move_rng), CPUMCTSSettings>>;
+    py::class_<PyDAGCPURNGMCTS>(m, "dag_cpu_time_randomized_ties_MCTS")
+        .def(py::init<py::object>())
+        .def("move", &PyDAGCPURNGMCTS::move<uint, double, double>, "", py::kw_only(),
+            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight") = sqrt(2));
 }
