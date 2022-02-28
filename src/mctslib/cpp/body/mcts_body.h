@@ -14,6 +14,8 @@ struct MCTSBody { // TODO: implement DAGMCTSBody
     Settings settings;
     std::shared_ptr<Node> current_node;
 
-    MCTSBody(Node* cur)
+    MCTSBody(std::shared_ptr<Node> cur)
         : current_node(cur) {};
 };
+
+

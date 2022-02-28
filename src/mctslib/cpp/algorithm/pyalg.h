@@ -1,6 +1,8 @@
 #include "algorithm/algorithm.h"
 #include <iostream>
+#include <memory>
 #include <pybind11/pybind11.h>
+
 namespace mctslib {
 
 template <
@@ -12,7 +14,7 @@ private:
 public:
     template <class... Args>
     PyAlg(pybind11::object root, Args... args)
-        : alg(new typename Alg::Node(root), args...)
+        : alg(std::make_shared<typename Alg::Node>(root), args...)
     {
     }
 

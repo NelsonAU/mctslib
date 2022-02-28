@@ -32,7 +32,7 @@ public:
     static inline std::mt19937 rng;
 
     template <typename... Args>
-    Algorithm(Node* root, Args... args)
+    Algorithm(std::shared_ptr<Node> root, Args... args)
         : body(root, args...)
     {
     }
