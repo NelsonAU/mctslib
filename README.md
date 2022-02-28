@@ -131,6 +131,24 @@ the node with the lowest index is always the result of the agent taking no actio
 clear when the agent cannot figure out a path forward.
 
 
+The return value of MCTS is an algorithm initialized with a root node. Each algorithm in mctslib
+exposes one method: `alg.move`. 
+
+```python
+# Signature of move for MCTS as it appears from Python
+
+class MCTS:
+    def move(self, *, rollout_depth: int, cpu_time: float, exploration_weight: float) -> Node:
+        ...
+```
+
+For MCTS, move also takes several options:
+
+- `rollout_depth`: Defines the depth of simulations that occur during each rollout.
+- `cpu_time` or `iters`: The amount of CPU time or number of iterations used per move.
+- `exploration_weight`: Sometimes referred to as C, this decides how much the algorithm will bias
+exploration or exploitation. A common value is `sqrt(2)` for games in which rewards are between 0 and 1.
+
 
 
 
