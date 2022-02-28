@@ -98,6 +98,37 @@ the above snippet.
 - children does not necessarily need to be a vector, but must be iterable, and must use std::shared\_ptr
 
 
+## Using mctslib defined algorithms
+
+
+mctslib implements many variations of algorithms with different options and performance characteristics.
+To make choosing an algorithm as simple as possible, mctslib exposes helper functions that will choose
+the correct algorithm based on the settings you provide.
+
+### MCTS
+
+To run MCTS using mctslib use the MCTS helper function.
+
+```python
+
+def MCTS(root, *args, iter_stop=None, structure="tree", randomize_ties=True, **kwargs):
+    ...
+```
+
+MCTS gives you several options to choose from:
+
+- `iter_stop: ["iters", "cpu_time"]`: This controls whether MCTS decides the next
+state after time or a certain number of iterations.
+- `structure: ["tree", "dag"]`: Controls whether MCTS will take advantage of the environment being
+a DAG instead of a tree. This comes with some overhead - if `"dag"` is chosen, then a map is used to
+track down the 'canonical' reference to a node. In environments with many transpositions, this can 
+improve performance.
+- `randomize_ties: [True, False]`: If `True`, then nodes which have the same evaluation will be 
+equally likely to be chosen. Otherwise, the node with the lower index is chosen. Choosing the node with
+the lowest index can be helpful in some circumstances. For example, in the Atari Learning Environment,
+the node with the lowest index is always the result of the agent taking no action. This makes it visually
+clear when the agent cannot figure out a path forward.
+
 
 
 
