@@ -26,8 +26,6 @@ import random
 
 
 class Node:
-    __slots__ = ("x", "y", "_evaluation", "action")
-
     def __init__(self, x, y):
         self.x = x
         self.y = y
