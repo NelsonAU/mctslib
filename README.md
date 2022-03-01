@@ -62,8 +62,8 @@ private:
     bool _been_expanded = false;
     int x;
     int y;
-public:
     static inline std::mt19937 rng;
+public:
     NodeStats stats;
     std::vector<std::shared_ptr<Node>> children;
 
