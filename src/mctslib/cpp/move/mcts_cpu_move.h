@@ -48,7 +48,7 @@ inline auto mcts_cpu_move_rng = []<class Alg>(Alg & alg, typename Alg::Settings 
     }
 
     std::vector<std::shared_ptr<typename Alg::Node>> ties {};
-    int max = alg.body.current_node->children[0]->stats.avg_value();
+    double max = alg.body.current_node->children[0]->stats.avg_value();
 
     for (std::shared_ptr<typename Alg::Node> node_ptr : alg.body.current_node->children) {
         if (node_ptr->stats.avg_value() > max) {

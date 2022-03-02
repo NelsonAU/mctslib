@@ -6,7 +6,6 @@ inline auto tree_mcts_expand = []<class Alg>(Alg& alg, std::shared_ptr<typename 
     node->create_children();
 };
 
-
 inline auto dag_mcts_expand = []<class Alg>(Alg& alg, std::shared_ptr<typename Alg::Node> node) -> void {
     node->create_children();
 

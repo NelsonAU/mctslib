@@ -1,6 +1,6 @@
-#include <unordered_map>
-#include <memory>
 #include "util/empty.h"
+#include <memory>
+#include <unordered_map>
 
 template <
     template <class> class NodeTemplate,
@@ -19,7 +19,6 @@ struct TreeMCTSBody { // TODO: implement DAGMCTSBody
         : current_node(cur) {};
 };
 
-
 template <
     template <class> class NodeTemplate,
     template <class> class NodeStatsTemplate,
@@ -30,14 +29,10 @@ struct DAGMCTSBody {
     using Settings = Settings_;
     using Action = Empty;
 
-
     Settings settings;
     std::shared_ptr<Node> current_node;
     std::unordered_map<Node, std::shared_ptr<Node>> canonical_map;
 
-
-
     DAGMCTSBody(std::shared_ptr<Node> cur)
         : current_node(cur) {};
 };
-

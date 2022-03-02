@@ -26,7 +26,6 @@ using TreeMCTS = Algorithm<
     decltype(mcts_simulate),
     decltype(mcts_backpropagate)>;
 
-
 template <
     template <class Stats> class NodeTemplate,
     class Move,

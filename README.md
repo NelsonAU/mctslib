@@ -53,7 +53,7 @@ Environments can be defined in C++ as well. Here is the above environment define
 ```cpp
 // up_or_right.h
 #include <memory>
-#include<random>
+#include <random>
 #include <vector>
 
 template <class NodeStats>
