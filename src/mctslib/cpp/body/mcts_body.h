@@ -3,13 +3,10 @@
 #include <unordered_map>
 namespace mctslib {
 template <
-    template <class> class NodeTemplate,
-    template <class> class NodeStatsTemplate,
-    class Settings_>
+    class Node_,
+    class Settings>
 struct TreeMCTSBody {
-    using NodeStats = NodeStatsTemplate<Empty>;
-    using Node = NodeTemplate<NodeStats>;
-    using Settings = Settings_;
+    using Node = Node_;
 
     Settings settings;
     std::shared_ptr<Node> current_node;
@@ -19,13 +16,10 @@ struct TreeMCTSBody {
 };
 
 template <
-    template <class> class NodeTemplate,
-    template <class> class NodeStatsTemplate,
-    class Settings_>
+    class Node_,
+    class Settings>
 struct DAGMCTSBody {
-    using NodeStats = NodeStatsTemplate<Empty>;
-    using Node = NodeTemplate<NodeStats>;
-    using Settings = Settings_;
+    using Node = Node_;
 
     Settings settings;
     std::shared_ptr<Node> current_node;

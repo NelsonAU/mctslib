@@ -1,11 +1,9 @@
+#include "util/empty.h"
 #include <memory>
 #include <vector>
-#include "util/empty.h"
-
-
 
 namespace mctslib {
-template<
+template <
     template <class> class NodeTemplate,
     template <class> class NodeStatsTemplate,
     typename Action,
@@ -21,7 +19,11 @@ class DenseHRAVEBody {
     std::vector<NodeStats> global_amafs;
     std::shared_ptr<Node> current_node;
 
-    DenseHRAVEBody(std::shared_ptr<Node> cur, uint equivalence_param, uint action_space_size) 
-        : equivalence_param(equivalence_param), current_node(cur), global_amafs(action_space_size) {}
+    DenseHRAVEBody(std::shared_ptr<Node> cur, uint equivalence_param, uint action_space_size)
+        : equivalence_param(equivalence_param)
+        , current_node(cur)
+        , global_amafs(action_space_size)
+    {
+    }
 };
 }

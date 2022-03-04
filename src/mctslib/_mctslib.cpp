@@ -9,6 +9,7 @@
 #include "node/python_node.h"
 #include "settings/settings.h"
 #include "stats/stats.h"
+#include "util/empty.h"
 
 using namespace mctslib;
 namespace py = pybind11;
@@ -22,49 +23,49 @@ PYBIND11_MODULE(_mctslib, m)
     //          and because of this the compiler will always choose to decide that the parameter
     //          pack is empty.
 
-    using PyTreeIterMCTS = PyAlg<TreeMCTS<PythonNode, decltype(mcts_iter_move_no_rng), IterMCTSSettings>>;
+    using PyTreeIterMCTS = PyAlg<TreeMCTS<PythonNode<MCTSStats<Empty>>, decltype(mcts_iter_move_no_rng), IterMCTSSettings>>;
     py::class_<PyTreeIterMCTS>(m, "tree_iters_MCTS")
         .def(py::init<py::object>())
         .def("move", &PyTreeIterMCTS::move<uint, uint, double>, "", py::kw_only(),
             py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight") = sqrt(2));
 
-    using PyTreeCPUMCTS = PyAlg<TreeMCTS<PythonNode, decltype(mcts_cpu_move_no_rng), CPUMCTSSettings>>;
+    using PyTreeCPUMCTS = PyAlg<TreeMCTS<PythonNode<MCTSStats<Empty>>, decltype(mcts_cpu_move_no_rng), CPUMCTSSettings>>;
     py::class_<PyTreeCPUMCTS>(m, "tree_cpu_time_MCTS")
         .def(py::init<py::object>())
         .def("move", &PyTreeCPUMCTS::move<uint, double, double>, "", py::kw_only(),
             py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight") = sqrt(2));
 
-    using PyTreeIterRNGMCTS = PyAlg<TreeMCTS<PythonNode, decltype(mcts_iter_move_rng), IterMCTSSettings>>;
+    using PyTreeIterRNGMCTS = PyAlg<TreeMCTS<PythonNode<MCTSStats<Empty>>, decltype(mcts_iter_move_rng), IterMCTSSettings>>;
     py::class_<PyTreeIterRNGMCTS>(m, "tree_iters_randomized_ties_MCTS")
         .def(py::init<py::object>())
         .def("move", &PyTreeIterRNGMCTS::move<uint, uint, double>, "", py::kw_only(),
             py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight") = sqrt(2));
 
-    using PyTreeCPURNGMCTS = PyAlg<TreeMCTS<PythonNode, decltype(mcts_cpu_move_rng), CPUMCTSSettings>>;
+    using PyTreeCPURNGMCTS = PyAlg<TreeMCTS<PythonNode<MCTSStats<Empty>>, decltype(mcts_cpu_move_rng), CPUMCTSSettings>>;
     py::class_<PyTreeCPURNGMCTS>(m, "tree_cpu_time_randomized_ties_MCTS")
         .def(py::init<py::object>())
         .def("move", &PyTreeCPURNGMCTS::move<uint, double, double>, "", py::kw_only(),
             py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight") = sqrt(2));
 
-    using PyDAGIterMCTS = PyAlg<DAGMCTS<PythonNode, decltype(mcts_iter_move_no_rng), IterMCTSSettings>>;
+    using PyDAGIterMCTS = PyAlg<DAGMCTS<PythonNode<MCTSStats<Empty>>, decltype(mcts_iter_move_no_rng), IterMCTSSettings>>;
     py::class_<PyDAGIterMCTS>(m, "dag_iters_MCTS")
         .def(py::init<py::object>())
         .def("move", &PyDAGIterMCTS::move<uint, uint, double>, "", py::kw_only(),
             py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight") = sqrt(2));
 
-    using PyDAGCPUMCTS = PyAlg<DAGMCTS<PythonNode, decltype(mcts_cpu_move_no_rng), CPUMCTSSettings>>;
+    using PyDAGCPUMCTS = PyAlg<DAGMCTS<PythonNode<MCTSStats<Empty>>, decltype(mcts_cpu_move_no_rng), CPUMCTSSettings>>;
     py::class_<PyDAGCPUMCTS>(m, "dag_cpu_time_MCTS")
         .def(py::init<py::object>())
         .def("move", &PyDAGCPUMCTS::move<uint, double, double>, "", py::kw_only(),
             py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight") = sqrt(2));
 
-    using PyDAGIterRNGMCTS = PyAlg<DAGMCTS<PythonNode, decltype(mcts_iter_move_rng), IterMCTSSettings>>;
+    using PyDAGIterRNGMCTS = PyAlg<DAGMCTS<PythonNode<MCTSStats<Empty>>, decltype(mcts_iter_move_rng), IterMCTSSettings>>;
     py::class_<PyDAGIterRNGMCTS>(m, "dag_iters_randomized_ties_MCTS")
         .def(py::init<py::object>())
         .def("move", &PyDAGIterRNGMCTS::move<uint, uint, double>, "", py::kw_only(),
             py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight") = sqrt(2));
 
-    using PyDAGCPURNGMCTS = PyAlg<DAGMCTS<PythonNode, decltype(mcts_cpu_move_rng), CPUMCTSSettings>>;
+    using PyDAGCPURNGMCTS = PyAlg<DAGMCTS<PythonNode<MCTSStats<Empty>>, decltype(mcts_cpu_move_rng), CPUMCTSSettings>>;
     py::class_<PyDAGCPURNGMCTS>(m, "dag_cpu_time_randomized_ties_MCTS")
         .def(py::init<py::object>())
         .def("move", &PyDAGCPURNGMCTS::move<uint, double, double>, "", py::kw_only(),

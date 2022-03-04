@@ -5,7 +5,7 @@
 
 namespace mctslib {
 template <
-    class _Body,
+    class Body,
     class Move,
     class Rollout,
     class Select,
@@ -15,10 +15,9 @@ template <
     class Backpropagate>
 class Algorithm {
 public:
-    using Body = _Body;
     using Node = typename Body::Node;
-    using NodeStats = typename Body::NodeStats;
-    using Settings = typename Body::Settings;
+    using NodeStats = decltype(Node::stats);
+    using Settings = decltype(Body::settings);
 
     Body body;
     Move move;
