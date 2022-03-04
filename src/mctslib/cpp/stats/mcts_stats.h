@@ -1,16 +1,14 @@
-#include "util/empty.h"
 #include <limits>
 #include <type_traits>
 
 namespace mctslib {
 
-template <class T = Empty>
+template <typename Action>
 struct MCTSStats {
-    static_assert(std::is_same_v<T, Empty>);
-    uint visits;
     double evaluation;
     double backprop_value;
-    Empty action;
+    uint visits;
+    Action action;
 
     MCTSStats() = default;
     MCTSStats(double eval)

@@ -26,7 +26,7 @@ public:
         if constexpr (std::is_same_v<Action, Empty>) {
             stats = NodeStats { object.attr("evaluation")().cast<double>() };
         } else {
-            stats = NodeStats { object.attr("evaluation")().cast<double>(), object.attr("action").cast<Action>() };
+            stats = NodeStats { object.attr("evaluation")().cast<double>(), object.attr("action_id").cast<Action>() };
         }
     }
 
