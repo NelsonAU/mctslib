@@ -1,29 +1,32 @@
 #include "util/empty.h"
 #include <memory>
+#include <unordered_map>
 #include <vector>
+#include "stats/mcts_stats.h"
 
 namespace mctslib {
 template <
-    template <class> class NodeTemplate,
-    template <class> class NodeStatsTemplate,
-    typename Action,
-    class Settings_>
-class DenseHRAVEBody {
-    using NodeStats = NodeStatsTemplate<Action>;
-    using Node = NodeTemplate<NodeStats>;
-    using Settings = Settings_;
-    using Action = typename NodeStats::Action;
+    class Node_,
+    class Settings,
+    bool sparse_action_space>
+class TreeHRAVEBody {
+    using Node = Node_;
 
-    Settings_ settings;
+    Settings settings;
     uint equivalence_param;
-    std::vector<NodeStats> global_amafs;
     std::shared_ptr<Node> current_node;
+    std::conditional<
+        sparse_action_space,
+        std::unordered_map<decltype(decltype(Node::stats)::action), MCTSStats>,
+        std::vector<MCTSStats>> global_amafs;
 
-    DenseHRAVEBody(std::shared_ptr<Node> cur, uint equivalence_param, uint action_space_size)
+    TreeHRAVEBody(std::shared_ptr<Node> cur, uint equivalence_param, uint action_space_size)
         : equivalence_param(equivalence_param)
         , current_node(cur)
-        , global_amafs(action_space_size)
     {
+        if constexpr (sparse_action_space) {
+            global_amafs(action_space_size);
+        }
     }
 };
 }

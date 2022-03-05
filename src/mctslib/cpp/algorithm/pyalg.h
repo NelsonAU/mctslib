@@ -22,8 +22,7 @@ public:
     pybind11::object move(Args... args)
     {
         static_assert(sizeof...(args) > 0, "Settings should not be default constructed in move!");
-        using Settings = typename Alg::Settings;
-        Settings settings { args... };
+        typename Alg::Settings settings { args... };
         return alg.move(alg, settings).object;
     }
 };

@@ -18,6 +18,7 @@ public:
     using Node = typename Body::Node;
     using NodeStats = decltype(Node::stats);
     using Settings = decltype(Body::settings);
+    using Action = decltype(NodeStats::action);
 
     Body body;
     Move move;

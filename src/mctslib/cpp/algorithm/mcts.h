@@ -15,28 +15,15 @@ namespace mctslib {
 template <
     class Node,
     class Move,
-    class Settings>
-using TreeMCTS = Algorithm<
-    TreeMCTSBody<Node, Settings>,
+    class Settings,
+    bool is_dag>
+using MCTS = Algorithm<
+    MCTSBody<Node, Settings, is_dag>,
     Move,
     decltype(mcts_rollout),
     decltype(mcts_select),
     decltype(mcts_uct),
     decltype(tree_mcts_expand),
-    decltype(mcts_simulate),
-    decltype(mcts_backpropagate)>;
-
-template <
-    class Node,
-    class Move,
-    class Settings>
-using DAGMCTS = Algorithm<
-    DAGMCTSBody<Node, Settings>,
-    Move,
-    decltype(mcts_rollout),
-    decltype(mcts_select),
-    decltype(mcts_uct),
-    decltype(dag_mcts_expand),
     decltype(mcts_simulate),
     decltype(mcts_backpropagate)>;
 }
