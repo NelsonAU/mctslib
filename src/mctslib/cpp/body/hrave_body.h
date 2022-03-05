@@ -17,8 +17,8 @@ class TreeHRAVEBody {
     std::shared_ptr<Node> current_node;
     std::conditional<
         sparse_action_space,
-        std::unordered_map<decltype(decltype(Node::stats)::action), MCTSStats>,
-        std::vector<MCTSStats>> global_amafs;
+        std::unordered_map<decltype(decltype(Node::stats)::action), MCTSStats<Empty>>,
+        std::vector<MCTSStats<Empty>>> global_amafs;
 
     TreeHRAVEBody(std::shared_ptr<Node> cur, uint equivalence_param, uint action_space_size)
         : equivalence_param(equivalence_param)

@@ -1,15 +1,11 @@
 from glob import glob
+from pathlib import Path
 from setuptools import setup, find_packages
 from pybind11.setup_helpers import Pybind11Extension
 
-ext_modules = [
-    Pybind11Extension(
-        'mctslib._mctslib',
-        sorted(glob("src/**/*.cpp")),
-        cxx_std=20,
-        include_dirs=['src/mctslib/cpp'],
-    ),
-]
+def find_ext_modules(**kwargs):
+    """Creates list of Pybind11Extensions and passes extra arguments to them"""
+    return [Pybind11Extension(f'mctslib.{Path(p).stem}', [p], **kwargs) for p in glob('src/**/*.cpp')]
 
 
 setup(
@@ -21,6 +17,6 @@ setup(
     long_description='',
     packages=find_packages('src'),
     package_dir={'': 'src'},
-    ext_modules=ext_modules,
+    ext_modules=find_ext_modules(cxx_std=20, include_dirs=['src/mctslib/cpp']),
     install_requires=["pybind11"]
 )

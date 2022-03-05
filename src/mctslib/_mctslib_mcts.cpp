@@ -14,7 +14,7 @@
 using namespace mctslib;
 namespace py = pybind11;
 
-PYBIND11_MODULE(_mctslib, m)
+PYBIND11_MODULE(_mctslib_mcts, m)
 {
     m.doc() = "pybind11 example plugin"; // optional module docstring
 

@@ -1,6 +1,7 @@
 #include <limits>
 #include <type_traits>
 
+#pragma once
 namespace mctslib {
 
 template <typename Action>

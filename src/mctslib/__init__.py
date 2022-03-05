@@ -1,4 +1,4 @@
-from . import _mctslib
+from . import _mctslib_mcts
 
 
 def MCTS(root, *args, iter_stop=None, structure="tree", randomize_ties=True, **kwargs):
@@ -10,7 +10,7 @@ def MCTS(root, *args, iter_stop=None, structure="tree", randomize_ties=True, **k
 
     randomized_str = "randomized_ties_" if randomize_ties else ""
 
-    cls = getattr(_mctslib, f"{structure}_{iter_stop}_{randomized_str}MCTS")
+    cls = getattr(_mctslib_mcts, f"{structure}_{iter_stop}_{randomized_str}MCTS")
 
     return cls(root, *args, **kwargs)
 
