@@ -10,6 +10,7 @@
 #include "stats/stats.h"
 #include "uct/uct.h"
 #include "util/empty.h"
+#include <type_traits>
 
 namespace mctslib {
 template <
@@ -23,7 +24,7 @@ using MCTS = Algorithm<
     decltype(mcts_rollout),
     decltype(mcts_select),
     decltype(mcts_uct),
-    decltype(tree_mcts_expand),
+    typename std::conditional<is_dag, decltype(dag_mcts_expand), decltype(tree_mcts_expand)>::type,
     decltype(mcts_simulate),
     decltype(mcts_backpropagate)>;
 }

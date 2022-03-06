@@ -2,18 +2,18 @@ import random
 
 
 class Node:
-    __slots__ = ("x", "y", "_evaluation", "action")
+    __slots__ = ("x", "y", "_evaluation", "action_id")
 
-    def __init__(self, x, y, action=0):
+    def __init__(self, x, y, action_id=0):
         self.x = x
         self.y = y
         self._evaluation = self.x*self.y
-        self.action = action
+        self.action_id = action_id
 
     def find_children(self):
         return [
-                Node(self.x + 1, self.y, action=0),
-                Node(self.x, self.y + 1, action=1),
+                Node(self.x + 1, self.y, action_id=0),
+                Node(self.x, self.y + 1, action_id=1),
             ]
 
     def random_child(self):

@@ -24,7 +24,7 @@ public:
     {
         using Action = decltype(stats.action);
         if constexpr (std::is_same_v<Action, Empty>) {
-            stats = NodeStats { object.attr("evaluation")().cast<double>() };
+            stats = NodeStats { object.attr("evaluation")().cast<double>(), Empty()};
         } else {
             stats = NodeStats { object.attr("evaluation")().cast<double>(), object.attr("action_id").cast<Action>() };
         }

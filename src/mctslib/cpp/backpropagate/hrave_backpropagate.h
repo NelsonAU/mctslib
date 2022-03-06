@@ -7,8 +7,8 @@ inline auto hrave_backpropagate = []<class Alg>(Alg& alg, const auto& path, cons
         node->stats.visits++;
         node->stats.backprop_value += value;
 
-        alg.body.global_amafs[node.stats.action].visits++;
-        alg.body.global_amafs[node.stats.action].backprop_value += value;
+        alg.body.global_amafs.at(node->stats.action).visits++;
+        alg.body.global_amafs.at(node->stats.action).backprop_value += value;
     }
 };
 }

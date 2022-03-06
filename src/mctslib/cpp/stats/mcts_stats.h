@@ -12,9 +12,11 @@ struct MCTSStats {
     Action action;
 
     MCTSStats() = default;
-    MCTSStats(double eval)
+
+    MCTSStats(double eval, Action action)
         : visits(0)
         , evaluation(eval)
+        , action(action)
         , backprop_value(0)
     {
     }
