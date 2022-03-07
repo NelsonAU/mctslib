@@ -7,14 +7,11 @@ class Node:
     def __init__(self, x, y, action_id=0):
         self.x = x
         self.y = y
-        self._evaluation = self.x*self.y
+        self._evaluation = self.x * self.y
         self.action_id = action_id
 
     def find_children(self):
-        return [
-                Node(self.x + 1, self.y, action_id=0),
-                Node(self.x, self.y + 1, action_id=1),
-            ]
+        return [Node(self.x + 1, self.y, action_id=0), Node(self.x, self.y + 1, action_id=1)]
 
     def random_child(self):
         return random.choice(self.find_children())
