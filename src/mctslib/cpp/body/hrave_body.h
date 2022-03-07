@@ -1,10 +1,10 @@
+#include "settings/settings.h"
+#include "stats/mcts_stats.h"
 #include "util/empty.h"
 #include <memory>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
-#include <type_traits>
-#include "stats/mcts_stats.h"
-#include "settings/settings.h"
 
 namespace mctslib {
 template <
@@ -20,7 +20,7 @@ public:
     std::shared_ptr<Node> current_node;
     std::vector<MCTSStats<uint>> global_amafs;
 
-    [[no_unique_address]] std::conditional<
+    [[no_unique_address]] typename std::conditional<
         is_dag,
         std::unordered_map<Node, std::shared_ptr<Node>>,
         Empty>::type canonical_map;

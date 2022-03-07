@@ -13,7 +13,7 @@
 #include <type_traits>
 
 namespace mctslib {
-template<
+template <
     class Node,
     class Move,
     class Settings,
