@@ -37,7 +37,7 @@ class Node:
                 Node(self.x, self.y + 1),
             ]
 
-    def random_child(self):
+    def default_policy(self):
         return random.choice(self.find_children())
 
     def evaluation(self):
@@ -75,7 +75,7 @@ public:
         _been_expanded = true;
     }
 
-    Node random_child() const {
+    Node default_policy() const {
         std::uniform_int_distribution<int> dist { 0, 1 };
         int result = dist(rng);
         

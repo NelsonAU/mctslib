@@ -11,21 +11,20 @@ template <
     class Node_,
     class Settings,
     bool is_dag>
-class HRAVEBody {
+class RAVEBody {
 public:
     using Node = Node_;
 
     Settings settings;
     uint equivalence_param;
     std::shared_ptr<Node> current_node;
-    std::vector<MCTSStats> global_amafs;
 
     [[no_unique_address]] typename std::conditional<
         is_dag,
         std::unordered_map<Node, std::shared_ptr<Node>>,
         Empty>::type canonical_map;
 
-    HRAVEBody(std::shared_ptr<Node> cur, uint equivalence_param, uint action_space_size)
+    RAVEBody(std::shared_ptr<Node> cur, uint equivalence_param, uint action_space_size)
         : equivalence_param(equivalence_param)
         , current_node(cur)
         , global_amafs(action_space_size)

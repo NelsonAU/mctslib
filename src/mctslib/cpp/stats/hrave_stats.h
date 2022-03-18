@@ -1,21 +1,19 @@
-#include <limits>
-#include <type_traits>
-#include "util/empty.h"
 
 #pragma once
 namespace mctslib {
 
-struct MCTSStats {
+struct HRAVEStats {
     double evaluation;
     double backprop_value;
     uint visits;
-    [[no_unique_address]] Empty action;
+    uint action;
 
-    MCTSStats() = default;
+    HRAVEStats() = default;
 
-    MCTSStats(double eval)
+    HRAVEStats(double eval, uint action)
         : visits(0)
         , evaluation(eval)
+        , action(action)
         , backprop_value(0)
     {
     }

@@ -13,7 +13,7 @@ class Node:
     def find_children(self):
         return [Node(self.x + 1, self.y, action_id=0), Node(self.x, self.y + 1, action_id=1)]
 
-    def random_child(self):
+    def default_policy(self):
         return random.choice(self.find_children())
 
     def evaluation(self):

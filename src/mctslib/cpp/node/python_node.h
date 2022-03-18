@@ -22,15 +22,21 @@ public:
     PythonNode(pybind11::object obj)
         : object(obj)
     {
-        using Action = decltype(stats.action);
-        if constexpr (std::is_same_v<Action, Empty>) {
-            stats = NodeStats { object.attr("evaluation")().cast<double>(), Empty() };
+        if constexpr (std::is_same_v<decltype(stats.action), Empty>) {
+            stats = NodeStats { object.attr("evaluation")().cast<double>() };
         } else {
-            stats = NodeStats { object.attr("evaluation")().cast<double>(), object.attr("action_id").cast<Action>() };
+            stats = NodeStats { object.attr("evaluation")().cast<double>(), object.attr("action_id").cast<uint>() };
         }
     }
 
-    void create_children()
+    template <typename... Args>
+    PythonNode(pybind11::object obj, Args... args)
+        : object(obj), stats(object.attr("evaluation")().cast<double>(), object.attr("action_id").cast<uint>(), args...)
+    {
+    }
+    
+    template <typename... Args>
+    void create_children(Args... args)
     {
         pybind11::list list = object.attr("find_children")();
         size_t length = pybind11::len(list);
@@ -39,20 +45,14 @@ public:
 
         for (pybind11::handle child : list) {
             children.push_back(
-                std::make_shared<PythonNode>(pybind11::reinterpret_borrow<pybind11::object>(child)));
+                std::make_shared<PythonNode>(pybind11::reinterpret_borrow<pybind11::object>(child), args...));
         }
         _been_expanded = true;
     }
 
-    PythonNode random_child() const
+    PythonNode default_policy() const
     {
-        if (been_expanded()) {
-            std::uniform_int_distribution<size_t> dist { 0, children.size() - 1 };
-            size_t idx = dist(rng);
-            return *children[idx];
-        }
-
-        return PythonNode(object.attr("random_child")());
+        return PythonNode(object.attr("default_policy")());
     }
 
     bool is_terminal() const

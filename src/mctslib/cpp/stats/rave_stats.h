@@ -1,30 +1,29 @@
+#include "stats/stats.h"
 #include <limits>
-#include <type_traits>
-#include "util/empty.h"
+#include <vector>
 
-#pragma once
+
 namespace mctslib {
-
-struct MCTSStats {
+struct RAVEStats {
     double evaluation;
     double backprop_value;
     uint visits;
-    [[no_unique_address]] Empty action;
+    uint action;
+    std::vector<MCTSStats> amaf_stats;
 
-    MCTSStats() = default;
+    RAVEStats() = default;
 
-    MCTSStats(double eval)
+    RAVEStats(double eval, uint action)
         : visits(0)
         , evaluation(eval)
+        , action(action)
         , backprop_value(0)
     {
     }
 
     double avg_value() const
     {
-
         return visits ? backprop_value / visits : std::numeric_limits<double>::min();
     }
 };
-
 }
