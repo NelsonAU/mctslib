@@ -1,4 +1,4 @@
-#include "stats/stats.h"
+#include "stats/mcts_stats.h"
 #include <limits>
 #include <vector>
 
@@ -13,11 +13,12 @@ struct RAVEStats {
 
     RAVEStats() = default;
 
-    RAVEStats(double eval, uint action)
+    RAVEStats(double eval, uint action, uint action_space_size)
         : visits(0)
         , evaluation(eval)
         , action(action)
         , backprop_value(0)
+        , amaf_stats(action_space_size)
     {
     }
 

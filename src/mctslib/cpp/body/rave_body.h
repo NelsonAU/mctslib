@@ -17,6 +17,7 @@ public:
 
     Settings settings;
     uint equivalence_param;
+    uint action_space_size;
     std::shared_ptr<Node> current_node;
 
     [[no_unique_address]] typename std::conditional<
@@ -27,7 +28,7 @@ public:
     RAVEBody(std::shared_ptr<Node> cur, uint equivalence_param, uint action_space_size)
         : equivalence_param(equivalence_param)
         , current_node(cur)
-        , global_amafs(action_space_size)
+        , action_space_size(action_space_size)
     {
     }
 };
