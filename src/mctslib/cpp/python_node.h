@@ -10,7 +10,7 @@
 namespace mctslib {
 template <class Stats>
 class PythonNode {
-    bool _been_expanded = false;
+    bool expanded = false;
     static inline std::mt19937 rng;
 
 public:
@@ -18,11 +18,13 @@ public:
     Stats stats;
     std::vector<std::shared_ptr<PythonNode>> children;
 
-    PythonNode(pybind11::object obj) requires (std::is_same_v<decltype(Stats::action), uint>)
-        : object(obj), stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>()) {}
+    template<typename ...Args>
+    PythonNode(pybind11::object obj, Args ...args) requires (std::is_same_v<decltype(Stats::action), uint>)
+        : object(obj), stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>(), args...) {}
 
-    PythonNode(pybind11::object obj)
-        : object(obj), stats(obj.attr("evaluation")().cast<double>()) {}
+    template<typename ...Args>
+    PythonNode(pybind11::object obj, Args ...args)
+        : object(obj), stats(obj.attr("evaluation")().cast<double>(), args...) {}
 
     void create_children()
     {
@@ -35,7 +37,7 @@ public:
             children.push_back(
                 std::make_shared<PythonNode>(pybind11::reinterpret_borrow<pybind11::object>(child)));
         }
-        _been_expanded = true;
+        expanded = true;
     }
 
     PythonNode default_policy() const
@@ -48,9 +50,9 @@ public:
         return object.attr("is_terminal")().template cast<bool>();
     }
 
-    bool been_expanded() const
+    bool is_expanded() const
     {
-        return _been_expanded;
+        return expanded;
     }
 
     void print() const
