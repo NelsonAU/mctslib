@@ -1,4 +1,3 @@
-#include "util/empty.h"
 #include <iostream>
 #include <memory>
 #include <pybind11/pybind11.h>
@@ -9,34 +8,23 @@
 #pragma once
 
 namespace mctslib {
-template <class NodeStats>
+template <class Stats>
 class PythonNode {
     bool _been_expanded = false;
     static inline std::mt19937 rng;
 
 public:
     pybind11::object object;
-    NodeStats stats;
+    Stats stats;
     std::vector<std::shared_ptr<PythonNode>> children;
 
-    PythonNode(pybind11::object obj)
-        : object(obj)
-    {
-        if constexpr (std::is_same_v<decltype(stats.action), Empty>) {
-            stats = NodeStats { object.attr("evaluation")().cast<double>() };
-        } else {
-            stats = NodeStats { object.attr("evaluation")().cast<double>(), object.attr("action_id").cast<uint>() };
-        }
-    }
+    PythonNode(pybind11::object obj) requires (std::is_same_v<decltype(Stats::action), uint>)
+        : object(obj), stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>()) {}
 
-    template <typename... Args>
-    PythonNode(pybind11::object obj, Args... args)
-        : object(obj), stats(object.attr("evaluation")().cast<double>(), object.attr("action_id").cast<uint>(), args...)
-    {
-    }
-    
-    template <typename... Args>
-    void create_children(Args... args)
+    PythonNode(pybind11::object obj)
+        : object(obj), stats(obj.attr("evaluation")().cast<double>()) {}
+
+    void create_children()
     {
         pybind11::list list = object.attr("find_children")();
         size_t length = pybind11::len(list);
@@ -45,7 +33,7 @@ public:
 
         for (pybind11::handle child : list) {
             children.push_back(
-                std::make_shared<PythonNode>(pybind11::reinterpret_borrow<pybind11::object>(child), args...));
+                std::make_shared<PythonNode>(pybind11::reinterpret_borrow<pybind11::object>(child)));
         }
         _been_expanded = true;
     }
