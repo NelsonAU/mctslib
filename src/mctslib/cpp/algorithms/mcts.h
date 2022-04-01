@@ -73,32 +73,15 @@ public:
     virtual std::shared_ptr<Node> choose(std::shared_ptr<Node> node_ptr)
     {
         if constexpr (randomize_ties) {
-            std::vector<int> idxs;
-            int num_children = node_ptr->children.size();
-            idxs.reserve(num_children);
-
-            for (int i = 0; i < num_children; i++) {
-                idxs.push_back(i);
-            }
-
-            std::shuffle(std::begin(idxs), std::end(idxs), rng);
-
-            int max_idx = *std::max_element(
-                std::begin(idxs),
-                std::end(idxs),
-                [children = node_ptr->children](int left, int right) {
-                    return children[left]->stats.average_reward() < children[right]->stats.average_reward();
-                });
-
-            return node_ptr->children[max_idx];
-        } else {
-            return *std::max_element(
-                node_ptr->children.begin(),
-                node_ptr->children.end(),
-                [](const std::shared_ptr<Node> left, const std::shared_ptr<Node> right) {
-                    return left->stats.average_reward() < right->stats.average_reward();
-                });
+            std::shuffle(std::begin(node_ptr->children), std::end(node_ptr->children), rng);
         }
+
+        return *std::max_element(
+            node_ptr->children.begin(),
+            node_ptr->children.end(),
+            [](const std::shared_ptr<Node> left, const std::shared_ptr<Node> right) {
+                return left->stats.average_reward() < right->stats.average_reward();
+            });
     }
 
     virtual Node move(const Settings new_settings)
