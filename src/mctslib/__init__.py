@@ -10,9 +10,9 @@ def MCTS(root, *, structure="tree", iter_stop=None, randomize_ties=True):
     if structure not in ("tree", "dag"):
         raise ValueError(f"Argument structure must be 'tree' or 'dag', not {structure}")
 
-    randomized_str = "randomized_ties_" if randomize_ties else ""
+    randomized_str = "rng_ties" if randomize_ties else "no_rng_ties"
 
-    cls = getattr(_mctslib_mcts, f"{structure}_{iter_stop}_{randomized_str}MCTS")
+    cls = getattr(_mctslib_mcts, f"{iter_stop}_{structure}_{randomized_str}_MCTS")
 
     return cls(root)
 

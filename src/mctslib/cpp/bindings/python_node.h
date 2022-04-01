@@ -18,13 +18,19 @@ public:
     Stats stats;
     std::vector<std::shared_ptr<PythonNode>> children;
 
-    template<typename ...Args>
-    PythonNode(pybind11::object obj, Args ...args) requires (std::is_same_v<decltype(Stats::action), uint>)
-        : object(obj), stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>(), args...) {}
+    template <typename... Args>
+    PythonNode(pybind11::object obj, Args... args) requires(std::is_same_v<decltype(Stats::action), uint>)
+        : object(obj)
+        , stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>(), args...)
+    {
+    }
 
-    template<typename ...Args>
-    PythonNode(pybind11::object obj, Args ...args)
-        : object(obj), stats(obj.attr("evaluation")().cast<double>(), args...) {}
+    template <typename... Args>
+    PythonNode(pybind11::object obj, Args... args)
+        : object(obj)
+        , stats(obj.attr("evaluation")().cast<double>(), args...)
+    {
+    }
 
     void create_children()
     {
