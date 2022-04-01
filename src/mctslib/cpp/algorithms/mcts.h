@@ -38,8 +38,8 @@ public:
 
     struct Settings {
         uint rollout_depth;
-        [[no_unique_address]] std::conditional<using_iters, uint, std::monostate>::type iters;
-        [[no_unique_address]] std::conditional<using_iters, std::monostate, double>::type cpu_time;
+        [[no_unique_address]] typename std::conditional<using_iters, uint, std::monostate>::type iters;
+        [[no_unique_address]] typename std::conditional<using_iters, std::monostate, double>::type cpu_time;
         double exploration_weight;
 
         Settings(uint rollout_depth, uint iters, double exploration_weight) requires(std::is_same_v<decltype(iters), uint>)
@@ -61,7 +61,7 @@ public:
 
     static inline std::mt19937 rng;
     std::shared_ptr<Node> current_node_ptr;
-    std::conditional<using_dag, std::unordered_map<Node, std::shared_ptr<Node>>, std::monostate>::type transposition_table;
+    typename std::conditional<using_dag, std::unordered_map<Node, std::shared_ptr<Node>>, std::monostate>::type transposition_table;
     Settings settings = Settings();
 
     template <typename... Args>
