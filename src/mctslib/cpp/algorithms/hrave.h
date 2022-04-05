@@ -2,15 +2,16 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
 
 
 namespace mctslib {
 
 struct HRAVEStats : MCTSStats {
-    uint action;
+    uint action_id;
 
     explicit HRAVEStats() = default;
-    HRAVEStats(uint action, double reward) : MCTSStats(reward), action(action) {}
+    HRAVEStats(double reward, uint action_id) : MCTSStats(reward), action_id(action_id) {}
 };
 
 
@@ -33,7 +34,7 @@ public:
     double tree_policy_metric(const std::shared_ptr<Node> node_ptr) override {
         double log_N = std::log(this->current_node_ptr->stats.visits);
         double beta = sqrt(equivalence_param / (3 * this->current_node_ptr->stats.visits + equivalence_param));
-        double avg_amaf_reward = global_amafs.at(node_ptr->stats.action).average_reward();
+        double avg_amaf_reward = global_amafs.at(node_ptr->stats.action_id).average_reward();
         double avg_reward = node_ptr->stats.average_reward();
 
         return (1 - beta) * avg_reward + beta * avg_amaf_reward + this->settings.exploration_weight * log_N;
@@ -42,18 +43,18 @@ public:
 
 
     void backpropagate(std::vector<std::shared_ptr<Node>> path, const double reward) override {
-        std::vector<bool> seen_action (action_space_size, false);
+        std::vector<bool> seen_action_ids (action_space_size, false);
 
         for (std::shared_ptr<Node> node_ptr : path) {
-            std::cout << node_ptr->stats.action << std::endl;
-            seen_action.at(node_ptr->stats.action) = true;
+            std::cout << node_ptr->stats.action_id << std::endl;
+            seen_action_ids.at(node_ptr->stats.action_id) = true;
             node_ptr->stats.visits++;
             node_ptr->stats.backprop_reward += reward;
 
         }
 
         for (uint i = 0; i < action_space_size; i++) {
-            if (seen_action.at(i)) {
+            if (seen_action_ids.at(i)) {
                 global_amafs.at(i).visits++;
                 global_amafs.at(i).backprop_reward += reward;
             }
