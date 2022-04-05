@@ -19,9 +19,9 @@ public:
     std::vector<std::shared_ptr<PythonNode>> children;
 
     template <typename... Args>
-    PythonNode(pybind11::object obj, Args... args) requires requires(Stats stats) {stats.action_id;}
-        : object(obj)
-        , stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>(), args...)
+    PythonNode(pybind11::object obj, Args... args) requires requires(Stats stats) { stats.action_id; }
+        : object(obj),
+          stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>(), args...)
     {
     }
 

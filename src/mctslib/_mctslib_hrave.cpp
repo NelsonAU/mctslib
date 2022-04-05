@@ -1,6 +1,5 @@
 
 
-
 #include <pybind11/pybind11.h>
 
 #include "algorithms/hrave.h"
@@ -66,4 +65,3 @@ PYBIND11_MODULE(_mctslib_hrave, m)
         .def("move", &PyIters_DAG_RNGTies_HRAVE::move<uint, uint, double>, "", py::kw_only(),
             py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
 }
-
