@@ -122,7 +122,7 @@ public:
         node_ptr->create_children();
 
         if constexpr (using_dag) {
-            for (int i = 0; i < node_ptr->children.size(); i++) {
+            for (uint i = 0; i < node_ptr->children.size(); i++) {
                 if (transposition_table.count(*(node_ptr->children[i]))) {
                     node_ptr->children[i] = transposition_table[*(node_ptr->children[i])];
                 } else {
@@ -144,7 +144,7 @@ public:
     virtual double simulate(std::shared_ptr<Node> node_ptr)
     {
         Node node = *node_ptr;
-        for (int i = 0; i < settings.rollout_depth; i++) {
+        for (uint i = 0; i < settings.rollout_depth; i++) {
             if (node.is_terminal())
                 break;
 

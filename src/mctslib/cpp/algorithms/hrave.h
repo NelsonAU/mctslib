@@ -1,5 +1,4 @@
 #include "algorithms/mcts.h"
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -51,7 +50,6 @@ public:
         std::vector<bool> seen_action_ids(action_space_size, false);
 
         for (std::shared_ptr<Node> node_ptr : path) {
-            std::cout << node_ptr->stats.action_id << std::endl;
             seen_action_ids.at(node_ptr->stats.action_id) = true;
             node_ptr->stats.visits++;
             node_ptr->stats.backprop_reward += reward;
