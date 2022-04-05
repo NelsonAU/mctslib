@@ -89,7 +89,7 @@ public:
         settings = new_settings;
 
         if constexpr (using_iters) {
-            for (int i = 0; i < settings.iters; i++)
+            for (uint i = 0; i < settings.iters; i++)
                 rollout(current_node_ptr);
         } else {
             auto start = std::chrono::high_resolution_clock::now();
