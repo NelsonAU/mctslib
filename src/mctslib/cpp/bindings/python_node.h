@@ -32,7 +32,8 @@ public:
     {
     }
 
-    void create_children()
+    template <typename... Args>
+    void create_children(Args... args)
     {
         pybind11::list list = object.attr("find_children")();
         size_t length = pybind11::len(list);
@@ -41,7 +42,7 @@ public:
 
         for (pybind11::handle child : list) {
             children.push_back(
-                std::make_shared<PythonNode>(pybind11::reinterpret_borrow<pybind11::object>(child)));
+                std::make_shared<PythonNode>(pybind11::reinterpret_borrow<pybind11::object>(child), args...));
         }
         expanded = true;
     }
