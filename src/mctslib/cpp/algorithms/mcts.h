@@ -18,9 +18,9 @@ struct MCTSStats {
 
     explicit MCTSStats() = default;
     MCTSStats(double eval)
-        : visits(0)
-        , evaluation(eval)
+        : evaluation(eval)
         , backprop_reward(0)
+        , visits(0)
     {
     }
     double average_reward() const

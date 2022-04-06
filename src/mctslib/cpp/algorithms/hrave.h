@@ -28,10 +28,10 @@ public:
 
     template <typename... Args>
     HRAVEBase(uint action_space_size, uint equivalence_param, Args... args)
-        : global_amafs(action_space_size, MCTSStats())
+        : MCTSBase<Node, using_iters, using_dag, randomize_ties>(args...)
+        , global_amafs(action_space_size, MCTSStats())
         , equivalence_param(equivalence_param)
         , action_space_size(action_space_size)
-        , MCTSBase<Node, using_iters, using_dag, randomize_ties>(args...)
     {
     }
 
