@@ -40,7 +40,7 @@ public:
     const uint action_space_size;
 
     template <typename... Args>
-    RAVEBase(uint action_space_size, uint equivalence_param, Args... args)
+    RAVEBase(uint equivalence_param, uint action_space_size, Args... args)
         : MCTSBase<Node, using_iters, using_dag, randomize_ties>(args..., action_space_size)
         , equivalence_param(equivalence_param)
         , action_space_size(action_space_size)

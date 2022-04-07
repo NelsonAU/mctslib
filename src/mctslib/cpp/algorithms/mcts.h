@@ -9,6 +9,8 @@
 #include <variant>
 #include <vector>
 
+#pragma once
+
 namespace mctslib {
 
 struct MCTSStats {
