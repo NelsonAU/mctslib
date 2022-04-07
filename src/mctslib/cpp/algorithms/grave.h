@@ -117,7 +117,7 @@ public:
         }
     }
 
-    Node move(const MCTSBase<Node, using_iters, using_dag, randomize_ties>::Settings new_settings) override
+    Node move(const typename MCTSBase<Node, using_iters, using_dag, randomize_ties>::Settings new_settings) override
     {
         this->settings = new_settings;
 
