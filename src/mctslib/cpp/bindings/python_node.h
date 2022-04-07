@@ -1,4 +1,3 @@
-#include "util/empty.h"
 #include <iostream>
 #include <memory>
 #include <pybind11/pybind11.h>
@@ -9,32 +8,36 @@
 #pragma once
 
 namespace mctslib {
-template <class NodeStats>
+template <class Stats>
 class PythonNode {
-    bool _been_expanded = false;
+    bool expanded = false;
     static inline std::mt19937 rng;
 
 public:
     pybind11::object object;
-    NodeStats stats;
+    Stats stats;
     std::vector<std::shared_ptr<PythonNode>> children;
 
-    PythonNode(pybind11::object obj)
+    PythonNode(pybind11::object obj, Stats stats)
         : object(obj)
+        , stats(stats)
     {
-        if constexpr (std::is_same_v<decltype(stats.action), Empty>) {
-            stats = NodeStats { object.attr("evaluation")().cast<double>() };
-        } else {
-            stats = NodeStats { object.attr("evaluation")().cast<double>(), object.attr("action_id").cast<uint>() };
-        }
+    }
+
+    template <typename... Args>
+    PythonNode(pybind11::object obj, Args... args) requires requires(Stats stats) { stats.action_id; }
+        : object(obj),
+          stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>(), args...)
+    {
     }
 
     template <typename... Args>
     PythonNode(pybind11::object obj, Args... args)
-        : object(obj), stats(object.attr("evaluation")().cast<double>(), object.attr("action_id").cast<uint>(), args...)
+        : object(obj)
+        , stats(obj.attr("evaluation")().cast<double>(), args...)
     {
     }
-    
+
     template <typename... Args>
     void create_children(Args... args)
     {
@@ -47,12 +50,12 @@ public:
             children.push_back(
                 std::make_shared<PythonNode>(pybind11::reinterpret_borrow<pybind11::object>(child), args...));
         }
-        _been_expanded = true;
+        expanded = true;
     }
 
     PythonNode default_policy() const
     {
-        return PythonNode(object.attr("default_policy")());
+        return PythonNode(object.attr("default_policy")(), Stats());
     }
 
     bool is_terminal() const
@@ -60,9 +63,9 @@ public:
         return object.attr("is_terminal")().template cast<bool>();
     }
 
-    bool been_expanded() const
+    bool is_expanded() const
     {
-        return _been_expanded;
+        return expanded;
     }
 
     void print() const
