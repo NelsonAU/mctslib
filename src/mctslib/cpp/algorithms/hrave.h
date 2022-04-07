@@ -1,4 +1,5 @@
 #include "algorithms/mcts.h"
+#include <cmath>
 #include <memory>
 #include <string>
 #include <vector>

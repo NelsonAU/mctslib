@@ -1,5 +1,6 @@
 from . import _mctslib_mcts
 from . import _mctslib_hrave
+from . import _mctslib_rave
 
 
 def MCTS(root, *, structure="tree", iter_stop=None, randomize_ties=True):
@@ -29,6 +30,21 @@ def HRAVE(root, *, structure="tree", iter_stop=None, randomize_ties=True,
     randomized_str = "rng_ties" if randomize_ties else "no_rng_ties"
 
     cls = getattr(_mctslib_hrave, f"{iter_stop}_{structure}_{randomized_str}_HRAVE")
+
+    return cls(action_space_size, equivalence_param, root)
+
+def RAVE(root, *, structure="tree", iter_stop=None, randomize_ties=True,
+            equivalence_param, action_space_size):
+
+    if iter_stop not in ("iters", "cpu_time"):
+        raise ValueError(f"Argument iter_stop must be 'iters' or 'cpu_time', not {iter_stop}")
+
+    if structure not in ("tree", "dag"):
+        raise ValueError(f"Argument structure must be 'tree' or 'dag', not {structure}")
+
+    randomized_str = "rng_ties" if randomize_ties else "no_rng_ties"
+
+    cls = getattr(_mctslib_rave, f"{iter_stop}_{structure}_{randomized_str}_RAVE")
 
     return cls(action_space_size, equivalence_param, root)
 

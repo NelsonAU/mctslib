@@ -120,7 +120,6 @@ public:
     virtual void expand(std::shared_ptr<Node> node_ptr)
     {
         node_ptr->create_children();
-
         if constexpr (using_dag) {
             for (uint i = 0; i < node_ptr->children.size(); i++) {
                 if (transposition_table.count(*(node_ptr->children[i]))) {
@@ -136,7 +135,7 @@ public:
     {
         std::vector<std::shared_ptr<Node>> path = select(node_ptr);
         std::shared_ptr<Node> leaf = path.back();
-        expand(leaf);
+        this->expand(leaf);
         double reward = simulate(leaf);
         backpropagate(path, reward);
     }

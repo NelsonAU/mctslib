@@ -18,6 +18,12 @@ public:
     Stats stats;
     std::vector<std::shared_ptr<PythonNode>> children;
 
+    PythonNode(pybind11::object obj, Stats stats)
+        : object(obj)
+        , stats(stats)
+    {
+    }
+
     template <typename... Args>
     PythonNode(pybind11::object obj, Args... args) requires requires(Stats stats) { stats.action_id; }
         : object(obj),
@@ -49,7 +55,7 @@ public:
 
     PythonNode default_policy() const
     {
-        return PythonNode(object.attr("default_policy")());
+        return PythonNode(object.attr("default_policy")(), Stats());
     }
 
     bool is_terminal() const
