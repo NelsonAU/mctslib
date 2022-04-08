@@ -8,14 +8,17 @@
 #pragma once
 
 namespace mctslib {
+// Node Class responsible for calling out to an underlying Python object which contains methods
+// for interacting with an environment. Accepts a Stats type as a template paramter which is used
+// to hold all statistics relevant to the algorithm being used.
 template <class Stats>
 class PythonNode {
     bool expanded = false;
-    static inline std::mt19937 rng;
-
 public:
     pybind11::object object;
     Stats stats;
+    // Important - we can't depend on the child nodes being in any particular order, or that
+    // all available actions will have a corresponding child node.
     std::vector<std::shared_ptr<PythonNode>> children;
 
     PythonNode(pybind11::object obj, Stats stats)
@@ -24,6 +27,9 @@ public:
     {
     }
 
+    // Used for all algorithms which require knowledge of which action was taken in the prior state
+    // to produce this one. Used by all RAVE variants. Variadic template is required because the 
+    // signature of the Stats constructor will vary by algorithm.
     template <typename... Args>
     PythonNode(pybind11::object obj, Args... args) requires requires(Stats stats) { stats.action_id; }
         : object(obj),
@@ -31,12 +37,16 @@ public:
     {
     }
 
+    // Used for algorithms which may not require an action to inform the stats they collect, so the
+    // user won't need to provide an action_id on the Python object. Used by MCTS. Variadic template
+    // is required because the signature of the Stats constructor will vary by algorithm.
     template <typename... Args>
     PythonNode(pybind11::object obj, Args... args)
         : object(obj)
         , stats(obj.attr("evaluation")().cast<double>(), args...)
     {
     }
+
 
     template <typename... Args>
     void create_children(Args... args)

@@ -9,11 +9,13 @@
 #include <vector>
 
 namespace mctslib {
-template <class Node, bool using_iters, bool using_dag, bool randomize_ties>
-class GRAVEBase : public MCTSBase<Node, using_iters, using_dag, randomize_ties> {
+template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool use_mcts_expand = false>
+class GRAVEBase : public MCTSBase<Node, using_iters, using_dag, randomize_ties, use_mcts_expand> {
 public:
+    using MCTSBaseCls = MCTSBase<Node, using_iters, using_dag, randomize_ties, use_mcts_expand>;
+
     inline const static std::string alg_str = "GRAVE";
-    inline const static std::string str_id = MCTSBase<Node, using_iters, using_dag, randomize_ties>::opts_str + "_" + alg_str;
+    inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
 
     const uint equivalence_param;
     const uint action_space_size;
@@ -22,14 +24,16 @@ public:
 
     template <typename... Args>
     GRAVEBase(uint equivalence_param, uint action_space_size, uint ref_threshold, Args... args)
-        : MCTSBase<Node, using_iters, using_dag, randomize_ties>(args..., action_space_size)
+        : MCTSBaseCls(args..., action_space_size)
         , equivalence_param(equivalence_param)
         , action_space_size(action_space_size)
         , ref_threshold(ref_threshold)
-        , ref_nodes(1, this->current_node_ptr)
+        , ref_nodes{this->current_node_ptr}
     {
-    } // would prefer a different constructor, but this works
+    }
 
+    // Gets the node lowest in the tree which has the requisite number of visits to be used as the
+    // ref_node. In the case that there are none that meet the threshold, the root node is used.
     virtual std::shared_ptr<Node> get_ref_node()
     {
         // possible to make this more efficient by starting at the back
@@ -41,6 +45,8 @@ public:
         return ref_nodes.back();
     }
 
+    // Trims the deque holding the ref_nodes so we can free nodes no longer required for their
+    // AMAF stats.
     virtual void trim_ref_nodes()
     {
         for (uint i = 0; i < ref_nodes.size(); i++) {
@@ -50,6 +56,8 @@ public:
         }
     }
 
+    // Changes tree policy metric to use the ref_node's AMAF stats. Otherwise should be similar to
+    // RAVE, HRAVE tree_policy_metric
     double tree_policy_metric(const std::shared_ptr<Node> node_ptr) override
     {
         auto ref_node_stats = get_ref_node()->stats;
@@ -117,7 +125,8 @@ public:
         }
     }
 
-    Node move(const typename MCTSBase<Node, using_iters, using_dag, randomize_ties>::Settings new_settings) override
+    // Changes move to update ref_nodes. Otherwise should be the same as MCTS::move
+    Node move(const typename MCTSBaseCls::Settings new_settings) override
     {
         this->settings = new_settings;
 

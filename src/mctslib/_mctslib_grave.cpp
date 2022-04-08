@@ -15,8 +15,7 @@ PYBIND11_MODULE(_mctslib_grave, m)
     //          No way to infer this because the Settings default constructor cannot be deleted,
     //          and because of this the compiler will always choose to decide that the parameter
     //          pack is empty.
-    //
-    //
+
     using PyCPU_Tree_NoRNGTies_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, false, false, false>>;
     py::class_<PyCPU_Tree_NoRNGTies_GRAVE>(m, PyCPU_Tree_NoRNGTies_GRAVE::str_id())
         .def(py::init<uint, uint, uint, py::object>())

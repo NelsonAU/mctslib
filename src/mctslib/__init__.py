@@ -4,8 +4,10 @@ from . import _mctslib_rave
 from . import _mctslib_grave
 
 
-def MCTS(root, *, structure="tree", iter_stop=None, randomize_ties=True):
-
+def MCTS(root, *, structure: str = "tree", iter_stop: str, randomize_ties: bool = True):
+    """
+    Used to fetch and initialize the appropriate MCTS implementation from the shared object.
+    """
     if iter_stop not in ("iters", "cpu_time"):
         raise ValueError(f"Argument iter_stop must be 'iters' or 'cpu_time', not {iter_stop}")
 
@@ -19,9 +21,11 @@ def MCTS(root, *, structure="tree", iter_stop=None, randomize_ties=True):
     return cls(root)
 
 
-def HRAVE(root, *, structure="tree", iter_stop=None, randomize_ties=True,
-            equivalence_param, action_space_size):
-
+def HRAVE(root, *, structure: str = "tree", iter_stop: str, randomize_ties: bool = True,
+            equivalence_param: int, action_space_size: int):
+    """
+    Used to fetch and initialize the appropriate HRAVE implementation from the shared object.
+    """
     if iter_stop not in ("iters", "cpu_time"):
         raise ValueError(f"Argument iter_stop must be 'iters' or 'cpu_time', not {iter_stop}")
 
@@ -35,9 +39,11 @@ def HRAVE(root, *, structure="tree", iter_stop=None, randomize_ties=True,
     return cls(action_space_size, equivalence_param, root)
 
 
-def RAVE(root, *, structure="tree", iter_stop=None, randomize_ties=True,
-            equivalence_param, action_space_size):
-
+def RAVE(root, *, structure: str = "tree", iter_stop: str, randomize_ties: bool = True,
+            equivalence_param: int, action_space_size: int):
+    """
+    Used to fetch and initialize the appropriate RAVE implementation from the shared object.
+    """
     if iter_stop not in ("iters", "cpu_time"):
         raise ValueError(f"Argument iter_stop must be 'iters' or 'cpu_time', not {iter_stop}")
 
@@ -50,9 +56,12 @@ def RAVE(root, *, structure="tree", iter_stop=None, randomize_ties=True,
 
     return cls(action_space_size, equivalence_param, root)
 
-def GRAVE(root, *, structure="tree", iter_stop=None, randomize_ties=True,
-            equivalence_param, action_space_size, ref_threshold):
 
+def GRAVE(root, *, structure: str = "tree", iter_stop: str, randomize_ties: bool = True,
+            equivalence_param: int, action_space_size: int, ref_threshold: int):
+    """
+    Used to fetch and initialize the appropriate GRAVE implementation from the shared object.
+    """
     if iter_stop not in ("iters", "cpu_time"):
         raise ValueError(f"Argument iter_stop must be 'iters' or 'cpu_time', not {iter_stop}")
 
@@ -65,4 +74,5 @@ def GRAVE(root, *, structure="tree", iter_stop=None, randomize_ties=True,
 
     return cls(action_space_size, equivalence_param, ref_threshold, root)
 
-__all__ = ("MCTS")
+
+__all__ = ("MCTS", "HRAVE", "RAVE", "GRAVE")

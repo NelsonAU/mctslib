@@ -18,30 +18,27 @@ struct RAVEStats : public MCTSStats {
     {
     }
 
-    template <typename... Args>
-    RAVEStats(Args... args)
-    {
-        throw std::invalid_argument("Invalid construction of RAVEStats!");
-    }
-
+    // gets the average reward of a given action according to the AMAF stats on this node
     double amaf_average_reward(uint action)
     {
         return amaf_stats.at(action).average_reward();
     }
 };
 
-template <class Node, bool using_iters, bool using_dag, bool randomize_ties>
-class RAVEBase : public MCTSBase<Node, using_iters, using_dag, randomize_ties> {
+template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool use_mcts_expand = false>
+class RAVEBase : public MCTSBase<Node, using_iters, using_dag, randomize_ties, use_mcts_expand> {
 public:
+    using MCTSBaseCls = MCTSBase<Node, using_iters, using_dag, randomize_ties, use_mcts_expand>;
+
     inline const static std::string alg_str = "RAVE";
-    inline const static std::string str_id = MCTSBase<Node, using_iters, using_dag, randomize_ties>::opts_str + "_" + alg_str;
+    inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
 
     const uint equivalence_param;
     const uint action_space_size;
 
     template <typename... Args>
     RAVEBase(uint equivalence_param, uint action_space_size, Args... args)
-        : MCTSBase<Node, using_iters, using_dag, randomize_ties>(args..., action_space_size)
+        : MCTSBaseCls(args..., action_space_size)
         , equivalence_param(equivalence_param)
         , action_space_size(action_space_size)
     {
