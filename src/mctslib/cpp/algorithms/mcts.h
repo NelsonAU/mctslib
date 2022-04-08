@@ -35,7 +35,7 @@ struct MCTSStats {
 
 // Implements the MCTS Base class. This class is designed to be inherited from, but should never
 // be instantiated independently. All algorithms that are designed to be used should be marked
-// final. To use MCTS, use the template found below this one. 
+// final. To use MCTS, use the template found below this one.
 template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool use_mcts_expand>
 class MCTSBase {
 public:

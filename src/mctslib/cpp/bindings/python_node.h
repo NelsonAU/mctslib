@@ -14,6 +14,7 @@ namespace mctslib {
 template <class Stats>
 class PythonNode {
     bool expanded = false;
+
 public:
     pybind11::object object;
     Stats stats;
@@ -28,7 +29,7 @@ public:
     }
 
     // Used for all algorithms which require knowledge of which action was taken in the prior state
-    // to produce this one. Used by all RAVE variants. Variadic template is required because the 
+    // to produce this one. Used by all RAVE variants. Variadic template is required because the
     // signature of the Stats constructor will vary by algorithm.
     template <typename... Args>
     PythonNode(pybind11::object obj, Args... args) requires requires(Stats stats) { stats.action_id; }
@@ -46,7 +47,6 @@ public:
         , stats(obj.attr("evaluation")().cast<double>(), args...)
     {
     }
-
 
     template <typename... Args>
     void create_children(Args... args)

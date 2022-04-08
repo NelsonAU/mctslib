@@ -25,7 +25,7 @@ public:
     using MCTSBaseCls = MCTSBase<Node, using_iters, using_dag, randomize_ties, use_mcts_expand>;
     inline const static std::string alg_str = "HRAVE";
     inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
-    // Stores the all moves as first (AMAF) statistics for each action. The GRAVE analogy taken 
+    // Stores the all moves as first (AMAF) statistics for each action. The GRAVE analogy taken
     // literally would have us store this on the root node, but in practice this lets us keep the in
     // memory size of the tree down by freeing nodes above the current_node_ptr.
     std::vector<MCTSStats> global_amafs;

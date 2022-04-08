@@ -28,7 +28,7 @@ public:
         , equivalence_param(equivalence_param)
         , action_space_size(action_space_size)
         , ref_threshold(ref_threshold)
-        , ref_nodes{this->current_node_ptr}
+        , ref_nodes { this->current_node_ptr }
     {
     }
 
