@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <random>
 #include <type_traits>
 #include <vector>
@@ -13,14 +14,14 @@ namespace mctslib {
 // to hold all statistics relevant to the algorithm being used.
 template <class Stats>
 class PythonNode {
-    bool expanded = false;
+    bool expanded_ = false;
+    // Important - we can't depend on the child nodes being in any particular order, or that
+    // all available actions will have a corresponding child node.
+    std::vector<std::shared_ptr<PythonNode>> children_;
 
 public:
     pybind11::object object;
     Stats stats;
-    // Important - we can't depend on the child nodes being in any particular order, or that
-    // all available actions will have a corresponding child node.
-    std::vector<std::shared_ptr<PythonNode>> children;
 
     PythonNode(pybind11::object obj, Stats stats)
         : object(obj)
@@ -32,40 +33,39 @@ public:
     // to produce this one. Used by all RAVE variants. Variadic template is required because the
     // signature of the Stats constructor will vary by algorithm.
     template <typename... Args>
-    PythonNode(pybind11::object obj, Args... args) requires requires(Stats stats) { stats.action_id; }
+    PythonNode(pybind11::object obj, Args... args)
         : object(obj),
           stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>(), args...)
     {
     }
 
-    // Used for algorithms which may not require an action to inform the stats they collect, so the
-    // user won't need to provide an action_id on the Python object. Used by MCTS. Variadic template
-    // is required because the signature of the Stats constructor will vary by algorithm.
     template <typename... Args>
-    PythonNode(pybind11::object obj, Args... args)
-        : object(obj)
-        , stats(obj.attr("evaluation")().cast<double>(), args...)
-    {
+    std::shared_ptr<PythonNode> apply_action(uint action_id, Args... args) {
+        pybind11::object resultant_obj = object.attr("apply_action")(action_id);
+        return std::make_shared<PythonNode>(resultant_obj, args...);
     }
 
-    template <typename... Args>
-    void create_children(Args... args)
-    {
-        pybind11::list list = object.attr("find_children")();
-        size_t length = pybind11::len(list);
-
-        children.reserve(length);
-
-        for (pybind11::handle child : list) {
-            children.push_back(
-                std::make_shared<PythonNode>(pybind11::reinterpret_borrow<pybind11::object>(child), args...));
-        }
-        expanded = true;
+    // Used for simulations where the node will be discarded immediately, we only care about getting
+    // the eval so we can backpropagate the result
+    PythonNode apply_action_eval_only(uint action_id) {
+        pybind11::object resultant_obj = object.attr("apply_action")(action_id);
+        double eval = resultant_obj.attr("evaluation")().cast<double>();
+        return PythonNode(resultant_obj, Stats::eval_only(eval, action_id));
     }
 
-    PythonNode default_policy() const
-    {
-        return PythonNode(object.attr("default_policy")(), Stats());
+    std::vector<uint> get_legal_actions() {
+        pybind11::list legal_action_list = object.attr("get_legal_actions")();
+
+        return legal_action_list.cast<std::vector<uint>>();
+    }
+
+    void set_children(std::vector<std::shared_ptr<PythonNode>> children) {
+        children_ = children;
+        expanded_ = true;
+    }
+
+    std::vector<std::shared_ptr<PythonNode>>& children() {
+        return children_;
     }
 
     bool is_terminal() const
@@ -75,7 +75,7 @@ public:
 
     bool is_expanded() const
     {
-        return expanded;
+        return expanded_;
     }
 
     void print() const

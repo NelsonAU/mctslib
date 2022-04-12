@@ -9,24 +9,22 @@
 #include <vector>
 
 namespace mctslib {
-template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool use_mcts_expand = false>
-class GRAVEBase : public MCTSBase<Node, using_iters, using_dag, randomize_ties, use_mcts_expand> {
+template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool constant_action_space>
+class GRAVEBase : public MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space> {
 public:
-    using MCTSBaseCls = MCTSBase<Node, using_iters, using_dag, randomize_ties, use_mcts_expand>;
+    using MCTSBaseCls = MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space>;
 
     inline const static std::string alg_str = "GRAVE";
     inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
 
     const uint equivalence_param;
-    const uint action_space_size;
     const uint ref_threshold;
     std::deque<std::shared_ptr<Node>> ref_nodes; // newest nodes at the front
 
     template <typename... Args>
-    GRAVEBase(uint equivalence_param, uint action_space_size, uint ref_threshold, Args... args)
-        : MCTSBaseCls(args..., action_space_size)
+    GRAVEBase(double backprop_decay, uint action_space_size, uint equivalence_param, uint ref_threshold, Args... args)
+        : MCTSBaseCls(backprop_decay, action_space_size, args...)
         , equivalence_param(equivalence_param)
-        , action_space_size(action_space_size)
         , ref_threshold(ref_threshold)
         , ref_nodes { this->current_node_ptr }
     {
@@ -71,7 +69,8 @@ public:
 
     void backpropagate(std::vector<std::shared_ptr<Node>> path, const double reward) override
     {
-        std::vector<bool> seen_action_ids(action_space_size, false);
+        std::vector<bool> seen_action_ids(this->action_space_size, false);
+        double discounted_reward = reward;
 
         for (auto it = path.rbegin(); it != path.rend(); it++) {
             std::shared_ptr<Node> node_ptr = *it;
@@ -79,9 +78,10 @@ public:
             seen_action_ids.at(node_ptr->stats.action_id) = true;
 
             node_ptr->stats.visits++;
-            node_ptr->stats.backprop_reward += reward;
+            node_ptr->stats.backprop_reward += discounted_reward;
+            discounted_reward *= this->backprop_decay;
 
-            for (uint action_id = 0; action_id < action_space_size; action_id++) {
+            for (uint action_id = 0; action_id < this->action_space_size; action_id++) {
                 if (seen_action_ids.at(action_id)) {
                     node_ptr->stats.amaf_stats.at(action_id).visits++;
                     node_ptr->stats.amaf_stats.at(action_id).backprop_reward += reward;
@@ -94,9 +94,10 @@ public:
             seen_action_ids.at(node_ptr->stats.action_id) = true;
 
             node_ptr->stats.visits++;
-            node_ptr->stats.backprop_reward += reward;
+            node_ptr->stats.backprop_reward += discounted_reward;
+            discounted_reward *= this->backprop_decay;
 
-            for (uint action_id = 0; action_id < action_space_size; action_id++) {
+            for (uint action_id = 0; action_id < this->action_space_size; action_id++) {
                 if (seen_action_ids.at(action_id)) {
                     node_ptr->stats.amaf_stats.at(action_id).visits++;
                     node_ptr->stats.amaf_stats.at(action_id).backprop_reward += reward;
@@ -108,26 +109,10 @@ public:
         trim_ref_nodes();
     }
 
-    // expand should have the same implementation for both RAVE and GRAVE
-    void expand(std::shared_ptr<Node> node_ptr) override
-    {
-        node_ptr->create_children(action_space_size);
-
-        if constexpr (using_dag) {
-
-            for (uint i = 0; i < node_ptr->children.size(); i++) {
-                if (this->transposition_table.count(*(node_ptr->children[i]))) {
-                    node_ptr->children[i] = this->transposition_table[*(node_ptr->children[i])];
-                } else {
-                    this->transposition_table[*(node_ptr->children[i])] = node_ptr->children[i];
-                }
-            }
-        }
-    }
-
     // Changes move to update ref_nodes. Otherwise should be the same as MCTS::move
     Node move(const typename MCTSBaseCls::Settings new_settings) override
     {
+        //TODO implement this by explicitly calling MCTSBaseCls::move
         this->settings = new_settings;
 
         if constexpr (using_iters) {
@@ -153,8 +138,8 @@ public:
     }
 };
 
-template <class Node, bool using_iters, bool using_dag, bool randomized_ties>
-class GRAVE final : public GRAVEBase<Node, using_iters, using_dag, randomized_ties> {
-    using GRAVEBase<Node, using_iters, using_dag, randomized_ties>::GRAVEBase;
+template <class Node, bool using_iters, bool using_dag, bool randomized_ties, bool constant_action_space>
+class GRAVE final : public GRAVEBase<Node, using_iters, using_dag, randomized_ties, constant_action_space> {
+    using GRAVEBase<Node, using_iters, using_dag, randomized_ties, constant_action_space>::GRAVEBase;
 };
 }

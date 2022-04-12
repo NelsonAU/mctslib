@@ -7,11 +7,20 @@ class Node:
     def __init__(self, x, y, action_id=0):
         self.x = x
         self.y = y
-        self._evaluation = self.x * self.y
+        self._evaluation = (self.x * self.y)/((self.x/2 + self.y/2)**2)
         self.action_id = action_id
 
     def find_children(self):
         return [Node(self.x + 1, self.y, action_id=0), Node(self.x, self.y + 1, action_id=1)]
+
+    def apply_action(self, action_id):
+        if action_id == 0:
+            return Node(self.x + 1, self.y, action_id=0)
+        else:
+            return Node(self.x, self.y + 1, action_id=1)
+
+    def get_legal_actions(self):
+        return [0, 1]
 
     def default_policy(self):
         return random.choice(self.find_children())
@@ -32,7 +41,7 @@ class Node:
         return hash((self.x, self.y))
 
     def __repr__(self):
-        return f"Node<self.x={self.x}, self.y={self.y}>"
+        return f"Node<self.x={self.x}, self.y={self.y}, self.eval={self._evaluation} self.action={self.action_id}>"
 
     @staticmethod
     def get_action_space_size():

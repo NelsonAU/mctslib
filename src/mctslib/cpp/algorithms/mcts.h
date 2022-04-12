@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 #include <limits>
 #include <memory>
+#include <numeric>
 #include <random>
 #include <stdexcept>
 #include <string>
@@ -17,16 +19,24 @@ namespace mctslib {
 // Contains all the stats needed for a node in MCTS.
 struct MCTSStats {
     double evaluation;
+    uint action_id;
     double backprop_reward;
     uint visits;
 
-    explicit MCTSStats() = default;
-    MCTSStats(double eval)
+    // In this case we discard action_space_size as MCTSStats doesn't need to store information
+    // about all available actions
+    MCTSStats(double eval, uint action_id, uint max_action_space_size)
         : evaluation(eval)
+        , action_id(action_id)
         , backprop_reward(0)
         , visits(0)
     {
     }
+    // In this case both constructors are the same, but may not be for more complicated Stats
+    static MCTSStats eval_only (double eval, uint action_id) {
+        return MCTSStats(eval, action_id, 0);
+    }
+
     double average_reward() const
     {
         return visits ? backprop_reward / visits : std::numeric_limits<double>::min();
@@ -36,10 +46,10 @@ struct MCTSStats {
 // Implements the MCTS Base class. This class is designed to be inherited from, but should never
 // be instantiated independently. All algorithms that are designed to be used should be marked
 // final. To use MCTS, use the template found below this one.
-template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool use_mcts_expand>
+template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool constant_action_space>
 class MCTSBase {
 public:
-    inline const static std::string opts_str = std::string(using_iters ? "iters" : "cpu_time") + "_" + std::string(using_dag ? "dag" : "tree") + "_" + std::string(randomize_ties ? "rng_ties" : "no_rng_ties");
+    inline const static std::string opts_str = std::string(using_iters ? "iters" : "cpu_time") + "_" + (using_dag ? "dag" : "tree") + "_" + (randomize_ties ? "rng_ties" : "no_rng_ties") + "_" + (constant_action_space ? "const_action_space" : "non_const_action_space");
     inline const static std::string alg_str = "MCTS";
     inline const static std::string str_id = opts_str + "_" + alg_str;
 
@@ -47,8 +57,8 @@ public:
     // will overwrite the previous Settings object.
     struct Settings {
         uint rollout_depth;
-        [[no_unique_address]] typename std::conditional<using_iters, uint, std::monostate>::type iters;
-        [[no_unique_address]] typename std::conditional<using_iters, std::monostate, double>::type cpu_time;
+        typename std::conditional<using_iters, uint, std::monostate>::type iters;
+        typename std::conditional<using_iters, std::monostate, double>::type cpu_time;
         double exploration_weight;
 
         Settings(uint rollout_depth, uint iters, double exploration_weight) requires(std::is_same_v<decltype(iters), uint>)
@@ -70,29 +80,33 @@ public:
         explicit Settings() = default;
     };
 
-    static inline std::mt19937 rng;
+    std::mt19937 rng;
+    const double backprop_decay;
+    const uint action_space_size;
     std::shared_ptr<Node> current_node_ptr;
     typename std::conditional<using_dag, std::unordered_map<Node, std::shared_ptr<Node>>, std::monostate>::type transposition_table;
+    typename std::conditional<constant_action_space, std::vector<uint>, std::monostate>::type action_space;
     Settings settings = Settings();
 
+    // Args... will be forwarded to the Node class
     template <typename... Args>
-    MCTSBase(Args... args)
-        : current_node_ptr(std::make_shared<Node>(args...))
+    MCTSBase(double backprop_decay, uint action_space_size, Args... args) 
+        : backprop_decay(backprop_decay), action_space_size(action_space_size), current_node_ptr(std::make_shared<Node>(args..., action_space_size))
+
     {
+        if constexpr (constant_action_space) {
+            // fill vector with 0...action_space_size - 1
+            action_space = std::vector<uint>(action_space_size);
+            std::iota(std::begin(action_space), std::end(action_space), 0);
+        }
     }
 
     // Used to choose the next node to progress to after all rollouts have been completed.
     virtual std::shared_ptr<Node> choose(std::shared_ptr<Node> node_ptr)
     {
-        if constexpr (randomize_ties) {
-            // Doing this is fine as algorithms should not depend on the order of any given
-            // set of child nodes. Ensures that ties are broken randomly.
-            std::shuffle(std::begin(node_ptr->children), std::end(node_ptr->children), rng);
-        }
-
         return *std::max_element(
-            node_ptr->children.begin(),
-            node_ptr->children.end(),
+            node_ptr->children().begin(),
+            node_ptr->children().end(),
             [](const std::shared_ptr<Node> left, const std::shared_ptr<Node> right) {
                 return left->stats.average_reward() < right->stats.average_reward();
             });
@@ -131,40 +145,58 @@ public:
     }
 
     // Backpropagates the result of a simulation back up the path taken during the selection phase.
-    virtual void backpropagate(std::vector<std::shared_ptr<Node>> path, const double reward)
+    virtual void backpropagate(std::vector<std::shared_ptr<Node>> path, double reward)
     {
         for (std::shared_ptr<Node> node_ptr : path) {
             node_ptr->stats.visits++;
             node_ptr->stats.backprop_reward += reward;
+            reward *= backprop_decay;
         }
     }
 
     // Creates the children of a leaf node, and, if using_dag is enabled, checks the transposition
-    // table and replaces the appropriate child nodes if necessary.
-    //
-    // Note on use_mcts_expand: This is done to tell the compiler that no code besides the exception
-    // should be generated in the case that use_mcts_expand is false. This lets subclasses of this
-    // class override expand without being bound to the fact that this version of expand assumes
-    // that constructing Node::Stats requires no additional arguments. This is not true for all
-    // algorithms, and for algorithms need arguments passed to create children, this presents a
-    // problem because inheriting from this class will make the program fail to compile. See the
-    // implementation of expand in rave.h for an example of an algorithm where this is useful.
+    // table and replaces the appropriate child nodes if necessary. If randomize_ties is enabled,
+    // then we shuffle the legal action set for the node so that it's children are in a random
+    // order.
     virtual void expand(std::shared_ptr<Node> node_ptr)
     {
-        if constexpr (use_mcts_expand) {
-            node_ptr->create_children();
+        std::vector<uint> node_action_space;
+
+        // get appropriate legal action set
+        if constexpr (constant_action_space) {
+            node_action_space = action_space;
+        } else {
+            node_action_space = node_ptr->get_legal_actions();
+        }
+
+        // This solves multiple problems: in choose, we would prefer ties be broken randomly,
+        // but that doesn't account for biases in select where we iterate over child nodes to find
+        // a non-expanded one. Shuffling here means that we won't have to worry about either.
+        // Of course it is still toggleable based on whether the user likes ties to be randomized,
+        // but in my testing this is quite important.
+        if constexpr (randomize_ties) {
+            std::shuffle(std::begin(node_action_space), std::end(node_action_space), rng);
+        }
+
+        std::vector<std::shared_ptr<Node>> children;
+        children.reserve(node_action_space.size());
+
+        for (uint action_id : node_action_space) {
+            std::shared_ptr<Node> child_ptr = node_ptr->apply_action(action_id, action_space_size);
+
             if constexpr (using_dag) {
-                for (uint i = 0; i < node_ptr->children.size(); i++) {
-                    if (transposition_table.count(*(node_ptr->children[i]))) {
-                        node_ptr->children[i] = transposition_table[*(node_ptr->children[i])];
-                    } else {
-                        transposition_table[*(node_ptr->children[i])] = node_ptr->children[i];
-                    }
+                if (transposition_table.contains(*child_ptr)) {
+                    child_ptr = transposition_table.at(*child_ptr);
+                } else {
+                    transposition_table[*child_ptr] = child_ptr;
                 }
             }
-        } else {
-            std::logic_error("Never call base version of expand when use_mcts_expand is false!");
+
+            children.push_back(child_ptr);
+
         }
+
+        node_ptr->set_children(children);
     }
 
     virtual void rollout(std::shared_ptr<Node> node_ptr)
@@ -176,14 +208,29 @@ public:
         backpropagate(path, reward);
     }
 
+
     virtual double simulate(std::shared_ptr<Node> node_ptr)
     {
         Node node = *node_ptr;
+        std::vector<uint> legal_action_space;
+
+        if constexpr (constant_action_space) {
+            legal_action_space = action_space;
+        } else {
+            legal_action_space = node.get_legal_actions();
+        }
+
         for (uint i = 0; i < settings.rollout_depth; i++) {
             if (node.is_terminal())
                 break;
 
-            node = node.default_policy();
+            std::uniform_int_distribution<uint> dist {0, legal_action_space.size()};
+            uint next_action = dist(rng);
+            node = node.apply_action_eval_only(next_action);
+
+            if constexpr (!constant_action_space) {
+                legal_action_space = node.get_legal_actions();
+            }
         }
 
         return node.stats.evaluation;
@@ -193,13 +240,13 @@ public:
     // of MCTS, this is UCT, but could differ for other algorithms.
     virtual std::vector<std::shared_ptr<Node>> select(std::shared_ptr<Node> node_ptr)
     {
-        std::vector<std::shared_ptr<Node>> path { node_ptr }; // NOTE: slight difference here, check to make sure it works
+        std::vector<std::shared_ptr<Node>> path { node_ptr };
 
         for (;;) {
             if (!node_ptr->is_expanded() || node_ptr->is_terminal())
                 return path;
 
-            for (std::shared_ptr<Node> child : node_ptr->children) {
+            for (std::shared_ptr<Node> child : node_ptr->children()) {
                 if (!child->is_expanded()) {
                     path.push_back(child);
                     return path;
@@ -207,11 +254,13 @@ public:
             }
 
             node_ptr = *std::max_element(
-                node_ptr->children.begin(),
-                node_ptr->children.end(),
+                node_ptr->children().begin(),
+                node_ptr->children().end(),
                 [this](const std::shared_ptr<Node> left, const std::shared_ptr<Node> right) {
                     return tree_policy_metric(left) > tree_policy_metric(right);
                 });
+
+            path.push_back(node_ptr);
         }
     }
 
@@ -231,8 +280,8 @@ public:
 // The purpose of this class is to create a completely concrete class which the compiler will then
 // hopefully devirtualize and optimize better. This may be unnecessary - but makes intent clear and
 // keeps me from worrying about the compiler not doing the right thing :-).
-template <class Node, bool using_iters, bool using_dag, bool randomized_ties>
-class MCTS final : public MCTSBase<Node, using_iters, using_dag, randomized_ties, true> {
-    using MCTSBase<Node, using_iters, using_dag, randomized_ties, true>::MCTSBase;
+template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool constant_action_space>
+class MCTS final : public MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space> {
+    using MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space>::MCTSBase;
 };
 }
