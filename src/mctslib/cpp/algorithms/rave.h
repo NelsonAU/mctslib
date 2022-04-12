@@ -17,7 +17,8 @@ struct RAVEStats : public MCTSStats {
     {
     }
 
-    static RAVEStats eval_only (double eval, uint action_id) {
+    static RAVEStats eval_only(double eval, uint action_id)
+    {
         return RAVEStats(eval, action_id, 0);
     }
 

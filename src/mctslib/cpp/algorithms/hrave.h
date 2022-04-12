@@ -1,12 +1,11 @@
 #include "algorithms/mcts.h"
+#include "util/amaf_stats.h"
 #include <cmath>
 #include <memory>
 #include <string>
-#include "util/amaf_stats.h"
 #include <vector>
 
 namespace mctslib {
-
 
 // Implements History Rapid Action Value Estimation. Like GRAVE with the ref_threshold set to
 // infinity.

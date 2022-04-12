@@ -112,7 +112,7 @@ public:
     // Changes move to update ref_nodes. Otherwise should be the same as MCTS::move
     Node move(const typename MCTSBaseCls::Settings new_settings) override
     {
-        //TODO implement this by explicitly calling MCTSBaseCls::move
+        // TODO implement this by explicitly calling MCTSBaseCls::move
         this->settings = new_settings;
 
         if constexpr (using_iters) {

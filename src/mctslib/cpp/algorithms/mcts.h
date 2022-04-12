@@ -33,7 +33,8 @@ struct MCTSStats {
     {
     }
     // In this case both constructors are the same, but may not be for more complicated Stats
-    static MCTSStats eval_only (double eval, uint action_id) {
+    static MCTSStats eval_only(double eval, uint action_id)
+    {
         return MCTSStats(eval, action_id, 0);
     }
 
@@ -90,8 +91,10 @@ public:
 
     // Args... will be forwarded to the Node class
     template <typename... Args>
-    MCTSBase(double backprop_decay, uint action_space_size, Args... args) 
-        : backprop_decay(backprop_decay), action_space_size(action_space_size), current_node_ptr(std::make_shared<Node>(args..., action_space_size))
+    MCTSBase(double backprop_decay, uint action_space_size, Args... args)
+        : backprop_decay(backprop_decay)
+        , action_space_size(action_space_size)
+        , current_node_ptr(std::make_shared<Node>(args..., action_space_size))
 
     {
         if constexpr (constant_action_space) {
@@ -193,7 +196,6 @@ public:
             }
 
             children.push_back(child_ptr);
-
         }
 
         node_ptr->set_children(children);
@@ -207,7 +209,6 @@ public:
         double reward = simulate(leaf);
         backpropagate(path, reward);
     }
-
 
     virtual double simulate(std::shared_ptr<Node> node_ptr)
     {
@@ -224,7 +225,7 @@ public:
             if (node.is_terminal())
                 break;
 
-            std::uniform_int_distribution<uint> dist {0, legal_action_space.size()};
+            std::uniform_int_distribution<uint> dist { 0, legal_action_space.size() };
             uint next_action = dist(rng);
             node = node.apply_action_eval_only(next_action);
 

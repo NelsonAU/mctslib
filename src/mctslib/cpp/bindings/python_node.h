@@ -34,37 +34,42 @@ public:
     // signature of the Stats constructor will vary by algorithm.
     template <typename... Args>
     PythonNode(pybind11::object obj, Args... args)
-        : object(obj),
-          stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>(), args...)
+        : object(obj)
+        , stats(obj.attr("evaluation")().cast<double>(), obj.attr("action_id").cast<uint>(), args...)
     {
     }
 
     template <typename... Args>
-    std::shared_ptr<PythonNode> apply_action(uint action_id, Args... args) {
+    std::shared_ptr<PythonNode> apply_action(uint action_id, Args... args)
+    {
         pybind11::object resultant_obj = object.attr("apply_action")(action_id);
         return std::make_shared<PythonNode>(resultant_obj, args...);
     }
 
     // Used for simulations where the node will be discarded immediately, we only care about getting
     // the eval so we can backpropagate the result
-    PythonNode apply_action_eval_only(uint action_id) {
+    PythonNode apply_action_eval_only(uint action_id)
+    {
         pybind11::object resultant_obj = object.attr("apply_action")(action_id);
         double eval = resultant_obj.attr("evaluation")().cast<double>();
         return PythonNode(resultant_obj, Stats::eval_only(eval, action_id));
     }
 
-    std::vector<uint> get_legal_actions() {
+    std::vector<uint> get_legal_actions()
+    {
         pybind11::list legal_action_list = object.attr("get_legal_actions")();
 
         return legal_action_list.cast<std::vector<uint>>();
     }
 
-    void set_children(std::vector<std::shared_ptr<PythonNode>> children) {
+    void set_children(std::vector<std::shared_ptr<PythonNode>> children)
+    {
         children_ = children;
         expanded_ = true;
     }
 
-    std::vector<std::shared_ptr<PythonNode>>& children() {
+    std::vector<std::shared_ptr<PythonNode>>& children()
+    {
         return children_;
     }
 
