@@ -10,7 +10,6 @@ namespace mctslib {
 struct RAVEStats : public MCTSStats {
     std::vector<AMAFStats> amaf_stats;
 
-    explicit RAVEStats() = default;
     RAVEStats(double eval, uint action_id, uint max_action_space_size)
         : MCTSStats(eval, action_id, max_action_space_size)
         , amaf_stats(max_action_space_size, AMAFStats())
