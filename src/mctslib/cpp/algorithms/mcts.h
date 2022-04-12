@@ -225,7 +225,7 @@ public:
             if (node.is_terminal())
                 break;
 
-            std::uniform_int_distribution<uint> dist { 0, (uint)legal_action_space.size() };
+            std::uniform_int_distribution<uint> dist { 0, (uint)legal_action_space.size() - 1};
             uint next_action = dist(rng);
             node = node.apply_action_eval_only(next_action);
 
