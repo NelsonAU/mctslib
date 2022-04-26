@@ -265,12 +265,8 @@ public:
         }
     }
 
+    // For MCTS, this is UCT
     virtual double tree_policy_metric(const std::shared_ptr<Node> node_ptr)
-    {
-        return uct(node_ptr);
-    }
-
-    virtual double uct(const std::shared_ptr<Node> node_ptr)
     {
         double avg_reward = node_ptr->stats.average_reward();
         double log_N = std::log(current_node_ptr->stats.visits);
