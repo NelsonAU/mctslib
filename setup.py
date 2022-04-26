@@ -5,7 +5,6 @@ from pybind11.setup_helpers import Pybind11Extension
 import os
 
 
-
 def find_ext_modules(**kwargs):
     """Creates list of Pybind11Extensions and passes extra arguments to them"""
     return [Pybind11Extension(f'mctslib.{Path(p).stem}', [p], **kwargs)
@@ -17,13 +16,12 @@ ext_options = {
     'include_dirs': ['src/mctslib/cpp'],
 }
 
-if 'MCTSLIB_CXX_ARGS' in os.environ:
+if 'MCTSLIB_CXX_FLAGS' in os.environ:
     ext_options = {
         'include_dirs': ['src/mctslib/cpp'],
-        'extra_compile_args' : os.environ.get('MCTSLIB_CXX_ARGS').split(','),
+        'extra_compile_args': os.environ['MCTSLIB_CXX_FLAGS'].split(' '),
     }
 
-    print(ext_options)
 
 setup(
     name='mctslib',
