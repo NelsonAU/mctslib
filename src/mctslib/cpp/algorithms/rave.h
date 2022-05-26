@@ -10,9 +10,9 @@ namespace mctslib {
 struct RAVEStats : public MCTSStats {
     std::vector<AMAFStats> amaf_stats;
 
-    RAVEStats(double eval, uint action_id, uint max_action_space_size)
-        : MCTSStats(eval, action_id, max_action_space_size)
-        , amaf_stats(max_action_space_size, AMAFStats())
+    RAVEStats(double eval, uint action_id, uint max_action_value)
+        : MCTSStats(eval, action_id, max_action_value)
+        , amaf_stats(max_action_value + 1, AMAFStats())
     {
     }
 
@@ -39,8 +39,8 @@ public:
     const uint equivalence_param;
 
     template <typename... Args>
-    RAVEBase(double backprop_decay, uint action_space_size, uint equivalence_param, Args... args)
-        : MCTSBaseCls(backprop_decay, action_space_size, args...)
+    RAVEBase(double backprop_decay, uint max_action_value, uint equivalence_param, Args... args)
+        : MCTSBaseCls(backprop_decay, max_action_value, args...)
         , equivalence_param(equivalence_param)
     {
     }
@@ -58,7 +58,7 @@ public:
 
     void backpropagate(std::vector<std::shared_ptr<Node>> path, double reward) override
     {
-        std::vector<bool> seen_action_ids(this->action_space_size, false);
+        std::vector<bool> seen_action_ids(this->max_action_value + 1, false);
         double discounted_reward = reward;
 
         for (auto it = path.rbegin(); it != path.rend(); it++) {
@@ -70,7 +70,7 @@ public:
             node_ptr->stats.backprop_reward += discounted_reward;
             discounted_reward *= this->backprop_decay;
 
-            for (uint action_id = 0; action_id < this->action_space_size; action_id++) {
+            for (uint action_id = 0; action_id <= this->max_action_value; action_id++) {
                 if (seen_action_ids.at(action_id)) {
                     node_ptr->stats.amaf_stats.at(action_id).visits++;
                     node_ptr->stats.amaf_stats.at(action_id).backprop_reward += reward;

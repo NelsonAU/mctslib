@@ -22,9 +22,9 @@ public:
     const uint equivalence_param;
 
     template <typename... Args>
-    HRAVEBase(double backprop_decay, uint action_space_size, uint equivalence_param, Args... args)
-        : MCTSBaseCls(backprop_decay, action_space_size, args...)
-        , global_amafs(action_space_size, AMAFStats())
+    HRAVEBase(double backprop_decay, uint max_action_value, uint equivalence_param, Args... args)
+        : MCTSBaseCls(backprop_decay, max_action_value, args...)
+        , global_amafs(max_action_value + 1, AMAFStats())
         , equivalence_param(equivalence_param)
     {
     }
@@ -46,7 +46,7 @@ public:
     // of the nodes along the path taken by the tree policy.
     void backpropagate(std::vector<std::shared_ptr<Node>> path, const double reward) override
     {
-        std::vector<bool> seen_action_ids(this->action_space_size, false);
+        std::vector<bool> seen_action_ids(this->max_action_value + 1, false);
         double discounted_reward = reward;
 
         for (std::shared_ptr<Node> node_ptr : path) {
@@ -57,7 +57,7 @@ public:
             discounted_reward *= this->backprop_decay;
         }
 
-        for (uint i = 0; i < this->action_space_size; i++) {
+        for (uint i = 0; i < this->max_action_value + 1; i++) {
             if (seen_action_ids.at(i)) {
                 global_amafs.at(i).visits++;
                 global_amafs.at(i).backprop_reward += reward;

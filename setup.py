@@ -1,7 +1,7 @@
 from glob import glob
 from pathlib import Path
 from setuptools import setup, find_packages
-from pybind11.setup_helpers import Pybind11Extension
+from pybind11.setup_helpers import Pybind11Extension, ParallelCompile
 import os
 
 
@@ -10,6 +10,8 @@ def find_ext_modules(**kwargs):
     return [Pybind11Extension(f'mctslib.{Path(p).stem}', [p], **kwargs)
             for p in glob('src/**/*.cpp')]
 
+
+ParallelCompile().install()
 
 ext_options = {
     'cxx_std': 20,

@@ -25,7 +25,7 @@ struct MCTSStats {
 
     // In this case we discard action_space_size as MCTSStats doesn't need to store information
     // about all available actions
-    MCTSStats(double eval, uint action_id, uint max_action_space_size)
+    MCTSStats(double eval, uint action_id, uint max_action_value)
         : evaluation(eval)
         , action_id(action_id)
         , backprop_reward(0)
@@ -83,7 +83,7 @@ public:
 
     std::mt19937 rng;
     const double backprop_decay;
-    const uint action_space_size;
+    const uint max_action_value;
     std::shared_ptr<Node> current_node_ptr;
     typename std::conditional<using_dag, std::unordered_map<Node, std::shared_ptr<Node>>, std::monostate>::type transposition_table;
     typename std::conditional<constant_action_space, std::vector<uint>, std::monostate>::type action_space;
@@ -91,15 +91,15 @@ public:
 
     // Args... will be forwarded to the Node class
     template <typename... Args>
-    MCTSBase(double backprop_decay, uint action_space_size, Args... args)
+    MCTSBase(double backprop_decay, uint max_action_value, Args... args)
         : backprop_decay(backprop_decay)
-        , action_space_size(action_space_size)
-        , current_node_ptr(std::make_shared<Node>(args..., action_space_size))
+        , max_action_value(max_action_value)
+        , current_node_ptr(std::make_shared<Node>(args..., max_action_value))
 
     {
         if constexpr (constant_action_space) {
             // fill vector with 0...action_space_size - 1
-            action_space = std::vector<uint>(action_space_size);
+            action_space = std::vector<uint>(max_action_value + 1);
             std::iota(std::begin(action_space), std::end(action_space), 0);
         }
     }
@@ -185,7 +185,7 @@ public:
         children.reserve(node_action_space.size());
 
         for (uint action_id : node_action_space) {
-            std::shared_ptr<Node> child_ptr = node_ptr->apply_action(action_id, action_space_size);
+            std::shared_ptr<Node> child_ptr = node_ptr->apply_action(action_id, max_action_value);
 
             if constexpr (using_dag) {
                 if (transposition_table.contains(*child_ptr)) {

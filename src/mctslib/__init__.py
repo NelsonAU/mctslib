@@ -4,7 +4,7 @@ from . import _mctslib_rave
 from . import _mctslib_grave
 
 
-def MCTS(root, *, action_space_size: int, iter_stop: str, backprop_decay: float = 1,
+def MCTS(root, *, max_action_value: int, iter_stop: str, backprop_decay: float = 1,
         structure: str = "tree", randomize_ties: bool = True, constant_action_space: bool = True):
     """
     Used to fetch and initialize the appropriate MCTS implementation from the shared object.
@@ -21,10 +21,10 @@ def MCTS(root, *, action_space_size: int, iter_stop: str, backprop_decay: float 
 
     cls = getattr(_mctslib_mcts, f"{iter_stop}_{structure}_{randomized_str}_{action_space_str}_MCTS")
 
-    return cls(backprop_decay, action_space_size, root)
+    return cls(backprop_decay, max_action_value, root)
 
 
-def HRAVE(root, *, action_space_size: int, iter_stop: str, equivalence_param: int, 
+def HRAVE(root, *, max_action_value: int, iter_stop: str, equivalence_param: int, 
             backprop_decay: float = 1, structure: str = "tree", randomize_ties: bool = True,
             constant_action_space: bool = True):
     """
@@ -41,10 +41,10 @@ def HRAVE(root, *, action_space_size: int, iter_stop: str, equivalence_param: in
 
     cls = getattr(_mctslib_hrave, f"{iter_stop}_{structure}_{randomized_str}_{action_space_str}_HRAVE")
 
-    return cls(backprop_decay, action_space_size, equivalence_param, root)
+    return cls(backprop_decay, max_action_value, equivalence_param, root)
 
 
-def RAVE(root, *, action_space_size: int, iter_stop: str, equivalence_param: int, 
+def RAVE(root, *, max_action_value: int, iter_stop: str, equivalence_param: int, 
             backprop_decay: float = 1, structure: str = "tree", randomize_ties: bool = True,
             constant_action_space: bool = True):
     """
@@ -61,10 +61,10 @@ def RAVE(root, *, action_space_size: int, iter_stop: str, equivalence_param: int
 
     cls = getattr(_mctslib_rave, f"{iter_stop}_{structure}_{randomized_str}_{action_space_str}_RAVE")
 
-    return cls(backprop_decay, action_space_size, equivalence_param, root)
+    return cls(backprop_decay, max_action_value, equivalence_param, root)
 
 
-def GRAVE(root, *, action_space_size: int, iter_stop: str, equivalence_param: int, ref_threshold: int,
+def GRAVE(root, *, max_action_value: int, iter_stop: str, equivalence_param: int, ref_threshold: int,
             backprop_decay: float = 1, structure: str = "tree", randomize_ties: bool = True,
             constant_action_space: bool = True):
     """
@@ -81,7 +81,7 @@ def GRAVE(root, *, action_space_size: int, iter_stop: str, equivalence_param: in
 
     cls = getattr(_mctslib_grave, f"{iter_stop}_{structure}_{randomized_str}_{action_space_str}_GRAVE")
 
-    return cls(backprop_decay, action_space_size, equivalence_param, ref_threshold, root)
+    return cls(backprop_decay, max_action_value, equivalence_param, ref_threshold, root)
 
 
 __all__ = ("MCTS", "HRAVE", "RAVE", "GRAVE")
