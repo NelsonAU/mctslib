@@ -19,13 +19,13 @@ namespace mctslib {
 // Contains all the stats needed for a node in MCTS.
 struct MCTSStats {
     double evaluation;
-    uint action_id;
+    int action_id;
     double backprop_reward;
-    uint visits;
+    int visits;
 
     // In this case we discard action_space_size as MCTSStats doesn't need to store information
     // about all available actions
-    MCTSStats(double eval, uint action_id, uint max_action_value)
+    MCTSStats(double eval, int action_id, int max_action_value)
         : evaluation(eval)
         , action_id(action_id)
         , backprop_reward(0)
@@ -33,7 +33,7 @@ struct MCTSStats {
     {
     }
     // In this case both constructors are the same, but may not be for more complicated Stats
-    static MCTSStats eval_only(double eval, uint action_id)
+    static MCTSStats eval_only(double eval, int action_id)
     {
         return MCTSStats(eval, action_id, 0);
     }
@@ -57,19 +57,19 @@ public:
     // Used to store all options of the algorithm that can vary per iteration. Every call to move
     // will overwrite the previous Settings object.
     struct Settings {
-        uint rollout_depth;
-        typename std::conditional<using_iters, uint, std::monostate>::type iters;
+        int rollout_depth;
+        typename std::conditional<using_iters, int, std::monostate>::type iters;
         typename std::conditional<using_iters, std::monostate, double>::type cpu_time;
         double exploration_weight;
 
-        Settings(uint rollout_depth, uint iters, double exploration_weight) requires(std::is_same_v<decltype(iters), uint>)
+        Settings(int rollout_depth, int iters, double exploration_weight) requires(std::is_same_v<decltype(iters), int>)
             : rollout_depth(rollout_depth)
             , iters(iters)
             , exploration_weight(exploration_weight)
         {
         }
 
-        Settings(uint rollout_depth, double cpu_time, double exploration_weight) requires(std::is_same_v<decltype(cpu_time), double>)
+        Settings(int rollout_depth, double cpu_time, double exploration_weight) requires(std::is_same_v<decltype(cpu_time), double>)
             : rollout_depth(rollout_depth)
             , cpu_time(cpu_time)
             , exploration_weight(exploration_weight)
@@ -83,15 +83,15 @@ public:
 
     std::mt19937 rng;
     const double backprop_decay;
-    const uint max_action_value;
+    const int max_action_value;
     std::shared_ptr<Node> current_node_ptr;
     typename std::conditional<using_dag, std::unordered_map<Node, std::shared_ptr<Node>>, std::monostate>::type transposition_table;
-    typename std::conditional<constant_action_space, std::vector<uint>, std::monostate>::type action_space;
+    typename std::conditional<constant_action_space, std::vector<int>, std::monostate>::type action_space;
     Settings settings = Settings();
 
     // Args... will be forwarded to the Node class
     template <typename... Args>
-    MCTSBase(double backprop_decay, uint max_action_value, Args... args)
+    MCTSBase(double backprop_decay, int max_action_value, Args... args)
         : backprop_decay(backprop_decay)
         , max_action_value(max_action_value)
         , current_node_ptr(std::make_shared<Node>(args..., max_action_value))
@@ -99,7 +99,7 @@ public:
     {
         if constexpr (constant_action_space) {
             // fill vector with 0...action_space_size - 1
-            action_space = std::vector<uint>(max_action_value + 1);
+            action_space = std::vector<int>(max_action_value + 1);
             std::iota(std::begin(action_space), std::end(action_space), 0);
         }
     }
@@ -127,7 +127,7 @@ public:
         settings = new_settings;
 
         if constexpr (using_iters) {
-            for (uint i = 0; i < settings.iters; i++)
+            for (int i = 0; i < settings.iters; i++)
                 rollout(current_node_ptr);
         } else {
             auto start = std::chrono::high_resolution_clock::now();
@@ -163,7 +163,7 @@ public:
     // order.
     virtual void expand(std::shared_ptr<Node> node_ptr)
     {
-        std::vector<uint> node_action_space;
+        std::vector<int> node_action_space;
 
         // get appropriate legal action set
         if constexpr (constant_action_space) {
@@ -184,7 +184,7 @@ public:
         std::vector<std::shared_ptr<Node>> children;
         children.reserve(node_action_space.size());
 
-        for (uint action_id : node_action_space) {
+        for (int action_id : node_action_space) {
             std::shared_ptr<Node> child_ptr = node_ptr->apply_action(action_id, max_action_value);
 
             if constexpr (using_dag) {
@@ -213,7 +213,7 @@ public:
     virtual double simulate(std::shared_ptr<Node> node_ptr)
     {
         Node node = *node_ptr;
-        std::vector<uint> legal_action_space;
+        std::vector<int> legal_action_space;
 
         if constexpr (constant_action_space) {
             legal_action_space = action_space;
@@ -221,12 +221,12 @@ public:
             legal_action_space = node.get_legal_actions();
         }
 
-        for (uint i = 0; i < settings.rollout_depth; i++) {
+        for (int i = 0; i < settings.rollout_depth; i++) {
             if (node.is_terminal())
                 break;
 
-            std::uniform_int_distribution<uint> dist { 0, (uint)legal_action_space.size() - 1};
-            uint next_action = dist(rng);
+            std::uniform_int_distribution<int> dist { 0, (int)legal_action_space.size() - 1};
+            int next_action = dist(rng);
             node = node.apply_action_eval_only(next_action);
 
             if constexpr (!constant_action_space) {

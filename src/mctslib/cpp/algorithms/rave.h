@@ -10,19 +10,19 @@ namespace mctslib {
 struct RAVEStats : public MCTSStats {
     std::vector<AMAFStats> amaf_stats;
 
-    RAVEStats(double eval, uint action_id, uint max_action_value)
+    RAVEStats(double eval, int action_id, int max_action_value)
         : MCTSStats(eval, action_id, max_action_value)
         , amaf_stats(max_action_value + 1, AMAFStats())
     {
     }
 
-    static RAVEStats eval_only(double eval, uint action_id)
+    static RAVEStats eval_only(double eval, int action_id)
     {
         return RAVEStats(eval, action_id, 0);
     }
 
     // gets the average reward of a given action according to the AMAF stats on this node
-    double amaf_average_reward(uint action)
+    double amaf_average_reward(int action)
     {
         return amaf_stats.at(action).average_reward();
     }
@@ -36,10 +36,10 @@ public:
     inline const static std::string alg_str = "RAVE";
     inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
 
-    const uint equivalence_param;
+    const int equivalence_param;
 
     template <typename... Args>
-    RAVEBase(double backprop_decay, uint max_action_value, uint equivalence_param, Args... args)
+    RAVEBase(double backprop_decay, int max_action_value, int equivalence_param, Args... args)
         : MCTSBaseCls(backprop_decay, max_action_value, args...)
         , equivalence_param(equivalence_param)
     {
@@ -70,7 +70,7 @@ public:
             node_ptr->stats.backprop_reward += discounted_reward;
             discounted_reward *= this->backprop_decay;
 
-            for (uint action_id = 0; action_id <= this->max_action_value; action_id++) {
+            for (int action_id = 0; action_id <= this->max_action_value; action_id++) {
                 if (seen_action_ids.at(action_id)) {
                     node_ptr->stats.amaf_stats.at(action_id).visits++;
                     node_ptr->stats.amaf_stats.at(action_id).backprop_reward += reward;

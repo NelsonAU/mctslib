@@ -4,7 +4,7 @@ namespace mctslib {
 struct AMAFStats {
     double evaluation;
     double backprop_reward;
-    uint visits;
+    int visits;
 
     double average_reward() const
     {

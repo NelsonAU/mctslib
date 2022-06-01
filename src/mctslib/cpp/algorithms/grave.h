@@ -17,12 +17,12 @@ public:
     inline const static std::string alg_str = "GRAVE";
     inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
 
-    const uint equivalence_param;
-    const uint ref_threshold;
+    const int equivalence_param;
+    const int ref_threshold;
     std::deque<std::shared_ptr<Node>> ref_nodes; // newest nodes at the front
 
     template <typename... Args>
-    GRAVEBase(double backprop_decay, uint max_action_value, uint equivalence_param, uint ref_threshold, Args... args)
+    GRAVEBase(double backprop_decay, int max_action_value, int equivalence_param, int ref_threshold, Args... args)
         : MCTSBaseCls(backprop_decay, max_action_value, args...)
         , equivalence_param(equivalence_param)
         , ref_threshold(ref_threshold)
@@ -35,7 +35,7 @@ public:
     virtual std::shared_ptr<Node> get_ref_node()
     {
         // possible to make this more efficient by starting at the back
-        for (uint i = 0; i < ref_nodes.size(); i++) {
+        for (int i = 0; i < ref_nodes.size(); i++) {
             if (ref_nodes.at(i)->stats.visits >= ref_threshold)
                 return ref_nodes.at(i);
         }
@@ -47,7 +47,7 @@ public:
     // AMAF stats.
     virtual void trim_ref_nodes()
     {
-        for (uint i = 0; i < ref_nodes.size(); i++) {
+        for (int i = 0; i < ref_nodes.size(); i++) {
             if (ref_nodes.at(i)->stats.visits >= ref_threshold) {
                 ref_nodes.resize(i + 1);
             }
@@ -81,7 +81,7 @@ public:
             node_ptr->stats.backprop_reward += discounted_reward;
             discounted_reward *= this->backprop_decay;
 
-            for (uint action_id = 0; action_id <= this->max_action_value; action_id++) {
+            for (int action_id = 0; action_id <= this->max_action_value; action_id++) {
                 if (seen_action_ids.at(action_id)) {
                     node_ptr->stats.amaf_stats.at(action_id).visits++;
                     node_ptr->stats.amaf_stats.at(action_id).backprop_reward += reward;
@@ -97,7 +97,7 @@ public:
             node_ptr->stats.backprop_reward += discounted_reward;
             discounted_reward *= this->backprop_decay;
 
-            for (uint action_id = 0; action_id <= this->max_action_value; action_id++) {
+            for (int action_id = 0; action_id <= this->max_action_value; action_id++) {
                 if (seen_action_ids.at(action_id)) {
                     node_ptr->stats.amaf_stats.at(action_id).visits++;
                     node_ptr->stats.amaf_stats.at(action_id).backprop_reward += reward;
@@ -116,7 +116,7 @@ public:
         this->settings = new_settings;
 
         if constexpr (using_iters) {
-            for (uint i = 0; i < this->settings.iters; i++)
+            for (int i = 0; i < this->settings.iters; i++)
                 this->rollout(this->current_node_ptr);
         } else {
             auto start = std::chrono::high_resolution_clock::now();

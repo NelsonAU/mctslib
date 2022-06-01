@@ -19,10 +19,10 @@ public:
     // literally would have us store this on the root node, but in practice this lets us keep the in
     // memory size of the tree down by freeing nodes above the current_node_ptr.
     std::vector<AMAFStats> global_amafs;
-    const uint equivalence_param;
+    const int equivalence_param;
 
     template <typename... Args>
-    HRAVEBase(double backprop_decay, uint max_action_value, uint equivalence_param, Args... args)
+    HRAVEBase(double backprop_decay, int max_action_value, int equivalence_param, Args... args)
         : MCTSBaseCls(backprop_decay, max_action_value, args...)
         , global_amafs(max_action_value + 1, AMAFStats())
         , equivalence_param(equivalence_param)
@@ -57,7 +57,7 @@ public:
             discounted_reward *= this->backprop_decay;
         }
 
-        for (uint i = 0; i < this->max_action_value + 1; i++) {
+        for (int i = 0; i < this->max_action_value + 1; i++) {
             if (seen_action_ids.at(i)) {
                 global_amafs.at(i).visits++;
                 global_amafs.at(i).backprop_reward += reward;
