@@ -17,9 +17,10 @@ public:
     }
 
     template <typename... Args>
-    pybind11::object move(Args... args)
+    pybind11::tuple move(Args... args)
     {
-        return alg.move(typename Alg::Settings(args...)).object;
+        auto node = alg.move(typename Alg::Settings(args...));
+        return pybind11::make_tuple(node, alg.get_global_stats());
     }
 
     // Used to get the string that will be used to identify the algorithm in the outputted Python

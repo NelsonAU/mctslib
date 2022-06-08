@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 
+#ifdef MCTSLIB_USING_PYBIND11
+#include <pybind11/pybind11.h>
+#endif
+
 namespace mctslib {
 
 // Implements History Rapid Action Value Estimation. Like GRAVE with the ref_threshold set to
@@ -64,6 +68,13 @@ public:
             }
         }
     }
+
+#ifdef MCTSLIB_USING_PYBIND11
+    pybind11::dict get_global_stats() {
+        return MCTSBaseCls::get_global_stats();
+    }
+#endif
+
 };
 
 template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool constant_action_space>

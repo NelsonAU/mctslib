@@ -16,6 +16,7 @@ ParallelCompile().install()
 ext_options = {
     'cxx_std': 20,
     'include_dirs': ['src/mctslib/cpp'],
+    'define_macros': [('MCTSLIB_USING_PYBIND11', None)]
 }
 
 if 'MCTSLIB_CXX_FLAGS' in os.environ:

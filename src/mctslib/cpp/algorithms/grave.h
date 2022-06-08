@@ -8,6 +8,10 @@
 #include <string>
 #include <vector>
 
+#ifdef MCTSLIB_USING_PYBIND11
+#include <pybind11/pybind11.h>
+#endif
+
 namespace mctslib {
 template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool constant_action_space>
 class GRAVEBase : public MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space> {
@@ -136,6 +140,13 @@ public:
         ref_nodes.push_front(this->current_node_ptr);
         return *(this->current_node_ptr);
     }
+
+#ifdef MCTSLIB_USING_PYBIND11
+    pybind11::dict get_global_stats() {
+        return MCTSBaseCls::get_global_stats();
+    }
+#endif
+
 };
 
 template <class Node, bool using_iters, bool using_dag, bool randomized_ties, bool constant_action_space>

@@ -15,8 +15,20 @@ PYBIND11_MODULE(_mctslib_rave, m)
     //          No way to infer this because the Settings default constructor cannot be deleted,
     //          and because of this the compiler will always choose to decide that the parameter
     //          pack is empty.
-    //
-    //
+
+    py::class_<RAVEStats>(m, "RAVEStats")
+        .def_readonly("evaluation", &RAVEStats::evaluation)
+        .def_readonly("action_id", &RAVEStats::action_id)
+        .def_readonly("backprop_reward", &RAVEStats::backprop_reward)
+        .def_readonly("visits", &RAVEStats::visits)
+        .def("average_reward", &RAVEStats::average_reward);
+
+    py::class_<PythonNode<RAVEStats>, std::shared_ptr<PythonNode<RAVEStats>>>(m, "RAVENode")
+        .def("children", &PythonNode<RAVEStats>::children, "")
+        .def_readonly("state", &PythonNode<RAVEStats>::state)
+        .def_readonly("stats", &PythonNode<RAVEStats>::stats);
+
+
     using PyCPU_Tree_NoRNG_NoCAS_RAVE = PyAlg<RAVE<PythonNode<RAVEStats>, false, false, false, false>>;
     py::class_<PyCPU_Tree_NoRNG_NoCAS_RAVE>(m, PyCPU_Tree_NoRNG_NoCAS_RAVE::str_id())
         .def(py::init<double, int, int, py::object>())

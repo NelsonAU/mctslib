@@ -16,6 +16,7 @@ PYBIND11_MODULE(_mctslib_grave, m)
     //          and because of this the compiler will always choose to decide that the parameter
     //          pack is empty.
 
+
     using PyCPU_Tree_NoRNG_NoCAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, false, false, false, false>>;
     py::class_<PyCPU_Tree_NoRNG_NoCAS_GRAVE>(m, PyCPU_Tree_NoRNG_NoCAS_GRAVE::str_id())
         .def(py::init<double, int, int, int, py::object>())

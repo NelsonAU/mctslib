@@ -1,4 +1,6 @@
+#include <memory>
 #include <pybind11/pybind11.h>
+
 
 #include "algorithms/mcts.h"
 #include "bindings/python_alg.h"
@@ -15,6 +17,23 @@ PYBIND11_MODULE(_mctslib_mcts, m)
     //          No way to infer this because the Settings default constructor cannot be deleted,
     //          and because of this the compiler will always choose to decide that the parameter
     //          pack is empty.
+    //
+
+
+    // Used to traverse
+    //
+    py::class_<MCTSStats>(m, "MCTSStats")
+        .def_readonly("evaluation", &MCTSStats::evaluation)
+        .def_readonly("action_id", &MCTSStats::action_id)
+        .def_readonly("backprop_reward", &MCTSStats::backprop_reward)
+        .def_readonly("visits", &MCTSStats::visits)
+        .def("average_reward", &MCTSStats::average_reward);
+
+    py::class_<PythonNode<MCTSStats>, std::shared_ptr<PythonNode<MCTSStats>>>(m, "MCTSNode")
+        .def("children", &PythonNode<MCTSStats>::children, "")
+        .def_readonly("state", &PythonNode<MCTSStats>::state)
+        .def_readonly("stats", &PythonNode<MCTSStats>::stats);
+
     using PyCPU_Tree_NoRNG_NoCAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, false, false, false, false>>;
     py::class_<PyCPU_Tree_NoRNG_NoCAS_MCTS>(m, PyCPU_Tree_NoRNG_NoCAS_MCTS::str_id())
         .def(py::init<double, int, py::object>())

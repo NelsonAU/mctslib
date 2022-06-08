@@ -6,6 +6,10 @@
 #include <string>
 #include <vector>
 
+#ifdef MCTSLIB_USING_PYBIND11
+#include <pybind11/pybind11.h>
+#endif
+
 namespace mctslib {
 struct RAVEStats : public MCTSStats {
     std::vector<AMAFStats> amaf_stats;
@@ -78,6 +82,13 @@ public:
             }
         }
     }
+
+#ifdef MCTSLIB_USING_PYBIND11
+    pybind11::dict get_global_stats() {
+        return MCTSBaseCls::get_global_stats();
+    }
+#endif
+
 };
 
 template <class Node, bool using_iters, bool using_dag, bool randomized_ties, bool constant_action_space>

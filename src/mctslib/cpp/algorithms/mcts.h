@@ -12,6 +12,10 @@
 #include <variant>
 #include <vector>
 
+#ifdef MCTSLIB_USING_PYBIND11
+#include <pybind11/pybind11.h>
+#endif
+
 #pragma once
 
 namespace mctslib {
@@ -89,6 +93,11 @@ public:
     typename std::conditional<constant_action_space, std::vector<int>, std::monostate>::type action_space;
     Settings settings = Settings();
 
+    // global stats
+    int total_iters = 0;
+    double total_cpu_time = 0;
+
+
     // Args... will be forwarded to the Node class
     template <typename... Args>
     MCTSBase(double backprop_decay, int max_action_value, Args... args)
@@ -138,8 +147,10 @@ public:
                 auto end = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> diff = end - start;
 
-                if (diff.count() > settings.cpu_time)
+                if (diff.count() > settings.cpu_time) {
+                    total_cpu_time += diff.count();
                     break;
+                }
             }
         }
 
@@ -208,6 +219,7 @@ public:
         this->expand(leaf);
         double reward = simulate(leaf);
         backpropagate(path, reward);
+        total_iters += 1;
     }
 
     virtual double simulate(std::shared_ptr<Node> node_ptr)
@@ -272,6 +284,18 @@ public:
         double log_N = std::log(current_node_ptr->stats.visits);
         return avg_reward + settings.exploration_weight * sqrt(log_N / node_ptr->stats.visits);
     }
+
+#ifdef MCTSLIB_USING_PYBIND11
+    pybind11::dict get_global_stats() {
+        pybind11::dict dict;
+        dict["total_iters"] = total_iters;
+        if constexpr (!using_iters) {
+            dict["total_cpu_time"] = total_cpu_time;
+        }
+        return dict;
+    }
+#endif
+
 };
 
 // The purpose of this class is to create a completely concrete class which the compiler will then
