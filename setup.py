@@ -22,6 +22,7 @@ ext_options = {
 if 'MCTSLIB_CXX_FLAGS' in os.environ:
     ext_options = {
         'include_dirs': ['src/mctslib/cpp'],
+        'define_macros': [('MCTSLIB_USING_PYBIND11', None)],
         'extra_compile_args': os.environ['MCTSLIB_CXX_FLAGS'].split(' '),
     }
 

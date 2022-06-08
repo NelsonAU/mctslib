@@ -39,7 +39,7 @@ public:
     virtual std::shared_ptr<Node> get_ref_node()
     {
         // possible to make this more efficient by starting at the back
-        for (int i = 0; i < ref_nodes.size(); i++) {
+        for (size_t i = 0; i < ref_nodes.size(); i++) {
             if (ref_nodes.at(i)->stats.visits >= ref_threshold)
                 return ref_nodes.at(i);
         }
@@ -51,7 +51,7 @@ public:
     // AMAF stats.
     virtual void trim_ref_nodes()
     {
-        for (int i = 0; i < ref_nodes.size(); i++) {
+        for (size_t i = 0; i < ref_nodes.size(); i++) {
             if (ref_nodes.at(i)->stats.visits >= ref_threshold) {
                 ref_nodes.resize(i + 1);
             }
