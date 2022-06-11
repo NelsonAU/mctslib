@@ -9,19 +9,20 @@
 using namespace mctslib;
 namespace py = pybind11;
 
+#define MCTSLIB_REGISTER_MCTS_CLASS(cls, module)                    \
+    py::class_<cls>(module, cls::str_id.c_str())                    \
+        .def(py::init<double, int, py::object>())                   \
+        .def("search_using_cpu_time", &cls::search_using_cpu_time)  \
+        .def("search_using_iters", &cls::search_using_iters)        \
+        .def("get_global_stats", &cls::get_global_stats)            \
+        .def_readonly("current_node", &cls::current_node_ptr);      \
+
+
 PYBIND11_MODULE(_mctslib_mcts, m)
 {
     m.doc() = "pybind11 example plugin"; // optional module docstring
 
-    //@NOTE:    Must specify template args to move that correspond to the settings of the algorithm.
-    //          No way to infer this because the Settings default constructor cannot be deleted,
-    //          and because of this the compiler will always choose to decide that the parameter
-    //          pack is empty.
-    //
 
-
-    // Used to traverse
-    //
     py::class_<MCTSStats>(m, "MCTSStats")
         .def_readonly("evaluation", &MCTSStats::evaluation)
         .def_readonly("action_id", &MCTSStats::action_id)
@@ -34,99 +35,27 @@ PYBIND11_MODULE(_mctslib_mcts, m)
         .def_readonly("state", &PythonNode<MCTSStats>::state)
         .def_readonly("stats", &PythonNode<MCTSStats>::stats);
 
-    using PyCPU_Tree_NoRNG_NoCAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, false, false, false, false>>;
-    py::class_<PyCPU_Tree_NoRNG_NoCAS_MCTS>(m, PyCPU_Tree_NoRNG_NoCAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyCPU_Tree_NoRNG_NoCAS_MCTS::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
+    using MCTS_FFF = MCTS<PythonNode<MCTSStats>, false, false, false>;
+    MCTSLIB_REGISTER_MCTS_CLASS(MCTS_FFF, m)
 
-    using PyIters_Tree_NoRNG_NoCAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, true, false, false, false>>;
-    py::class_<PyIters_Tree_NoRNG_NoCAS_MCTS>(m, PyIters_Tree_NoRNG_NoCAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyIters_Tree_NoRNG_NoCAS_MCTS::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
+    using MCTS_FFT = MCTS<PythonNode<MCTSStats>, false, false, true>;
+    MCTSLIB_REGISTER_MCTS_CLASS(MCTS_FFT, m)
 
-    using PyCPU_DAG_NoRNG_NoCAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, false, true, false, false>>;
-    py::class_<PyCPU_DAG_NoRNG_NoCAS_MCTS>(m, PyCPU_DAG_NoRNG_NoCAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyCPU_DAG_NoRNG_NoCAS_MCTS::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
+    using MCTS_FTF = MCTS<PythonNode<MCTSStats>, false, true, false>;
+    MCTSLIB_REGISTER_MCTS_CLASS(MCTS_FTF, m)
 
-    using PyIters_DAG_NoRNG_NoCAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, true, true, false, false>>;
-    py::class_<PyIters_DAG_NoRNG_NoCAS_MCTS>(m, PyIters_DAG_NoRNG_NoCAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyIters_DAG_NoRNG_NoCAS_MCTS::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
+    using MCTS_FTT = MCTS<PythonNode<MCTSStats>, false, true, true>;
+    MCTSLIB_REGISTER_MCTS_CLASS(MCTS_FTT, m)
 
-    using PyCPU_Tree_RNG_NoCAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, false, false, true, false>>;
-    py::class_<PyCPU_Tree_RNG_NoCAS_MCTS>(m, PyCPU_Tree_RNG_NoCAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyCPU_Tree_RNG_NoCAS_MCTS::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
+    using MCTS_TFF = MCTS<PythonNode<MCTSStats>, true, false, false>;
+    MCTSLIB_REGISTER_MCTS_CLASS(MCTS_TFF, m)
 
-    using PyIters_Tree_RNG_NoCAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, true, false, true, false>>;
-    py::class_<PyIters_Tree_RNG_NoCAS_MCTS>(m, PyIters_Tree_RNG_NoCAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyIters_Tree_RNG_NoCAS_MCTS::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
+    using MCTS_TFT = MCTS<PythonNode<MCTSStats>, true, false, true>;
+    MCTSLIB_REGISTER_MCTS_CLASS(MCTS_TFT, m)
 
-    using PyCPU_DAG_RNG_NoCAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, false, true, true, false>>;
-    py::class_<PyCPU_DAG_RNG_NoCAS_MCTS>(m, PyCPU_DAG_RNG_NoCAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyCPU_DAG_RNG_NoCAS_MCTS::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
+    using MCTS_TTF = MCTS<PythonNode<MCTSStats>, true, true, false>;
+    MCTSLIB_REGISTER_MCTS_CLASS(MCTS_TTF, m)
 
-    using PyIters_DAG_RNG_NoCAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, true, true, true, false>>;
-    py::class_<PyIters_DAG_RNG_NoCAS_MCTS>(m, PyIters_DAG_RNG_NoCAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyIters_DAG_RNG_NoCAS_MCTS::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
-
-    using PyCPU_Tree_NoRNG_CAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, false, false, false, true>>;
-    py::class_<PyCPU_Tree_NoRNG_CAS_MCTS>(m, PyCPU_Tree_NoRNG_CAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyCPU_Tree_NoRNG_CAS_MCTS::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_Tree_NoRNG_CAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, true, false, false, true>>;
-    py::class_<PyIters_Tree_NoRNG_CAS_MCTS>(m, PyIters_Tree_NoRNG_CAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyIters_Tree_NoRNG_CAS_MCTS::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
-
-    using PyCPU_DAG_NoRNG_CAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, false, true, false, true>>;
-    py::class_<PyCPU_DAG_NoRNG_CAS_MCTS>(m, PyCPU_DAG_NoRNG_CAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyCPU_DAG_NoRNG_CAS_MCTS::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_DAG_NoRNG_CAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, true, true, false, true>>;
-    py::class_<PyIters_DAG_NoRNG_CAS_MCTS>(m, PyIters_DAG_NoRNG_CAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyIters_DAG_NoRNG_CAS_MCTS::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
-
-    using PyCPU_Tree_RNG_CAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, false, false, true, true>>;
-    py::class_<PyCPU_Tree_RNG_CAS_MCTS>(m, PyCPU_Tree_RNG_CAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyCPU_Tree_RNG_CAS_MCTS::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_Tree_RNG_CAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, true, false, true, true>>;
-    py::class_<PyIters_Tree_RNG_CAS_MCTS>(m, PyIters_Tree_RNG_CAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyIters_Tree_RNG_CAS_MCTS::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
-
-    using PyCPU_DAG_RNG_CAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, false, true, true, true>>;
-    py::class_<PyCPU_DAG_RNG_CAS_MCTS>(m, PyCPU_DAG_RNG_CAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyCPU_DAG_RNG_CAS_MCTS::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_DAG_RNG_CAS_MCTS = PyAlg<MCTS<PythonNode<MCTSStats>, true, true, true, true>>;
-    py::class_<PyIters_DAG_RNG_CAS_MCTS>(m, PyIters_DAG_RNG_CAS_MCTS::str_id())
-        .def(py::init<double, int, py::object>())
-        .def("move", &PyIters_DAG_RNG_CAS_MCTS::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
+    using MCTS_TTT = MCTS<PythonNode<MCTSStats>, true, true, true>;
+    MCTSLIB_REGISTER_MCTS_CLASS(MCTS_TTT, m)
 }

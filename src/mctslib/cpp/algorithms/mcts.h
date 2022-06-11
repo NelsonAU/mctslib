@@ -51,47 +51,24 @@ struct MCTSStats {
 // Implements the MCTS Base class. This class is designed to be inherited from, but should never
 // be instantiated independently. All algorithms that are designed to be used should be marked
 // final. To use MCTS, use the template found below this one.
-template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool constant_action_space>
+template <class Node, bool using_dag, bool randomize_ties, bool constant_action_space>
 class MCTSBase {
 public:
-    inline const static std::string opts_str = std::string(using_iters ? "iters" : "cpu_time") + "_" + (using_dag ? "dag" : "tree") + "_" + (randomize_ties ? "rng_ties" : "no_rng_ties") + "_" + (constant_action_space ? "const_action_space" : "non_const_action_space");
+    inline const static std::string opts_str =  std::string(using_dag ? "dag" : "tree") +
+        "_" + (randomize_ties ? "rng_ties" : "no_rng_ties") +
+        "_" + (constant_action_space ? "const_action_space" : "non_const_action_space");
+
     inline const static std::string alg_str = "MCTS";
     inline const static std::string str_id = opts_str + "_" + alg_str;
 
-    // Used to store all options of the algorithm that can vary per iteration. Every call to move
-    // will overwrite the previous Settings object.
-    struct Settings {
-        int rollout_depth;
-        typename std::conditional<using_iters, int, std::monostate>::type iters;
-        typename std::conditional<using_iters, std::monostate, double>::type cpu_time;
-        double exploration_weight;
-
-        Settings(int rollout_depth, int iters, double exploration_weight) requires(std::is_same_v<decltype(iters), int>)
-            : rollout_depth(rollout_depth)
-            , iters(iters)
-            , exploration_weight(exploration_weight)
-        {
-        }
-
-        Settings(int rollout_depth, double cpu_time, double exploration_weight) requires(std::is_same_v<decltype(cpu_time), double>)
-            : rollout_depth(rollout_depth)
-            , cpu_time(cpu_time)
-            , exploration_weight(exploration_weight)
-        {
-        }
-
-        // Used to give default values on construction of the algorithm, but should never be used
-        // otherwise.
-        explicit Settings() = default;
-    };
-
+    double exploration_weight;
+    int rollout_depth;
     std::mt19937 rng;
     const double backprop_decay;
     const int max_action_value;
     std::shared_ptr<Node> current_node_ptr;
     typename std::conditional<using_dag, std::unordered_map<Node, std::shared_ptr<Node>>, std::monostate>::type transposition_table;
     typename std::conditional<constant_action_space, std::vector<int>, std::monostate>::type action_space;
-    Settings settings = Settings();
 
     // global stats
     int total_iters = 0;
@@ -124,38 +101,38 @@ public:
             });
     }
 
-    // Entrypoint to the algorithm. Takes in all the settings that might vary per iteration, and
-    // performs rollouts until an iteration count or time limit is reached, then returns a new node.
-    //
-    // Of note: if using CPU time, the algorithm will always use an extra bit more time than it is
-    // given, and will never preemtively stop itself from starting a new iteration even if it has
-    // very close to no time left. If a usecase requires that the algorithm make a choice before
-    // some strict deadline, then the value of cpu_time should be chosen conservatively.
-    virtual Node move(const Settings new_settings)
-    {
-        settings = new_settings;
 
-        if constexpr (using_iters) {
-            for (int i = 0; i < settings.iters; i++)
-                rollout(current_node_ptr);
-        } else {
-            auto start = std::chrono::high_resolution_clock::now();
+    std::shared_ptr<Node> search_using_cpu_time(double cpu_time, int rollout_depth, double exploration_weight) {
+        this->exploration_weight = exploration_weight;
+        this->rollout_depth = rollout_depth;
 
-            for (;;) {
-                rollout(current_node_ptr);
+        auto start = std::chrono::high_resolution_clock::now();
 
-                auto end = std::chrono::high_resolution_clock::now();
-                std::chrono::duration<double> diff = end - start;
+        for (;;) {
+            rollout(current_node_ptr);
 
-                if (diff.count() > settings.cpu_time) {
-                    total_cpu_time += diff.count();
-                    break;
-                }
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> diff = end - start;
+
+            if (diff.count() > cpu_time) {
+                total_cpu_time += diff.count();
+                break;
             }
         }
 
-        current_node_ptr = choose(current_node_ptr);
-        return *current_node_ptr;
+        return current_node_ptr;
+    }
+
+
+    std::shared_ptr<Node> search_using_iters(int iters, int rollout_depth, double exploration_weight) {
+        this->exploration_weight = exploration_weight;
+        this->rollout_depth = rollout_depth;
+
+        for (int i = 0; i < iters; i++) {
+            rollout(current_node_ptr);
+        }
+
+        return current_node_ptr;
     }
 
     // Backpropagates the result of a simulation back up the path taken during the selection phase.
@@ -176,7 +153,6 @@ public:
     {
         std::vector<int> node_action_space;
 
-        // get appropriate legal action set
         if constexpr (constant_action_space) {
             node_action_space = action_space;
         } else {
@@ -233,7 +209,7 @@ public:
             legal_action_space = node.get_legal_actions();
         }
 
-        for (int i = 0; i < settings.rollout_depth; i++) {
+        for (int i = 0; i < rollout_depth; i++) {
             if (node.is_terminal())
                 break;
 
@@ -271,7 +247,8 @@ public:
                 node_ptr->children().end(),
                 [this](const std::shared_ptr<Node> left, const std::shared_ptr<Node> right) {
                     return tree_policy_metric(left) > tree_policy_metric(right);
-                });
+                }
+            );
 
             path.push_back(node_ptr);
         }
@@ -282,16 +259,14 @@ public:
     {
         double avg_reward = node_ptr->stats.average_reward();
         double log_N = std::log(current_node_ptr->stats.visits);
-        return avg_reward + settings.exploration_weight * sqrt(log_N / node_ptr->stats.visits);
+        return avg_reward + exploration_weight * sqrt(log_N / node_ptr->stats.visits);
     }
 
 #ifdef MCTSLIB_USING_PYBIND11
     pybind11::dict get_global_stats() {
         pybind11::dict dict;
         dict["total_iters"] = total_iters;
-        if constexpr (!using_iters) {
-            dict["total_cpu_time"] = total_cpu_time;
-        }
+        dict["total_cpu_time"] = total_cpu_time;
         return dict;
     }
 #endif
@@ -301,8 +276,8 @@ public:
 // The purpose of this class is to create a completely concrete class which the compiler will then
 // hopefully devirtualize and optimize better. This may be unnecessary - but makes intent clear and
 // keeps me from worrying about the compiler not doing the right thing :-).
-template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool constant_action_space>
-class MCTS final : public MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space> {
-    using MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space>::MCTSBase;
+template <class Node, bool using_dag, bool randomize_ties, bool constant_action_space>
+class MCTS final : public MCTSBase<Node, using_dag, randomize_ties, constant_action_space> {
+    using MCTSBase<Node, using_dag, randomize_ties, constant_action_space>::MCTSBase;
 };
 }

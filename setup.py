@@ -1,17 +1,15 @@
 from glob import glob
 from pathlib import Path
 from setuptools import setup, find_packages
-from pybind11.setup_helpers import Pybind11Extension, ParallelCompile
+from pybind11.setup_helpers import Pybind11Extension
 import os
 
 
 def find_ext_modules(**kwargs):
     """Creates list of Pybind11Extensions and passes extra arguments to them"""
     return [Pybind11Extension(f'mctslib.{Path(p).stem}', [p], **kwargs)
-            for p in glob('src/**/*.cpp')]
+            for p in glob('src/**/*mcts.cpp')]
 
-
-ParallelCompile().install()
 
 ext_options = {
     'cxx_std': 20,
@@ -20,11 +18,8 @@ ext_options = {
 }
 
 if 'MCTSLIB_CXX_FLAGS' in os.environ:
-    ext_options = {
-        'include_dirs': ['src/mctslib/cpp'],
-        'define_macros': [('MCTSLIB_USING_PYBIND11', None)],
-        'extra_compile_args': os.environ['MCTSLIB_CXX_FLAGS'].split(' '),
-    }
+    del ext_options['cxx_std']
+    ext_options['extra_compile_args'] = os.environ['MCTSLIB_CXX_FLAGS'].split(' ')
 
 
 setup(

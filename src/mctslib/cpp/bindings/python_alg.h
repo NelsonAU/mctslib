@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include <string>
 
 namespace mctslib {
 
@@ -17,8 +18,15 @@ public:
     }
 
     template <typename... Args>
-    pybind11::tuple move(Args... args)
+    pybind11::tuple search(std::string iters_or_cpu_time, Args... args)
     {
+        if (iters_or_cpu_time == "iters") {
+
+        } else if (iters_or_cpu_time == "cpu_time") {
+
+        } else {
+
+        }
         auto node = alg.move(typename Alg::Settings(args...));
         return pybind11::make_tuple(node, alg.get_global_stats());
     }
