@@ -91,6 +91,7 @@ public:
     }
 
     // Used to choose the next node to progress to after all rollouts have been completed.
+    // TODO change how this works
     virtual std::shared_ptr<Node> choose(std::shared_ptr<Node> node_ptr)
     {
         return *std::max_element(

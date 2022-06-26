@@ -20,6 +20,7 @@ ext_options = {
 if 'MCTSLIB_CXX_FLAGS' in os.environ:
     del ext_options['cxx_std']
     ext_options['extra_compile_args'] = os.environ['MCTSLIB_CXX_FLAGS'].split(' ')
+    print(ext_options)
 
 
 setup(

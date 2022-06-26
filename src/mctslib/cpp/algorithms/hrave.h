@@ -48,30 +48,33 @@ public:
 
     // Changes the backpropagation method to update the global AMAF stats as well as the stats
     // of the nodes along the path taken by the tree policy.
-    void backpropagate(std::vector<std::shared_ptr<Node>> path, const double reward) override
+    void backpropagate(std::vector<std::shared_ptr<Node>> path, double reward) override
     {
         std::vector<bool> seen_action_ids(this->max_action_value + 1, false);
         double discounted_reward = reward;
 
         for (std::shared_ptr<Node> node_ptr : path) {
-            seen_action_ids.at(node_ptr->stats.action_id) = true;
+            int action_id = node_ptr->stats.action_id;
+            if (!seen_action_ids.at(action_id)) {
+                seen_action_ids.at(action_id) = true;
+                global_amafs.at(action_id).visits++;
+
+                // choosing to give AMAF values undiscounted reward (a choice to consider)
+                global_amafs.at(action_id).backprop_reward += reward;
+            }
+
             node_ptr->stats.visits++;
             node_ptr->stats.backprop_reward += discounted_reward;
 
             discounted_reward *= this->backprop_decay;
         }
 
-        for (int i = 0; i < this->max_action_value + 1; i++) {
-            if (seen_action_ids.at(i)) {
-                global_amafs.at(i).visits++;
-                global_amafs.at(i).backprop_reward += reward;
-            }
-        }
     }
 
 #ifdef MCTSLIB_USING_PYBIND11
     pybind11::dict get_global_stats() {
-        return MCTSBaseCls::get_global_stats();
+        pybind11::dict dict MCTSBaseCls::get_global_stats();
+        dict["global_amaf_stats"] = global_amafs;
     }
 #endif
 
