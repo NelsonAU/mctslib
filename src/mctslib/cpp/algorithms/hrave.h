@@ -13,10 +13,10 @@ namespace mctslib {
 
 // Implements History Rapid Action Value Estimation. Like GRAVE with the ref_threshold set to
 // infinity.
-template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool constant_action_space>
-class HRAVEBase : public MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space> {
+template <class Node, bool using_dag, bool randomize_ties, bool constant_action_space>
+class HRAVEBase : public MCTSBase<Node, using_dag, randomize_ties, constant_action_space> {
 public:
-    using MCTSBaseCls = MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space>;
+    using MCTSBaseCls = MCTSBase<Node, using_dag, randomize_ties, constant_action_space>;
     inline const static std::string alg_str = "HRAVE";
     inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
     // Stores the all moves as first (AMAF) statistics for each action. The GRAVE analogy taken
@@ -43,7 +43,7 @@ public:
         double avg_amaf_reward = global_amafs.at(node_ptr->stats.action_id).average_reward();
         double avg_reward = node_ptr->stats.average_reward();
 
-        return (1 - beta) * avg_reward + beta * avg_amaf_reward + this->settings.exploration_weight * log_N;
+        return (1 - beta) * avg_reward + beta * avg_amaf_reward + this->exploration_weight * log_N;
     }
 
     // Changes the backpropagation method to update the global AMAF stats as well as the stats
@@ -73,16 +73,17 @@ public:
 
 #ifdef MCTSLIB_USING_PYBIND11
     pybind11::dict get_global_stats() {
-        pybind11::dict dict MCTSBaseCls::get_global_stats();
+        pybind11::dict dict = MCTSBaseCls::get_global_stats();
         dict["global_amaf_stats"] = global_amafs;
+        return dict;
     }
 #endif
 
 };
 
-template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool constant_action_space>
-class HRAVE final : public HRAVEBase<Node, using_iters, using_dag, randomize_ties, constant_action_space> {
-    using HRAVEBase<Node, using_iters, using_dag, randomize_ties, constant_action_space>::HRAVEBase;
+template <class Node, bool using_dag, bool randomize_ties, bool constant_action_space>
+class HRAVE final : public HRAVEBase<Node, using_dag, randomize_ties, constant_action_space> {
+    using HRAVEBase<Node, using_dag, randomize_ties, constant_action_space>::HRAVEBase;
 };
 
 }

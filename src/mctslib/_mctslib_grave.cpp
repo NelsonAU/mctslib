@@ -7,109 +7,57 @@
 using namespace mctslib;
 namespace py = pybind11;
 
+template<typename cls>
+auto register_GRAVE(auto module) {
+    return pybind11::class_<cls>(module, cls::str_id.c_str())
+        .def(pybind11::init<double, int, int, int, pybind11::object>())
+        .def("search_using_cpu_time", 
+            [](cls& self, double cpu_time, int rollout_depth, double exp_weight) {
+                auto node = self.search_using_cpu_time(cpu_time, rollout_depth, exp_weight);
+                return pybind11::make_tuple(node, self.get_global_stats());
+            }, "", pybind11::kw_only(),
+            pybind11::arg("cpu_time"), pybind11::arg("rollout_depth"),
+            pybind11::arg("exploration_weight")
+        )
+        .def("search_using_iters", 
+            [](cls& self, int iters, int rollout_depth, double exp_weight) {
+                auto node = self.search_using_iters(iters, rollout_depth, exp_weight);
+                return pybind11::make_tuple(node, self.get_global_stats());
+            }, "", pybind11::kw_only(),
+            pybind11::arg("iters"), pybind11::arg("rollout_depth"),
+            pybind11::arg("exploration_weight")
+        )
+        .def("get_global_stats", &cls::get_global_stats)
+        .def_readonly("current_node", &cls::current_node_ptr);
+}
+
 PYBIND11_MODULE(_mctslib_grave, m)
 {
     m.doc() = "pybind11 example plugin"; // optional module docstring
 
-    //@NOTE:    Must specify template args to move that correspond to the settings of the algorithm.
-    //          No way to infer this because the Settings default constructor cannot be deleted,
-    //          and because of this the compiler will always choose to decide that the parameter
-    //          pack is empty.
+    py::class_<RAVEStats>(m, "GRAVEStats")
+        .def_readonly("evaluation", &RAVEStats::evaluation)
+        .def_readonly("action_id", &RAVEStats::action_id)
+        .def_readonly("backprop_reward", &RAVEStats::backprop_reward)
+        .def_readonly("visits", &RAVEStats::visits)
+        .def_readonly("amaf_stats", &RAVEStats::amaf_stats)
+        .def("average_reward", &RAVEStats::average_reward)
+        .def("amaf_average_reward", &RAVEStats::amaf_average_reward);
+
+    py::class_<PythonNode<RAVEStats>, std::shared_ptr<PythonNode<RAVEStats>>>(m, "GRAVENode")
+        .def("children", &PythonNode<RAVEStats>::children, "")
+        .def_readonly("state", &PythonNode<RAVEStats>::state)
+        .def_readonly("stats", &PythonNode<RAVEStats>::stats);
 
 
-    using PyCPU_Tree_NoRNG_NoCAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, false, false, false, false>>;
-    py::class_<PyCPU_Tree_NoRNG_NoCAS_GRAVE>(m, PyCPU_Tree_NoRNG_NoCAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyCPU_Tree_NoRNG_NoCAS_GRAVE::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
+    register_GRAVE<GRAVE<PythonNode<RAVEStats>, false, false, false>>(m);
+    register_GRAVE<GRAVE<PythonNode<RAVEStats>, false, false, true>>(m);
+    register_GRAVE<GRAVE<PythonNode<RAVEStats>, false, true, false>>(m);
+    register_GRAVE<GRAVE<PythonNode<RAVEStats>, false, true, true>>(m);
 
-    using PyIters_Tree_NoRNG_NoCAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, true, false, false, false>>;
-    py::class_<PyIters_Tree_NoRNG_NoCAS_GRAVE>(m, PyIters_Tree_NoRNG_NoCAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyIters_Tree_NoRNG_NoCAS_GRAVE::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
+    register_GRAVE<GRAVE<PythonNode<RAVEStats>, true, false, false>>(m);
+    register_GRAVE<GRAVE<PythonNode<RAVEStats>, true, false, true>>(m);
+    register_GRAVE<GRAVE<PythonNode<RAVEStats>, true, true, false>>(m);
+    register_GRAVE<GRAVE<PythonNode<RAVEStats>, true, true, true>>(m);
 
-    using PyCPU_DAG_NoRNG_NoCAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, false, true, false, false>>;
-    py::class_<PyCPU_DAG_NoRNG_NoCAS_GRAVE>(m, PyCPU_DAG_NoRNG_NoCAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyCPU_DAG_NoRNG_NoCAS_GRAVE::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_DAG_NoRNG_NoCAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, true, true, false, false>>;
-    py::class_<PyIters_DAG_NoRNG_NoCAS_GRAVE>(m, PyIters_DAG_NoRNG_NoCAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyIters_DAG_NoRNG_NoCAS_GRAVE::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
-
-    using PyCPU_Tree_RNG_NoCAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, false, false, true, false>>;
-    py::class_<PyCPU_Tree_RNG_NoCAS_GRAVE>(m, PyCPU_Tree_RNG_NoCAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyCPU_Tree_RNG_NoCAS_GRAVE::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_Tree_RNG_NoCAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, true, false, true, false>>;
-    py::class_<PyIters_Tree_RNG_NoCAS_GRAVE>(m, PyIters_Tree_RNG_NoCAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyIters_Tree_RNG_NoCAS_GRAVE::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
-
-    using PyCPU_DAG_RNG_NoCAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, false, true, true, false>>;
-    py::class_<PyCPU_DAG_RNG_NoCAS_GRAVE>(m, PyCPU_DAG_RNG_NoCAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyCPU_DAG_RNG_NoCAS_GRAVE::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_DAG_RNG_NoCAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, true, true, true, false>>;
-    py::class_<PyIters_DAG_RNG_NoCAS_GRAVE>(m, PyIters_DAG_RNG_NoCAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyIters_DAG_RNG_NoCAS_GRAVE::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
-
-    using PyCPU_Tree_NoRNG_CAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, false, false, false, true>>;
-    py::class_<PyCPU_Tree_NoRNG_CAS_GRAVE>(m, PyCPU_Tree_NoRNG_CAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyCPU_Tree_NoRNG_CAS_GRAVE::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_Tree_NoRNG_CAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, true, false, false, true>>;
-    py::class_<PyIters_Tree_NoRNG_CAS_GRAVE>(m, PyIters_Tree_NoRNG_CAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyIters_Tree_NoRNG_CAS_GRAVE::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
-
-    using PyCPU_DAG_NoRNG_CAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, false, true, false, true>>;
-    py::class_<PyCPU_DAG_NoRNG_CAS_GRAVE>(m, PyCPU_DAG_NoRNG_CAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyCPU_DAG_NoRNG_CAS_GRAVE::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_DAG_NoRNG_CAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, true, true, false, true>>;
-    py::class_<PyIters_DAG_NoRNG_CAS_GRAVE>(m, PyIters_DAG_NoRNG_CAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyIters_DAG_NoRNG_CAS_GRAVE::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
-
-    using PyCPU_Tree_RNG_CAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, false, false, true, true>>;
-    py::class_<PyCPU_Tree_RNG_CAS_GRAVE>(m, PyCPU_Tree_RNG_CAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyCPU_Tree_RNG_CAS_GRAVE::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_Tree_RNG_CAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, true, false, true, true>>;
-    py::class_<PyIters_Tree_RNG_CAS_GRAVE>(m, PyIters_Tree_RNG_CAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyIters_Tree_RNG_CAS_GRAVE::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
-
-    using PyCPU_DAG_RNG_CAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, false, true, true, true>>;
-    py::class_<PyCPU_DAG_RNG_CAS_GRAVE>(m, PyCPU_DAG_RNG_CAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyCPU_DAG_RNG_CAS_GRAVE::move<int, double, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("cpu_time"), py::arg("exploration_weight"));
-
-    using PyIters_DAG_RNG_CAS_GRAVE = PyAlg<GRAVE<PythonNode<RAVEStats>, true, true, true, true>>;
-    py::class_<PyIters_DAG_RNG_CAS_GRAVE>(m, PyIters_DAG_RNG_CAS_GRAVE::str_id())
-        .def(py::init<double, int, int, int, py::object>())
-        .def("move", &PyIters_DAG_RNG_CAS_GRAVE::move<int, int, double>, "", py::kw_only(),
-            py::arg("rollout_depth"), py::arg("iters"), py::arg("exploration_weight"));
 }

@@ -32,10 +32,10 @@ struct RAVEStats : public MCTSStats {
     }
 };
 
-template <class Node, bool using_iters, bool using_dag, bool randomize_ties, bool constant_action_space>
-class RAVEBase : public MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space> {
+template <class Node, bool using_dag, bool randomize_ties, bool constant_action_space>
+class RAVEBase : public MCTSBase<Node, using_dag, randomize_ties, constant_action_space> {
 public:
-    using MCTSBaseCls = MCTSBase<Node, using_iters, using_dag, randomize_ties, constant_action_space>;
+    using MCTSBaseCls = MCTSBase<Node, using_dag, randomize_ties, constant_action_space>;
 
     inline const static std::string alg_str = "RAVE";
     inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
@@ -57,7 +57,7 @@ public:
         double avg_amaf_reward = current_node_stats.amaf_average_reward(node_ptr->stats.action_id);
         double avg_reward = node_ptr->stats.average_reward();
 
-        return (1 - beta) * avg_reward + beta * avg_amaf_reward + this->settings.exploration_weight * log_N;
+        return (1 - beta) * avg_reward + beta * avg_amaf_reward + this->exploration_weight * log_N;
     }
 
     void backpropagate(std::vector<std::shared_ptr<Node>> path, double reward) override
@@ -91,9 +91,9 @@ public:
 
 };
 
-template <class Node, bool using_iters, bool using_dag, bool randomized_ties, bool constant_action_space>
-class RAVE final : public RAVEBase<Node, using_iters, using_dag, randomized_ties, constant_action_space> {
-    using RAVEBase<Node, using_iters, using_dag, randomized_ties, constant_action_space>::RAVEBase;
+template <class Node, bool using_dag, bool randomized_ties, bool constant_action_space>
+class RAVE final : public RAVEBase<Node, using_dag, randomized_ties, constant_action_space> {
+    using RAVEBase<Node, using_dag, randomized_ties, constant_action_space>::RAVEBase;
 };
 
 }

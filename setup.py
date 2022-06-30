@@ -8,7 +8,7 @@ import os
 def find_ext_modules(**kwargs):
     """Creates list of Pybind11Extensions and passes extra arguments to them"""
     return [Pybind11Extension(f'mctslib.{Path(p).stem}', [p], **kwargs)
-            for p in glob('src/**/*mcts.cpp')]
+            for p in glob('src/**/*.cpp')]
 
 
 ext_options = {
