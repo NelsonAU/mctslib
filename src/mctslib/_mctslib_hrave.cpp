@@ -67,6 +67,4 @@ PYBIND11_MODULE(_mctslib_hrave, m)
     register_HRAVE<HRAVE<PythonNode<MCTSStats>, true, false, true>>(m);
     register_HRAVE<HRAVE<PythonNode<MCTSStats>, true, true, false>>(m);
     register_HRAVE<HRAVE<PythonNode<MCTSStats>, true, true, true>>(m);
-
-
 }

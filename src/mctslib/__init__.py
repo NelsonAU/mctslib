@@ -1,7 +1,7 @@
-
-from . import _mctslib_hrave
 from . import _mctslib_mcts
+from . import _mctslib_hrave
 from . import _mctslib_rave
+from . import _mctslib_grave
 
 def MCTS(root, *, max_action_value: int, backprop_decay: float = 1, structure: str = "tree",
         randomize_ties: bool = True, constant_action_space: bool = True):
@@ -62,7 +62,6 @@ def GRAVE(root, *, max_action_value: int, equivalence_param: int, ref_threshold:
     """
     Used to fetch and initialize the appropriate GRAVE implementation from the shared object.
     """
-    from . import _mctslib_grave
 
     if structure not in ("tree", "dag"):
         raise ValueError(f"Argument structure must be 'tree' or 'dag', not {structure}")
