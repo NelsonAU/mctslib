@@ -27,6 +27,8 @@ auto register_RAVE(auto module) {
             pybind11::arg("iters"), pybind11::arg("rollout_depth"),
             pybind11::arg("exploration_weight")
         )
+        .def("choose_best_node", &cls::choose_best_node)
+        .def("choose", &cls::choose)
         .def("get_global_stats", &cls::get_global_stats)
         .def_readonly("current_node", &cls::current_node_ptr);
 }

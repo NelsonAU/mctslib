@@ -114,9 +114,9 @@ public:
     }
 
     // Changes move to update ref_nodes. Otherwise should be the same as MCTS::move
-    virtual std::shared_ptr<Node> choose() override
+    virtual std::shared_ptr<Node> choose(std::shared_ptr<Node> chosen_node) override
     {
-        MCTSBaseCls::choose(); //updates the current_node_ptr
+        MCTSBaseCls::choose(chosen_node);
         ref_nodes.push_front(this->current_node_ptr);
         return this->current_node_ptr;
     }

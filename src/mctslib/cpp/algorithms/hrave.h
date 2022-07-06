@@ -17,6 +17,7 @@ template <class Node, bool using_dag, bool randomize_ties, bool constant_action_
 class HRAVEBase : public MCTSBase<Node, using_dag, randomize_ties, constant_action_space> {
 public:
     using MCTSBaseCls = MCTSBase<Node, using_dag, randomize_ties, constant_action_space>;
+
     inline const static std::string alg_str = "HRAVE";
     inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
     // Stores the all moves as first (AMAF) statistics for each action. The GRAVE analogy taken

@@ -30,6 +30,8 @@ auto register_MCTS(auto module) {
             pybind11::arg("iters"), pybind11::arg("rollout_depth"),
             pybind11::arg("exploration_weight")
         )
+        .def("choose_best_node", &cls::choose_best_node)
+        .def("choose", &cls::choose)
         .def("get_global_stats", &cls::get_global_stats)
         .def_readonly("current_node", &cls::current_node_ptr);
 }
@@ -40,12 +42,12 @@ PYBIND11_MODULE(_mctslib_mcts, m)
     m.doc() = "pybind11 example plugin"; // optional module docstring
 
 
-    py::class_<MCTSStats>(m, "MCTSStats")
-        .def_readonly("evaluation", &MCTSStats::evaluation)
-        .def_readonly("action_id", &MCTSStats::action_id)
-        .def_readonly("backprop_reward", &MCTSStats::backprop_reward)
-        .def_readonly("visits", &MCTSStats::visits)
-        .def("average_reward", &MCTSStats::average_reward);
+    /* py::class_<MCTSStats>(m, "MCTSStats") */
+    /*     .def_readonly("evaluation", &MCTSStats::evaluation) */
+    /*     .def_readonly("action_id", &MCTSStats::action_id) */
+    /*     .def_readonly("backprop_reward", &MCTSStats::backprop_reward) */
+    /*     .def_readonly("visits", &MCTSStats::visits) */
+    /*     .def("average_reward", &MCTSStats::average_reward); */
 
     py::class_<PythonNode<MCTSStats>, std::shared_ptr<PythonNode<MCTSStats>>>(m, "MCTSNode")
         .def("children", &PythonNode<MCTSStats>::children, "")

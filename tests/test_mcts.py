@@ -11,6 +11,7 @@ def test_iter_mcts(structure, rng, cas):
             max_action_value=1, constant_action_space=cas)
     for _ in range(10):
         node, global_stats = alg.search_using_iters(rollout_depth=2, iters=10, exploration_weight=1)
+        alg.choose_best_node()
 
 
 @pytest.mark.parametrize("structure", ["tree", "dag"])
@@ -21,3 +22,4 @@ def test_cpu_time_mcts(structure, rng, cas):
             max_action_value=1, constant_action_space=cas)
     for _ in range(10):
         node, global_stats = alg.search_using_cpu_time(rollout_depth=2, cpu_time=.05, exploration_weight=1)
+        alg.choose_best_node()

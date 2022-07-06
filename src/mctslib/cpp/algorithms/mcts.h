@@ -91,8 +91,7 @@ public:
     }
 
     // Used to choose the next node to progress to after all rollouts have been completed.
-    // TODO change how this works
-    virtual std::shared_ptr<Node> choose()
+    std::shared_ptr<Node> choose_best_node()
     {
         std::shared_ptr<Node> best_node = *std::max_element(
             current_node_ptr->children().begin(),
@@ -100,9 +99,12 @@ public:
             [](const std::shared_ptr<Node> left, const std::shared_ptr<Node> right) {
                 return left->stats.average_reward() < right->stats.average_reward();
             });
+        return choose(best_node);
+    }
 
-        current_node_ptr = best_node;
-        return best_node;
+    virtual std::shared_ptr<Node> choose(std::shared_ptr<Node> chosen_node) {
+        current_node_ptr = chosen_node;
+        return chosen_node;
     }
 
 

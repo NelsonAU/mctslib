@@ -1,4 +1,7 @@
 
+from . import _mctslib_hrave
+from . import _mctslib_mcts
+from . import _mctslib_rave
 
 def MCTS(root, *, max_action_value: int, backprop_decay: float = 1, structure: str = "tree",
         randomize_ties: bool = True, constant_action_space: bool = True):
@@ -6,7 +9,6 @@ def MCTS(root, *, max_action_value: int, backprop_decay: float = 1, structure: s
     Used to fetch and initialize the appropriate MCTS implementation from the shared object.
     """
 
-    from . import _mctslib_mcts
 
     if structure not in ("tree", "dag"):
         raise ValueError(f"Argument structure must be 'tree' or 'dag', not {structure}")
@@ -24,7 +26,6 @@ def HRAVE(root, *, max_action_value: int, equivalence_param: int, backprop_decay
     """
     Used to fetch and initialize the appropriate HRAVE implementation from the shared object.
     """
-    from . import _mctslib_hrave
 
     if structure not in ("tree", "dag"):
         raise ValueError(f"Argument structure must be 'tree' or 'dag', not {structure}")
@@ -43,7 +44,6 @@ def RAVE(root, *, max_action_value: int, equivalence_param: int, backprop_decay:
     Used to fetch and initialize the appropriate RAVE implementation from the shared object.
     """
 
-    from . import _mctslib_rave
 
     if structure not in ("tree", "dag"):
         raise ValueError(f"Argument structure must be 'tree' or 'dag', not {structure}")
