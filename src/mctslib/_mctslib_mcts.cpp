@@ -17,7 +17,7 @@ auto register_MCTS(auto module) {
         .def("search_using_cpu_time", 
             [](cls& self, double cpu_time, int rollout_depth, double exp_weight) {
                 auto node = self.search_using_cpu_time(cpu_time, rollout_depth, exp_weight);
-                return pybind11::make_tuple(node, self.get_global_stats());
+                return pybind11::make_tuple(node, node->children(), self.get_global_stats());
             }, "", pybind11::kw_only(),
             pybind11::arg("cpu_time"), pybind11::arg("rollout_depth"),
             pybind11::arg("exploration_weight")
@@ -25,7 +25,7 @@ auto register_MCTS(auto module) {
         .def("search_using_iters", 
             [](cls& self, int iters, int rollout_depth, double exp_weight) {
                 auto node = self.search_using_iters(iters, rollout_depth, exp_weight);
-                return pybind11::make_tuple(node, self.get_global_stats());
+                return pybind11::make_tuple(node, node->children(), self.get_global_stats());
             }, "", pybind11::kw_only(),
             pybind11::arg("iters"), pybind11::arg("rollout_depth"),
             pybind11::arg("exploration_weight")
