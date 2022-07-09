@@ -18,8 +18,10 @@ class HRAVEBase : public MCTSBase<Node, using_dag, randomize_ties, constant_acti
 public:
     using MCTSBaseCls = MCTSBase<Node, using_dag, randomize_ties, constant_action_space>;
 
+#ifdef MCTSLIB_USING_PYBIND11
     inline const static std::string alg_str = "HRAVE";
     inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
+#endif
     // Stores the all moves as first (AMAF) statistics for each action. The GRAVE analogy taken
     // literally would have us store this on the root node, but in practice this lets us keep the in
     // memory size of the tree down by freeing nodes above the current_node_ptr.
@@ -35,8 +37,7 @@ public:
     }
 
     // Changes the tree policy to use AMAF stats.
-    // TODO: add a setting for how we combine the AMAF estimation and UCT. Multiple different
-    // ways to do this in the literature.
+    // Multiple ways to choose beta - we choose a simple method used by Gelly and Silver, 2007
     double tree_policy_metric(const std::shared_ptr<Node> node_ptr) override
     {
         double log_N = std::log(this->current_node_ptr->stats.visits);

@@ -17,9 +17,10 @@ template <class Node, bool using_dag, bool randomize_ties, bool constant_action_
 class GRAVEBase : public MCTSBase<Node, using_dag, randomize_ties, constant_action_space> {
 public:
     using MCTSBaseCls = MCTSBase<Node, using_dag, randomize_ties, constant_action_space>;
-
+#ifdef MCTSLIB_USING_PYBIND11
     inline const static std::string alg_str = "GRAVE";
     inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
+#endif
 
     const int equivalence_param;
     const int ref_threshold;
@@ -113,10 +114,10 @@ public:
         trim_ref_nodes();
     }
 
-    // Changes move to update ref_nodes. Otherwise should be the same as MCTS::move
-    virtual std::shared_ptr<Node> choose(std::shared_ptr<Node> chosen_node) override
+    // Selects node and updates ref_nodes
+    virtual std::shared_ptr<Node> choose_node(std::shared_ptr<Node> chosen_node) override
     {
-        MCTSBaseCls::choose(chosen_node);
+        MCTSBaseCls::choose_node(chosen_node);
         ref_nodes.push_front(this->current_node_ptr);
         return this->current_node_ptr;
     }

@@ -20,6 +20,8 @@
 
 namespace mctslib {
 
+struct Empty {};
+
 // Contains all the stats needed for a node in MCTS.
 struct MCTSStats {
     double evaluation;
@@ -27,7 +29,7 @@ struct MCTSStats {
     double backprop_reward;
     int visits;
 
-    // In this case we discard action_space_size as MCTSStats doesn't need to store information
+    // In this case we discard max_action_value as MCTSStats doesn't need to store information
     // about all available actions
     MCTSStats(double eval, int action_id, int max_action_value)
         : evaluation(eval)
@@ -36,7 +38,9 @@ struct MCTSStats {
         , visits(0)
     {
     }
-    // In this case both constructors are the same, but may not be for more complicated Stats
+
+    // In this case both constructors are the same, but may not be for more complicated Stats.
+    // eval_only is used when stats will be discared (like in simulations).
     static MCTSStats eval_only(double eval, int action_id)
     {
         return MCTSStats(eval, action_id, 0);
@@ -49,17 +53,21 @@ struct MCTSStats {
 };
 
 // Implements the MCTS Base class. This class is designed to be inherited from, but should never
-// be instantiated independently. All algorithms that are designed to be used should be marked
-// final. To use MCTS, use the template found below this one.
+// be instantiated. All algorithms that are intended to be used should be marked final.
+// For MCTS, that means the class defined below this one.
 template <class Node, bool using_dag, bool randomize_ties, bool constant_action_space>
 class MCTSBase {
 public:
+
+#ifdef MCTSLIB_USING_PYBIND11
+    // Used for naming different algorithm implementations for Python bindings
     inline const static std::string opts_str =  std::string(using_dag ? "dag" : "tree") +
         "_" + (randomize_ties ? "rng_ties" : "no_rng_ties") +
         "_" + (constant_action_space ? "const_action_space" : "non_const_action_space");
 
     inline const static std::string alg_str = "MCTS";
     inline const static std::string str_id = opts_str + "_" + alg_str;
+#endif
 
     double exploration_weight;
     int rollout_depth;
@@ -67,8 +75,8 @@ public:
     const double backprop_decay;
     const int max_action_value;
     std::shared_ptr<Node> current_node_ptr;
-    typename std::conditional<using_dag, std::unordered_map<Node, std::shared_ptr<Node>>, std::monostate>::type transposition_table;
-    typename std::conditional<constant_action_space, std::vector<int>, std::monostate>::type action_space;
+    typename std::conditional<using_dag, std::unordered_map<Node, std::shared_ptr<Node>>, Empty>::type transposition_table;
+    typename std::conditional<constant_action_space, std::vector<int>, Empty>::type action_space;
 
     // global stats
     int total_iters = 0;
@@ -99,15 +107,20 @@ public:
             [](const std::shared_ptr<Node> left, const std::shared_ptr<Node> right) {
                 return left->stats.average_reward() < right->stats.average_reward();
             });
-        return choose(best_node);
+        return choose_node(best_node);
     }
 
-    virtual std::shared_ptr<Node> choose(std::shared_ptr<Node> chosen_node) {
+    // Used to choose a node manually. This is helpful when you may want to explore choosing nodes
+    // based on metrics besides their average reward. choose_best_node should always invoke
+    // choose_node because there may be algorithm specific bookkeeping that needs to be done
+    // immediately before/after a node is chosen. E.g. updating ref_nodes list in GRAVE.
+    virtual std::shared_ptr<Node> choose_node(std::shared_ptr<Node> chosen_node) {
         current_node_ptr = chosen_node;
         return chosen_node;
     }
 
 
+    // Searches for cpu_time seconds and returns the current node with updated statistics.
     std::shared_ptr<Node> search_using_cpu_time(double cpu_time, int rollout_depth, double exploration_weight) {
         this->exploration_weight = exploration_weight;
         this->rollout_depth = rollout_depth;
@@ -115,7 +128,7 @@ public:
         auto start = std::chrono::high_resolution_clock::now();
 
         for (;;) {
-            rollout(current_node_ptr);
+            rollout();
 
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff = end - start;
@@ -130,12 +143,13 @@ public:
     }
 
 
+    // Searches for iters iterations and returns the current node with updated statistics.
     std::shared_ptr<Node> search_using_iters(int iters, int rollout_depth, double exploration_weight) {
         this->exploration_weight = exploration_weight;
         this->rollout_depth = rollout_depth;
 
         for (int i = 0; i < iters; i++) {
-            rollout(current_node_ptr);
+            rollout();
         }
 
         return current_node_ptr;
@@ -169,7 +183,7 @@ public:
         // but that doesn't account for biases in select where we iterate over child nodes to find
         // a non-expanded one. Shuffling here means that we won't have to worry about either.
         // Of course it is still toggleable based on whether the user likes ties to be randomized,
-        // but in my testing this is quite important.
+        // but in my testing this is quite important. Could be problematic for large action spaces.
         if constexpr (randomize_ties) {
             std::shuffle(std::begin(node_action_space), std::end(node_action_space), rng);
         }
@@ -194,9 +208,9 @@ public:
         node_ptr->set_children(children);
     }
 
-    virtual void rollout(std::shared_ptr<Node> node_ptr)
+    virtual void rollout()
     {
-        std::vector<std::shared_ptr<Node>> path = select(node_ptr);
+        std::vector<std::shared_ptr<Node>> path = select();
         std::shared_ptr<Node> leaf = path.back();
         this->expand(leaf);
         double reward = simulate(leaf);
@@ -233,8 +247,9 @@ public:
 
     // Traverses already expanded nodes in the tree/dag based on the tree_policy_metric. In the case
     // of MCTS, this is UCT, but could differ for other algorithms.
-    virtual std::vector<std::shared_ptr<Node>> select(std::shared_ptr<Node> node_ptr)
+    virtual std::vector<std::shared_ptr<Node>> select()
     {
+        std::shared_ptr<Node> node_ptr = current_node_ptr;
         std::vector<std::shared_ptr<Node>> path { node_ptr };
 
         for (;;) {
@@ -281,7 +296,8 @@ public:
 
 // The purpose of this class is to create a completely concrete class which the compiler will then
 // hopefully devirtualize and optimize better. This may be unnecessary - but makes intent clear and
-// keeps me from worrying about the compiler not doing the right thing :-).
+// keeps me from worrying about the compiler not doing the right thing :-). Most importantly,
+// ensures that the transposition table won't be used when it isn't enabled.
 template <class Node, bool using_dag, bool randomize_ties, bool constant_action_space>
 class MCTS final : public MCTSBase<Node, using_dag, randomize_ties, constant_action_space> {
     using MCTSBase<Node, using_dag, randomize_ties, constant_action_space>::MCTSBase;

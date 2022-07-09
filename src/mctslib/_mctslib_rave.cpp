@@ -1,7 +1,6 @@
 #include <pybind11/pybind11.h>
 
 #include "algorithms/rave.h"
-#include "bindings/python_alg.h"
 #include "bindings/python_node.h"
 
 using namespace mctslib;
@@ -28,7 +27,7 @@ auto register_RAVE(auto module) {
             pybind11::arg("exploration_weight")
         )
         .def("choose_best_node", &cls::choose_best_node)
-        .def("choose", &cls::choose)
+        .def("choose_node", &cls::choose_node)
         .def("get_global_stats", &cls::get_global_stats)
         .def_readonly("current_node", &cls::current_node_ptr);
 }
@@ -36,7 +35,7 @@ auto register_RAVE(auto module) {
 
 PYBIND11_MODULE(_mctslib_rave, m)
 {
-    m.doc() = "pybind11 example plugin"; // optional module docstring
+    m.doc() = "This module contains implementations of MCTS for mctslib.";
 
     py::class_<RAVEStats>(m, "RAVEStats")
         .def_readonly("evaluation", &RAVEStats::evaluation)

@@ -6,7 +6,7 @@ from . import _mctslib_grave
 def MCTS(root, *, max_action_value: int, backprop_decay: float = 1, structure: str = "tree",
         randomize_ties: bool = True, constant_action_space: bool = True):
     """
-    Used to fetch and initialize the appropriate MCTS implementation from the shared object.
+    Used to fetch and initialize the appropriate MCTS implementation from the submodule.
     """
 
 
@@ -24,7 +24,7 @@ def MCTS(root, *, max_action_value: int, backprop_decay: float = 1, structure: s
 def HRAVE(root, *, max_action_value: int, equivalence_param: int, backprop_decay: float = 1,
         structure: str = "tree", randomize_ties: bool = True, constant_action_space: bool = True):
     """
-    Used to fetch and initialize the appropriate HRAVE implementation from the shared object.
+    Used to fetch and initialize the appropriate HRAVE implementation from the submodule.
     """
 
     if structure not in ("tree", "dag"):
@@ -41,7 +41,7 @@ def HRAVE(root, *, max_action_value: int, equivalence_param: int, backprop_decay
 def RAVE(root, *, max_action_value: int, equivalence_param: int, backprop_decay: float = 1,
         structure: str = "tree", randomize_ties: bool = True, constant_action_space: bool = True):
     """
-    Used to fetch and initialize the appropriate RAVE implementation from the shared object.
+    Used to fetch and initialize the appropriate RAVE implementation from the submodule.
     """
 
 
@@ -60,7 +60,7 @@ def GRAVE(root, *, max_action_value: int, equivalence_param: int, ref_threshold:
             backprop_decay: float = 1, structure: str = "tree", randomize_ties: bool = True,
             constant_action_space: bool = True):
     """
-    Used to fetch and initialize the appropriate GRAVE implementation from the shared object.
+    Used to fetch and initialize the appropriate GRAVE implementation from the submodule.
     """
 
     if structure not in ("tree", "dag"):

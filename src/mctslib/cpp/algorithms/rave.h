@@ -37,8 +37,10 @@ class RAVEBase : public MCTSBase<Node, using_dag, randomize_ties, constant_actio
 public:
     using MCTSBaseCls = MCTSBase<Node, using_dag, randomize_ties, constant_action_space>;
 
+#ifdef MCTSLIB_USING_PYBIND11
     inline const static std::string alg_str = "RAVE";
     inline const static std::string str_id = MCTSBaseCls::opts_str + "_" + alg_str;
+#endif
 
     const int equivalence_param;
 
@@ -77,6 +79,7 @@ public:
             for (int action_id = 0; action_id <= this->max_action_value; action_id++) {
                 if (seen_action_ids.at(action_id)) {
                     node_ptr->stats.amaf_stats.at(action_id).visits++;
+                    // AMAF values get undiscounted reward
                     node_ptr->stats.amaf_stats.at(action_id).backprop_reward += reward;
                 }
             }

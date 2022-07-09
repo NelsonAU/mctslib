@@ -1,7 +1,6 @@
 #include <pybind11/pybind11.h>
 
 #include "algorithms/hrave.h"
-#include "bindings/python_alg.h"
 #include "bindings/python_node.h"
 
 using namespace mctslib;
@@ -28,34 +27,21 @@ auto register_HRAVE(auto module) {
             pybind11::arg("exploration_weight")
         )
         .def("choose_best_node", &cls::choose_best_node)
-        .def("choose", &cls::choose)
+        .def("choose_node", &cls::choose_node)
         .def("get_global_stats", &cls::get_global_stats)
         .def_readonly("current_node", &cls::current_node_ptr);
 }
 
 PYBIND11_MODULE(_mctslib_hrave, m)
 {
-    m.doc() = "pybind11 example plugin"; // optional module docstring
+    m.doc() = "This module contains implementations of HRAVE for mctslib.";
 
-
-    /* py::class_<MCTSStats>(m, "HRAVEStats") */
-    /*     .def_readonly("evaluation", &MCTSStats::evaluation) */
-    /*     .def_readonly("action_id", &MCTSStats::action_id) */
-    /*     .def_readonly("backprop_reward", &MCTSStats::backprop_reward) */
-    /*     .def_readonly("visits", &MCTSStats::visits) */
-    /*     .def("average_reward", &MCTSStats::average_reward); */
 
     py::class_<AMAFStats>(m, "AMAFStats")
         .def_readonly("evaluation", &AMAFStats::evaluation)
         .def_readonly("backprop_reward", &AMAFStats::backprop_reward)
         .def_readonly("visits", &AMAFStats::visits)
         .def("average_reward", &AMAFStats::average_reward);
-
-
-    /* py::class_<PythonNode<MCTSStats>, std::shared_ptr<PythonNode<MCTSStats>>>(m, "HRAVENode") */
-    /*     .def("children", &PythonNode<MCTSStats>::children, "") */
-    /*     .def_readonly("state", &PythonNode<MCTSStats>::state) */
-    /*     .def_readonly("stats", &PythonNode<MCTSStats>::stats); */
 
 
     register_HRAVE<HRAVE<PythonNode<MCTSStats>, false, false, false>>(m);

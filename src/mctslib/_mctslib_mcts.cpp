@@ -1,9 +1,7 @@
 #include <memory>
 #include <pybind11/pybind11.h>
 
-
 #include "algorithms/mcts.h"
-#include "bindings/python_alg.h"
 #include "bindings/python_node.h"
 
 using namespace mctslib;
@@ -31,7 +29,7 @@ auto register_MCTS(auto module) {
             pybind11::arg("exploration_weight")
         )
         .def("choose_best_node", &cls::choose_best_node)
-        .def("choose", &cls::choose)
+        .def("choose_node", &cls::choose_node)
         .def("get_global_stats", &cls::get_global_stats)
         .def_readonly("current_node", &cls::current_node_ptr);
 }
@@ -39,18 +37,18 @@ auto register_MCTS(auto module) {
 
 PYBIND11_MODULE(_mctslib_mcts, m)
 {
-    m.doc() = "pybind11 example plugin"; // optional module docstring
+    m.doc() = "This module contains implementations of MCTS for mctslib.";
 
 
-    /* py::class_<MCTSStats>(m, "MCTSStats") */
-    /*     .def_readonly("evaluation", &MCTSStats::evaluation) */
-    /*     .def_readonly("action_id", &MCTSStats::action_id) */
-    /*     .def_readonly("backprop_reward", &MCTSStats::backprop_reward) */
-    /*     .def_readonly("visits", &MCTSStats::visits) */
-    /*     .def("average_reward", &MCTSStats::average_reward); */
+    py::class_<MCTSStats>(m, "MCTSStats")
+        .def_readonly("evaluation", &MCTSStats::evaluation)
+        .def_readonly("action_id", &MCTSStats::action_id)
+        .def_readonly("backprop_reward", &MCTSStats::backprop_reward)
+        .def_readonly("visits", &MCTSStats::visits)
+        .def("average_reward", &MCTSStats::average_reward);
 
     py::class_<PythonNode<MCTSStats>, std::shared_ptr<PythonNode<MCTSStats>>>(m, "MCTSNode")
-        .def("children", &PythonNode<MCTSStats>::children, "")
+        .def("children", &PythonNode<MCTSStats>::children)
         .def_readonly("state", &PythonNode<MCTSStats>::state)
         .def_readonly("stats", &PythonNode<MCTSStats>::stats);
 

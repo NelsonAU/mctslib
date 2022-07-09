@@ -1,7 +1,6 @@
 #include <pybind11/pybind11.h>
 
 #include "algorithms/grave.h"
-#include "bindings/python_alg.h"
 #include "bindings/python_node.h"
 
 using namespace mctslib;
@@ -28,28 +27,14 @@ auto register_GRAVE(auto module) {
             pybind11::arg("exploration_weight")
         )
         .def("choose_best_node", &cls::choose_best_node)
-        .def("choose", &cls::choose)
+        .def("choose_node", &cls::choose_node)
         .def("get_global_stats", &cls::get_global_stats)
         .def_readonly("current_node", &cls::current_node_ptr);
 }
 
 PYBIND11_MODULE(_mctslib_grave, m)
 {
-    m.doc() = "pybind11 example plugin"; // optional module docstring
-
-    /* py::class_<RAVEStats>(m, "GRAVEStats") */
-    /*     .def_readonly("evaluation", &RAVEStats::evaluation) */
-    /*     .def_readonly("action_id", &RAVEStats::action_id) */
-    /*     .def_readonly("backprop_reward", &RAVEStats::backprop_reward) */
-    /*     .def_readonly("visits", &RAVEStats::visits) */
-    /*     .def_readonly("amaf_stats", &RAVEStats::amaf_stats) */
-    /*     .def("average_reward", &RAVEStats::average_reward) */
-    /*     .def("amaf_average_reward", &RAVEStats::amaf_average_reward); */
-
-    /* py::class_<PythonNode<RAVEStats>, std::shared_ptr<PythonNode<RAVEStats>>>(m, "GRAVENode") */
-    /*     .def("children", &PythonNode<RAVEStats>::children, "") */
-    /*     .def_readonly("state", &PythonNode<RAVEStats>::state) */
-    /*     .def_readonly("stats", &PythonNode<RAVEStats>::stats); */
+    m.doc() = "This module contains implementations of GRAVE for mctslib.";
 
 
     register_GRAVE<GRAVE<PythonNode<RAVEStats>, false, false, false>>(m);
