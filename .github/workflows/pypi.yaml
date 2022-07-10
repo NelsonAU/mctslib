@@ -1,6 +1,6 @@
 name: publish Python dists to PyPI
 
-on: release
+on: push
 
 jobs:
   build-n-publish:
