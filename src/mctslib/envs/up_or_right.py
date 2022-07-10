@@ -1,7 +1,7 @@
 import random
 
 
-class Node:
+class State:
     __slots__ = ("x", "y", "_evaluation", "action_id")
 
     def __init__(self, x, y, action_id=0):
@@ -11,13 +11,13 @@ class Node:
         self.action_id = action_id
 
     def find_children(self):
-        return [Node(self.x + 1, self.y, action_id=0), Node(self.x, self.y + 1, action_id=1)]
+        return [State(self.x + 1, self.y, action_id=0), State(self.x, self.y + 1, action_id=1)]
 
     def apply_action(self, action_id):
         if action_id == 0:
-            return Node(self.x + 1, self.y, action_id=0)
+            return State(self.x + 1, self.y, action_id=0)
         else:
-            return Node(self.x, self.y + 1, action_id=1)
+            return State(self.x, self.y + 1, action_id=1)
 
     def get_legal_actions(self):
         return [0, 1]
@@ -41,7 +41,7 @@ class Node:
         return hash((self.x, self.y))
 
     def __repr__(self):
-        return f"Node<self.x={self.x}, self.y={self.y}, self.eval={self._evaluation} self.action={self.action_id}>"
+        return f"State<self.x={self.x}, self.y={self.y}, self.eval={self._evaluation} self.action={self.action_id}>"
 
     @staticmethod
     def get_action_space_size():

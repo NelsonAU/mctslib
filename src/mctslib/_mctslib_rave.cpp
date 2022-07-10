@@ -4,7 +4,6 @@
 #include "bindings/python_node.h"
 
 using namespace mctslib;
-namespace py = pybind11;
 
 template<typename cls>
 auto register_RAVE(auto module) {
@@ -37,7 +36,7 @@ PYBIND11_MODULE(_mctslib_rave, m)
 {
     m.doc() = "This module contains implementations of MCTS for mctslib.";
 
-    py::class_<RAVEStats>(m, "RAVEStats")
+    pybind11::class_<RAVEStats>(m, "RAVEStats")
         .def_readonly("evaluation", &RAVEStats::evaluation)
         .def_readonly("action_id", &RAVEStats::action_id)
         .def_readonly("backprop_reward", &RAVEStats::backprop_reward)
@@ -46,7 +45,7 @@ PYBIND11_MODULE(_mctslib_rave, m)
         .def("average_reward", &RAVEStats::average_reward)
         .def("amaf_average_reward", &RAVEStats::amaf_average_reward);
 
-    py::class_<PythonNode<RAVEStats>, std::shared_ptr<PythonNode<RAVEStats>>>(m, "RAVENode")
+    pybind11::class_<PythonNode<RAVEStats>, std::shared_ptr<PythonNode<RAVEStats>>>(m, "RAVENode")
         .def("children", &PythonNode<RAVEStats>::children, "")
         .def_readonly("state", &PythonNode<RAVEStats>::state)
         .def_readonly("stats", &PythonNode<RAVEStats>::stats);

@@ -4,7 +4,6 @@
 #include "bindings/python_node.h"
 
 using namespace mctslib;
-namespace py = pybind11;
 
 template<typename cls>
 auto register_GRAVE(auto module) {

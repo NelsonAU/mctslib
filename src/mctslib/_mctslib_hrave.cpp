@@ -4,7 +4,6 @@
 #include "bindings/python_node.h"
 
 using namespace mctslib;
-namespace py = pybind11;
 
 template<typename cls>
 auto register_HRAVE(auto module) {
@@ -37,7 +36,7 @@ PYBIND11_MODULE(_mctslib_hrave, m)
     m.doc() = "This module contains implementations of HRAVE for mctslib.";
 
 
-    py::class_<AMAFStats>(m, "AMAFStats")
+    pybind11::class_<AMAFStats>(m, "AMAFStats")
         .def_readonly("evaluation", &AMAFStats::evaluation)
         .def_readonly("backprop_reward", &AMAFStats::backprop_reward)
         .def_readonly("visits", &AMAFStats::visits)
