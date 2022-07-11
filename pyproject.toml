@@ -1,5 +1,7 @@
 [build-system]
+build-backend = "setuptools.build_meta:__legacy__"
 requires = [
     "setuptools",
     "pybind11",
 ]
+

@@ -2,7 +2,7 @@
 #include <pybind11/pybind11.h>
 
 #include "algorithms/mcts.h"
-#include "bindings/python_node.h"
+#include "nodes/python_node.h"
 
 using namespace mctslib;
 

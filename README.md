@@ -1,19 +1,18 @@
 # mctslib
 
 ## Development setup
-To do development on this project, do
+To do development on this project
 ```sh
 $ python3 setup.py develop # setup.py will build and install development version
 ```
 
-To run tests and flake8, do
+To run tests:
 ```sh
 $ tox -e py39,flake8 # substitute 39 for desired python version
 ```
 
-## Defining an environment
+## Defining an environment in Python
 
-### Python
 The primary feature of mctslib is the ability to define an environment in Python and be able to run
 any algorithm mctslib provides in that environment. Some algorithms have extra requirements (for
 example, that the node store the action that led to the state, or that the node is hashable). Here 
@@ -25,17 +24,24 @@ state in this environment is the product of the agent's x and y position.
 import random
 
 
-class Node:
-    def __init__(self, x, y):
+class State:
+    def __init__(self, x, y, action_id=0):
         self.x = x
         self.y = y
-        self._evaluation = self.x*self.y
+        self._evaluation = (self.x * self.y)/((self.x/2 + self.y/2)**2)
+        self.action_id = action_id
 
     def find_children(self):
-        return [
-                Node(self.x + 1, self.y),
-                Node(self.x, self.y + 1),
-            ]
+        return [State(self.x + 1, self.y, action_id=0), State(self.x, self.y + 1, action_id=1)]
+
+    def apply_action(self, action_id):
+        if action_id == 0:
+            return State(self.x + 1, self.y, action_id=0)
+        else:
+            return State(self.x, self.y + 1, action_id=1)
+
+    def get_legal_actions(self):
+        return [0, 1]
 
     def default_policy(self):
         return random.choice(self.find_children())
@@ -45,56 +51,10 @@ class Node:
 
     def is_terminal(self):
         return False
+
 ```
 
 
-### C++
-Environments can be defined in C++ as well. Here is the above environment defined in C++:
-```cpp
-// up_or_right.h
-#include <memory>
-#include <random>
-#include <vector>
-
-template <class NodeStats>
-class Node {
-private:
-    bool _been_expanded = false;
-    int x;
-    int y;
-    static inline std::mt19937 rng;
-public:
-    NodeStats stats;
-    std::vector<std::shared_ptr<Node>> children;
-
-    Node(int x, int y) : x(x), y(y), stats(x*y) {}
-
-    void create_children() {
-        children.push_back(std::make_shared<Node>(x + 1, y));
-        children.push_back(std::make_shared<Node>(x, y + 1));
-        _been_expanded = true;
-    }
-
-    Node default_policy() const {
-        std::uniform_int_distribution<int> dist { 0, 1 };
-        int result = dist(rng);
-        
-        if (result) return Node(x + 1, y);
-        return Node(x, y + 1);
-    }
-
-    bool is_terminal() const { return false; }
-
-    bool been_expanded const { return _been_expanded; }
-}
-```
-
-There are a few things that mctslib will assume about the class that may not be obvious from
-the above snippet:
-
-- The constructor of NodeStats expects a value of type double that will be used as the evaluation of the node.
-- children must be public, this is necessary for algorithms which leverage environments being DAGs rather than trees.
-- children does not necessarily need to be a vector, but must be iterable, and must use std::shared\_ptr.
 
 
 ## Using mctslib defined algorithms
@@ -102,50 +62,59 @@ the above snippet:
 
 mctslib implements many variations of algorithms with different options and performance characteristics.
 To make choosing an algorithm as simple as possible, mctslib exposes helper functions that will choose
-the correct algorithm based on the settings you provide.
+the correct algorithm implementation based on the settings you provide.
 
 ### MCTS
 
-To run MCTS using mctslib use the MCTS helper function.
+To get an instance of MCTS using mctslib, use the MCTS helper function.
 
 ```python
 
-def MCTS(root, *args, iter_stop=None, structure="tree", randomize_ties=True, **kwargs):
+def MCTS(root, *, max_action_value: int, backprop_decay: float = 1, structure: str = "tree",
+        randomize_ties: bool = True, constant_action_space: bool = True):
     ...
 ```
 
 MCTS gives you several options to choose from:
 
-- `iter_stop: ["iters", "cpu_time"]`: This controls whether MCTS decides the next
-state after time or a certain number of iterations.
-- `structure: ["tree", "dag"]`: Controls whether MCTS will take advantage of the environment being
+- `structure: {"tree", "dag"}`: Controls whether MCTS will take advantage of the environment being
 a DAG instead of a tree. This comes with some overhead - if `"dag"` is chosen, then a map is used to
 track down the 'canonical' reference to a node. In environments with many transpositions, this can 
 improve performance.
-- `randomize_ties: [True, False]`: If `True`, then nodes which have the same evaluation will be 
+- `randomize_ties: bool`: If `True`, then nodes which have the same evaluation will be 
 equally likely to be chosen. Otherwise, the node with the lower index is chosen. Choosing the node with
 the lowest index can be helpful in some circumstances. For example, in the Atari Learning Environment,
 the node with the lowest index is always the result of the agent taking no action. This makes it visually
 clear when the agent cannot figure out a path forward.
-
+- `backprop_decay: float`: Defaults to 1, discount factor applied to rewards when backpropagating up
+the tree.
+- `constant_action_space: bool`: Defaults to `True`, if `True`, will only call `get_legal_actions`
+once and save the result.
 
 The return value of MCTS is an algorithm initialized with a root node. Each algorithm in mctslib
-exposes one method: `alg.move`. 
+exposes five methods: `search_using_iters`, `search_using_cpu_time`, `choose`, `choose_best_node`,
+and `get_global_stats`.
 
 ```python
-# Signature of move for MCTS as it appears from Python
+# Signature of methods on MCTS as it appears from Python
 
 class MCTS:
-    def move(self, *, rollout_depth: int, cpu_time: float, exploration_weight: float) -> Node:
+    def search_using_iters(self, *, rollout_depth: int, iters: int, exploration_weight: float) -> Node:
+        ...
+
+    def search_using_cpu_time(self, *, rollout_depth: int, cpu_time: float, exploration_weight: float) -> Node:
+        ...
+
+    def choose_node(self, node) -> Node:
+        ...
+
+    def choose_best_node(self) -> Node:
+        ...
+
+    def get_global_stats(self) -> dict:
         ...
 ```
 
-For MCTS, move also takes several options:
-
-- `rollout_depth`: Defines the depth of simulations that occur during each rollout.
-- `cpu_time` or `iters`: The amount of CPU time or number of iterations used per move.
-- `exploration_weight`: Sometimes referred to as C, this decides how much the algorithm will bias
-exploration or exploitation. A common value is `sqrt(2)` for games in which rewards are between 0 and 1.
 
 
 

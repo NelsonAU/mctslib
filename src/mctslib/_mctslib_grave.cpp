@@ -1,7 +1,7 @@
 #include <pybind11/pybind11.h>
 
 #include "algorithms/grave.h"
-#include "bindings/python_node.h"
+#include "nodes/python_node.h"
 
 using namespace mctslib;
 
