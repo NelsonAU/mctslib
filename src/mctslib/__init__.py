@@ -44,7 +44,6 @@ def RAVE(root, *, max_action_value: int, equivalence_param: int, backprop_decay:
     Used to fetch and initialize the appropriate RAVE implementation from the submodule.
     """
 
-
     if structure not in ("tree", "dag"):
         raise ValueError(f"Argument structure must be 'tree' or 'dag', not {structure}")
 

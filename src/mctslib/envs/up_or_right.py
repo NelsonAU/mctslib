@@ -31,9 +31,6 @@ class State:
     def is_terminal(self):
         return False
 
-    def __lt__(self, other):
-        return (self.x, self.y) < (other.x, other.y)
-
     def __eq__(self, other):
         return (self.x, self.y) == (other.x, other.y)
 
@@ -42,7 +39,3 @@ class State:
 
     def __repr__(self):
         return f"State<self.x={self.x}, self.y={self.y}, self.eval={self._evaluation} self.action={self.action_id}>"
-
-    @staticmethod
-    def get_action_space_size():
-        return 2

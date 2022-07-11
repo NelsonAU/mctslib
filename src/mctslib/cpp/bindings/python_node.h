@@ -88,11 +88,6 @@ public:
         pybind11::print(state);
     }
 
-    friend bool operator<(const PythonNode& lhs, const PythonNode& rhs)
-    {
-        return lhs.state < rhs.state;
-    }
-
     friend bool operator==(const PythonNode& lhs, const PythonNode& rhs)
     {
         return lhs.state.equal(rhs.state);
