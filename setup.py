@@ -1,8 +1,8 @@
 from glob import glob
 from pathlib import Path
-from setuptools import setup, find_packages
 from pybind11.setup_helpers import Pybind11Extension
 import os
+from setuptools import setup, find_packages
 
 
 def find_ext_modules(**kwargs):
