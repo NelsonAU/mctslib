@@ -1,7 +1,34 @@
 # mctslib
 
+mctslib is a library that provides several variants of Monte Carlo Tree Search
+(MCTS). Currently implemented:
+
+- Standard MCTS / upper confidence bounds for trees (UCT)
+- Three "rapid value estimation" variants of MCTS:
+  - Rapid Action Value Estimation (RAVE)
+  - Generalized Rapid Action Value Estimation (GRAVE)
+  - HRAVE, a limit case of GRAVE in which the `ref` parameter is set to infinity
+
+There is also a Monte Carlo Graph Search variant of each of the algorithms.
+Compared to tree search, the graph search version collapses identical nodes
+encountered through different paths, turning the search space into a directed
+graph rather than tree. This uses more memory, and requires that nodes be
+hashable, but may speed up convergence to good estimates in some domains.
+However the graph search is less tested and subject to change.
+
+The library is implemented in C++, but primarily (at least for now) intended to
+be used from the Python bindings. Users can both define domains and call MCTS
+search from Python.
+
+## Install
+The Python package will be on PyPI soon, but in the meantime you can install it
+directly from GitHub using:
+```sh
+$ python3 -m pip install git+https://github.com/NelsonAU/mctslib.git
+```
+
 ## Development setup
-To do development on this project
+To do development on this project, clone and run:
 ```sh
 $ python3 setup.py develop # setup.py will build and install development version
 ```
@@ -115,11 +142,38 @@ class MCTS:
         ...
 ```
 
+## TODOs
 
+A few improvements or new features that we have on the roadmap:
 
+- Add some better examples and demos.
 
+- Improve the C++ interface. mctslib is currently targeted primarily at use
+  from Python and is a bit verbose to use from C++. This should not be too hard
+  to improve.
 
+- Implement more MCTS variants, such as some of the alternatives to UCT that
+  have been proposed.
 
+- Investigate Monte Carlo Graph Search variants. We have an initial
+  implementation, but this is an active area of research.
 
+- Add online tuning of hyperparameters, perhaps following an approach like that
+  of: Sironi, Chiara F., et al. Self-adaptive MCTS for general video game
+  playing. EvoApplications 2018.
 
+- Investigate parallelization. MCTS in general parallelizes well, but it's
+  somewhat tricky to do in a way that plays nicely with Python's global
+  interpreter lock.
+
+## Credits
+
+Developed by David Dunleavy for his masters thesis at [American
+University](https://www.american.edu/cas/cs/), supervised by [Mark
+Nelson](https://www.kmjn.org/). Currently maintained by David and Mark.
+
+This material is based upon work supported by the National Science Foundation
+under Grant No. 1948017. Any opinions, findings, and conclusions or
+recommendations expressed in this material are those of the author(s) and do
+not necessarily reflect the views of the National Science Foundation.
 
