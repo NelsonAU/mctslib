@@ -1,10 +1,12 @@
 # mctslib
 
 mctslib is a library that provides several variants of Monte Carlo Tree Search
-(MCTS). Currently implemented:
+(MCTS).
+
+Currently implemented:
 
 - Standard MCTS / upper confidence bounds for trees (UCT)
-- Three "rapid value estimation" variants of MCTS:
+- Three "rapid action value estimation" variants of MCTS:
   - Rapid Action Value Estimation (RAVE)
   - Generalized Rapid Action Value Estimation (GRAVE)
   - HRAVE, a limit case of GRAVE in which the `ref` parameter is set to infinity
