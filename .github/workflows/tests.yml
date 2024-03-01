@@ -9,7 +9,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        compiler: [clang++, gcc]
+        # mjn 3/1/2024: disabled clang tests for now because clang c++-20 is
+        # broken on GitHub CI, see
+        # https://github.com/actions/runner-images/issues/8659
+        #        compiler: [clang++, gcc]
+        compiler: [gcc]
         os: [ubuntu-latest]
         python-version: ['3.8', '3.9', '3.10', '3.11']
     env:
